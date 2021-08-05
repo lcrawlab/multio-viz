@@ -11,16 +11,15 @@ The goal of our project is to build an interactive gene regulatory network appli
 - visNetwork package
 - BIOGRINN data
 
-## How to Run App
 1. Install R and RStudio
-2. Download the "edge.csv" and "nodes.csv" dataframes 
-3. Open the "visNet_Rshiny_script" file located in this repo in RStudio
-4. Highlight lines 1-2 and click "Run selected lines" in the RStudio Code menu
-5. Repeat Step 4 for lines 4-19
-5. Repeat Step 4 for line 21
+2. Create a nodes data frame with the following columns: "id", "name", "pip", "type"
+3. Paste the "visNet_Rshiny_script" file located in this repo in RStudio
+4. Replace file path with file path for your data frame
+4. Run app
 
 ## Usage
-For our interactive app, the nodes represent genes in the network and the edges represent interactions between genes. The size of the gene nodes are weighted by their posterior inclusion propabilities obtained from BIOGRINN. To use, click on a node to highlight the node and all edges connected to the node. Hover over a node to show the gene number. 
+For our interactive app, the nodes represent genes in the network and the edges represent interactions between genes. The size of the gene nodes are weighted by their posterior inclusion propabilities obtained from BIOGRINN. To use, hover over a node to highlight the node and all edges connected to the node, and to view a popup of the gene name. Users can select by gene id and by omics type with dropdown menus. With the edit button, users can add notes, edges, and notes after the app is created. 
+
 
  
 
