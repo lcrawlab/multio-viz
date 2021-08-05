@@ -11,6 +11,7 @@ The goal of our project is to build an interactive gene regulatory network appli
 - visNetwork package
 - BIOGRINN data
 
+## How to Run App
 1. Install R and RStudio
 2. Create a nodes data frame with the following columns: "id", "name", "pip", "type"
 3. Paste the "visNet_Rshiny_script" file located in this repo in RStudio
