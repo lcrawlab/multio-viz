@@ -29,12 +29,17 @@ server <- function(input, output) {
         
         nodes$title  <- nodes$name
         nodes$size   <- nodes$pip*20
-        nodes$color <- ifelse(nodes$type == "DNA", "blue", ifelse(nodes$type == "RNA", "red", "purple"))
         edges$color <- "lightblue"
+        palette <- colorRampPalette(c("lightblue", "steelblue4"))
+        nodes$col <- palette(length(nodes))[as.numeric(cut(nodes$pip,breaks = length(nodes)))]
+        nodes$color <- nodes$col
         
         visNetwork(nodes, edges) %>%
             visIgraphLayout() %>%
-            visOptions(highlightNearest = list(enabled =TRUE, degree = 2, hover = T), nodesIdSelection = TRUE, selectedBy= "type", manipulation = TRUE)
+            visOptions(highlightNearest = list(enabled =TRUE, degree = 2, hover = T), nodesIdSelection = TRUE, selectedBy= "type", manipulation = TRUE)%>%
+            visEdges(hoverWidth = 3, selectionWidth = 3) %>%
+            visNodes(borderWidthSelected = 4) %>%
+            visInteraction(tooltipDelay = 0)
         
     })
 }
