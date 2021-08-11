@@ -8,25 +8,27 @@ import plotly.graph_objects as go
 # create sheet 1 from sheet 2
 data1 = pd.read_csv('/Users/helen/Downloads/nodes2b.csv')
 data2 = []
-
 prev_id = None
 length = len(data1.index)
 d2_row = -1
 
 for i in range(length):
-  cur_id = data1.iloc[i][1]
   cur_cpg = data1.iloc[i][0]
-  cur_pip = data1.iloc[i][2]
+  cur_cpg_pip = data1.iloc[i][1]
+  cur_id = data1.iloc[i][2]
+  cur_pip = data1.iloc[i][3]
+
   # if i = 0 or if cur_id =/ prev_id or --> make new row \ else change existing row
   if i == 0 or cur_id != prev_id:
-    data2.append([cur_id, cur_pip, cur_cpg])
+    data2.append([cur_id, cur_pip, cur_cpg, cur_cpg_pip])
     d2_row += 1
   else:
     data2[d2_row][2] = data2[d2_row][2] + ", " + cur_cpg
+    data2[d2_row][3] = str(data2[d2_row][3]) + ", " + str(cur_cpg_pip)
   prev_id = cur_id
 
 nodes = pd.DataFrame(data2)
-nodes.columns = ['id', 'pip', 'cpg']
+nodes.columns = ['id', 'pip', 'cpg', 'cpg_pip']
 
 # creating edgelist from node data
 nodeids = nodes['id'].tolist()
@@ -55,6 +57,7 @@ H = nx.from_pandas_edgelist(edges, 'from', 'to')
 # setting node attributes
 nx.set_node_attributes(H, nodes.set_index('id')['cpg'].to_dict(), 'cpg')
 nx.set_node_attributes(H, nodes.set_index('id')['pip'].to_dict(), 'pip')
+nx.set_node_attributes(H, nodes.set_index('id')['cpg_pip'].to_dict(), 'cpg_pip')
 
 # filter nodes by pip score threshold and create subgraph
 selected_nodes = [n for n,v in H.nodes(data=True) if v['pip'] >= 0.55]
@@ -63,6 +66,7 @@ G = H.subgraph(selected_nodes)
 # setting node attributes
 nx.set_node_attributes(G, nodes.set_index('id')['cpg'].to_dict(), 'cpg')
 nx.set_node_attributes(G, nodes.set_index('id')['pip'].to_dict(), 'pip')
+nx.set_node_attributes(G, nodes.set_index('id')['cpg_pip'].to_dict(), 'cpg_pip')
 
 # set node positions and graph layout
 pos = nx.spring_layout(G)
@@ -95,7 +99,7 @@ hover = []
 size = []
 for node in G.nodes():
     x, y = G.nodes[node]['pos']
-    hovertext = "CpG Sites: " + str(G.nodes[node]['cpg'])
+    hovertext = "CpG Site(s): " + str(G.nodes[node]['cpg']) + "<br>" + "PIP Score(s): " + str(G.nodes[node]['cpg_pip'])
     s = float(G.nodes[node]['pip'])
     node_x.append(x)
     node_y.append(y)
