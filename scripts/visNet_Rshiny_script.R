@@ -1,13 +1,15 @@
 install.packages('visNetwork')
 install.packages('s2dverification')
-library('shiny')
-library('visNetwork')
+install.packages("shiny")
+install.packages("igraph")
+library(shiny)
+library(visNetwork)
 library(s2dverification)
+library(igraph)
+getwd()
 
 #replace this file path with file path for your dataframe
-my_path = 'downloads/nodes2.csv'
-
-print("TEST")
+my_path = "/Users/helen/Downloads/nodes2b.csv"
 
 server <- function(input, output) {
   output$colorbar <- renderPlot({
@@ -53,15 +55,15 @@ server <- function(input, output) {
       prev_id = cur_id
     }
     
-    nodes <- as.data.frame(data2, stringsAsFactors = FALSE)
+    nodes <<- as.data.frame(data2, stringsAsFactors = FALSE)
     colnames(nodes) <- c('id', 'pip', 'cpg', 'cpg_pip')
     
     nodes$pip <- as.numeric(nodes$pip)
     
     #create edgelist
-    genes <- nodes$id
+    genes <<- nodes$id
     rownumber = 1
-    len = length(genes)
+    len <<- length(genes)
     iterations = len*(len-1)/2
     edgelist <- matrix(nrow = iterations, ncol = 2)
     
@@ -85,7 +87,6 @@ server <- function(input, output) {
     edges$color <- "lightblue"
     palette <- colorRampPalette(c("lightblue", "steelblue4"))
     nodes$col <- palette(length(nodes))[as.numeric(cut(nodes$pip, breaks = length(nodes)))]
-    print(nodes$pip)
     nodes$color <- nodes$col
     
     #default graph
@@ -98,57 +99,12 @@ server <- function(input, output) {
     
   })
   output$subgraph <- renderVisNetwork({
-    #create node dataframe
-    data1 <- read.csv(file = my_path, header=T, as.is=T)
-    data2 <- matrix(ncol = 4)
-    prev_id = NULL
-    length = nrow(data1)
-    d2_row = 0
-    
-    for (i in 1:length)
-    {
-      cur_cpg = as.character(data1[i, 1])
-      cur_cpg_pip = data1[i, 2]
-      cur_id = data1[i, 3]
-      cur_pip = data1[i, 4]
-      
-      if (i == 1)
-      {
-        data2[d2_row + 1, 1] <- cur_id
-        data2[d2_row + 1, 2] <- cur_pip
-        data2[d2_row + 1, 3] <- cur_cpg
-        data2[d2_row + 1, 4] <- cur_cpg_pip
-        d2_row = d2_row + 1
-      }
-      else if (cur_id != prev_id)
-      {
-        data2 <- rbind(data2, c(0, 0, 0, 0))
-        data2[d2_row + 1, 1] <- cur_id
-        data2[d2_row + 1, 2] <- cur_pip
-        data2[d2_row + 1, 3] <- cur_cpg
-        data2[d2_row + 1, 4] <- cur_cpg_pip
-        d2_row = d2_row + 1
-      }
-      else 
-      {
-        data2[d2_row, 3] = paste(data2[d2_row, 3], ",", cur_cpg, sep="")
-        data2[d2_row, 4] = paste(data2[d2_row, 4], ", ", cur_cpg_pip, sep="")
-      }
-      prev_id = cur_id
-    }
-    
-    nodes <- as.data.frame(data2, stringsAsFactors = FALSE)
-    colnames(nodes) <- c('id', 'pip', 'cpg', 'cpg_pip')
-    
-    nodes$pip <- as.numeric(nodes$pip)
-    is.numeric(nodes$pip)
-    
     #create nodes dataframe for subgraph
     nodes2 <- data.frame(matrix(ncol = 4))
     k = 1
     for (i in 1:len)
     {
-      if (nodes$pip[i] > 0.60)
+      if (nodes$V2[i] > 0.60) # nodes
       {
         nodes2[k, ] <- nodes[i, ]
         k = k+1
@@ -163,7 +119,7 @@ server <- function(input, output) {
     iterations2 = len2*(len2-1)/2
     edgelist2 <- matrix(nrow = iterations2, ncol = 2)
     
-    for (i in 1:(len-1)) 
+    for (i in 1:(len2-1)) 
     {
       val <- genes2[i]
       for (j in 1:(len2-i)) 
@@ -175,8 +131,8 @@ server <- function(input, output) {
       }
     }
     edges2 <- as.data.frame(edgelist2)
-    edges2
     colnames(edges2) <- c('from', 'to')
+    nodes2$pip = as.numeric(nodes2$pip)
     
     #assign node and edges attributes for subgraph
     nodes2$title  <- nodes2$cpg
