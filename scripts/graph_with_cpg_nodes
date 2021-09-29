@@ -1,0 +1,61 @@
+install.packages('visNetwork')
+install.packages('s2dverification')
+library(visNetwork)
+library(s2dverification)
+
+#create node dataframe
+gene_file <- read.csv(file = 'downloads/gene_list.csv', header=T, as.is=T)
+cpg_file <- read.csv(file = 'downloads/cpg_list.csv', header=T, as.is=T)
+bed_file <- read.csv(file = 'downloads/gene_to_cpg_map.csv', header=T, as.is=T)
+
+gene_list <- as.data.frame(gene_file, stringsAsFactors = FALSE)
+cpg_list <- as.data.frame(cpg_file, stringsAsFactors = FALSE)
+mapping <- as.data.frame(bed_file, stringsAsFactors = FALSE)
+
+gene_list['group'] = 'a'
+cpg_list['group'] = 'b'
+
+nodes <- rbind(gene_list, cpg_list)
+nodes
+
+nodes$feature <- as.numeric(nodes$feature)
+is.numeric(nodes$feature)
+
+#create edge list
+gene_col <- gene_list$id
+rownumber = 1
+len = length(gene_col)
+iterations = len*(len-1)/2
+gene_edges <- matrix(nrow = iterations, ncol = 2)
+
+for (i in 1:(len-1)) 
+{
+  val <- gene_col[i]
+  for (j in 1:(len-i)) 
+  { 
+    val2 <- gene_col[j+i]
+    gene_edges[rownumber, 1] = val
+    gene_edges[rownumber, 2] = val2
+    rownumber = rownumber + 1
+  }
+}
+edge_list <- as.data.frame(gene_edges)
+colnames(edge_list) <- c('from', 'to')
+edges <- rbind(edge_list, mapping)
+edges
+nodes
+
+#assign node and edges attributes for default graph
+nodes$size   <- nodes$feature*30
+edges$color <- "black"
+
+#default graph
+visNetwork(nodes, edges) %>%
+  visIgraphLayout(layout = "layout_with_kk") %>%
+  visOptions(highlightNearest = list(enabled =TRUE, degree = 2, hover = T), nodesIdSelection = TRUE, manipulation = TRUE)%>%
+  visEdges(hoverWidth = 3, selectionWidth = 3) %>%
+  visNodes(labelHighlightBold = TRUE, borderWidthSelected = 4) %>%
+  visGroups(groupname = "a", color = "orange", shape = "circle") %>%
+  visGroups(groupname = "b", color = "blue", shape = "triangle")
+  
+
