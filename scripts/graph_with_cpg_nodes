@@ -1,7 +1,5 @@
 install.packages('visNetwork')
-install.packages('s2dverification')
 library(visNetwork)
-library(s2dverification)
 
 #create node dataframe
 gene_file <- read.csv(file = 'downloads/gene_list.csv', header=T, as.is=T)
@@ -14,6 +12,12 @@ mapping <- as.data.frame(bed_file, stringsAsFactors = FALSE)
 
 gene_list['group'] = 'a'
 cpg_list['group'] = 'b'
+
+gene_palette <- colorRampPalette(c("lightblue", "steelblue4"))
+gene_list$color <- gene_palette(length(gene_list))[as.numeric(cut(gene_list$feature, breaks = length(gene_list)))]
+
+cpg_palette <- colorRampPalette(c("yellow2","goldenrod","darkred"))
+cpg_list$color <- cpg_palette(length(cpg_list))[as.numeric(cut(cpg_list$feature, breaks = length(cpg_list)))]
 
 nodes <- rbind(gene_list, cpg_list)
 nodes
@@ -52,10 +56,26 @@ edges$color <- "black"
 #default graph
 visNetwork(nodes, edges) %>%
   visIgraphLayout(layout = "layout_with_kk") %>%
-  visOptions(highlightNearest = list(enabled =TRUE, degree = 2, hover = T), nodesIdSelection = TRUE, manipulation = TRUE)%>%
+  visOptions(highlightNearest = list(enabled =TRUE, degree = 2, hover = T), nodesIdSelection = TRUE, selectedBy = list(variable = "group", highlight = TRUE),
+manipulation = TRUE)%>%
   visEdges(hoverWidth = 3, selectionWidth = 3) %>%
-  visNodes(labelHighlightBold = TRUE, borderWidthSelected = 4) %>%
+  visNodes(label = NULL, labelHighlightBold = TRUE, borderWidthSelected = 4) %>%
   visGroups(groupname = "a", color = "orange", shape = "circle") %>%
-  visGroups(groupname = "b", color = "blue", shape = "triangle")
+  visGroups(groupname = "b", color = "blue", shape = "triangle") 
+
+# Function to plot color bar
+color.bar <- function(lut, min, max, nticks=11, ticks=seq(min, max, len=nticks), title='') {
+  scale = (length(lut)-1)/(max-min)
   
+  dev.new(width=1.75, height=5)
+  plot(c(0,10), c(min,max), type='n', bty='n', xaxt='n', xlab='', yaxt='n', ylab='', main=title)
+  axis(2, ticks, las=1)
+  for (i in 1:(length(lut)-1)) {
+    y = (i-1)/scale + min
+    rect(0,y,10,y+1/scale, col=lut[i], border=NA)
+  }
+}
+
+color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
+color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
 
