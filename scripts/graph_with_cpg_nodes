@@ -85,7 +85,7 @@ gene_list2 <- data.frame(matrix(ncol = 5))
 k = 1
 for (i in 1:length(gene_list$id))
 {
-  if (gene_list$feature[i] > 0.50)
+  if (gene_list$feature[i] > 0.80)
   {
     gene_list2[k, ] <- gene_list[i, ]
     k = k+1
@@ -97,7 +97,7 @@ cpg_list2 <- data.frame(matrix(ncol = 5))
 k = 1
 for (i in 1:length(cpg_list$id))
 {
-  if (cpg_list$feature[i] > 0.50)
+  if (cpg_list$feature[i] > 0.80)
   {
     cpg_list2[k, ] <- cpg_list[i, ]
     k = k+1
@@ -133,7 +133,7 @@ for (i in 1: nrow(mapping))
 {
   if ((mapping[i, 1] %in% gene_list2$id) & (mapping[i, 2] %in% cpg_list2$id))
       {
-        edges = rbind(edgelist2, mapping[i,])
+        edgelist2 = rbind(edgelist2, mapping[i,])
   }
 }
 
