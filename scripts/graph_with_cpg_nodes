@@ -50,7 +50,7 @@ edges
 nodes
 
 #assign node and edges attributes for default graph
-nodes$size   <- nodes$feature*30
+nodes$size <- nodes$feature*30
 edges$color <- "black"
 
 #default graph
@@ -78,4 +78,62 @@ color.bar <- function(lut, min, max, nticks=11, ticks=seq(min, max, len=nticks),
 
 color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
 color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
+
+#SUBGRAPH
+#create nodes dataframe for subgraph
+gene_list2 <- data.frame(matrix(ncol = 5))
+k = 1
+for (i in 1:length(gene_list$id))
+{
+  if (gene_list$feature[i] > 0.50)
+  {
+    gene_list2[k, ] <- gene_list[i, ]
+    k = k+1
+  }
+}
+colnames(gene_list2) <- c('feature', 'id', 'group', 'color', 'size')
+
+cpg_list2 <- data.frame(matrix(ncol = 5))
+k = 1
+for (i in 1:length(cpg_list$id))
+{
+  if (cpg_list$feature[i] > 0.50)
+  {
+    cpg_list2[k, ] <- cpg_list[i, ]
+    k = k+1
+  }
+}
+colnames(cpg_list2) <- c('feature', 'id', 'group', 'color', 'size')
+nodes2 <- rbind(gene_list2, cpg_list2)
+
+#create edgelist2
+genes2 <- gene_list2$id
+rownumber2 = 1
+len2 = length(genes2)
+iterations2 = len2*(len2-1)/2
+edgelist2 <- matrix(nrow = iterations2, ncol = 2)
+
+for (i in 1:(len2-1)) 
+{
+  val <- genes2[i]
+  for (j in 1:(len2-i)) 
+  { 
+    val2 <- genes2[j+i]
+    edgelist2[rownumber2, 1] = val
+    edgelist2[rownumber2, 2] = val2
+    rownumber2 = rownumber2 + 1
+  }
+}
+
+edgelist2 = as.data.frame(edgelist2)
+colnames(edgelist2) = c("from", "to")
+
+# create bed file for 
+for (i in 1: nrow(mapping))
+{
+  if ((mapping[i, 1] %in% gene_list2$id) & (mapping[i, 2] %in% cpg_list2$id))
+      {
+        edges = rbind(edgelist2, mapping[i,])
+  }
+}
 
