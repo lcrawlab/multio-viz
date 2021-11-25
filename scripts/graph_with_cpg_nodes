@@ -4,9 +4,9 @@ library(visNetwork)
 #create node dataframe
 
 default_graph <- function(){
-  gene_file <- read.csv(file = 'downloads/gene_list.csv', header=T, as.is=T)
-  cpg_file <- read.csv(file = 'downloads/cpg_list.csv', header=T, as.is=T)
-  bed_file <- read.csv(file = 'downloads/gene_to_cpg_map.csv', header=T, as.is=T)
+  gene_file <- read.csv(file = '/Users/helen/Downloads/gene_list.csv', header=T, as.is=T)
+  cpg_file <- read.csv(file = '/Users/helen/Downloads/cpg_list.csv', header=T, as.is=T)
+  bed_file <- read.csv(file = '/Users/helen/Downloads/gene_to_cpg_map.csv', header=T, as.is=T)
   
   gene_list <- as.data.frame(gene_file, stringsAsFactors = FALSE)
   cpg_list <- as.data.frame(cpg_file, stringsAsFactors = FALSE)
@@ -78,9 +78,9 @@ color.bar <- function(lut, min, max, nticks=11, ticks=seq(min, max, len=nticks),
     rect(0,y,10,y+1/scale, col=lut[i], border=NA)
   }
 }
+color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
 
 color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
-color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
 
 #SUBGRAPH
 #create nodes dataframe for subgraph
