@@ -7,6 +7,12 @@ getwd()
 source('~/multio-viz/scripts/new_visnet.R')
 #source("./scripts/new_visnet.R")
 
+# Ashley's suggestions:
+# Go to file in top left corner in R Studio.
+# Select save with encoding
+# select UTF-8
+# ref: https://stackoverflow.com/questions/46897384/shiny-app-error-sourcing-debug
+
 server <- function(input, output) {
   pip_threshold <- reactiveVal(0)
   
@@ -34,7 +40,7 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      sliderInput("slider", h3("Set PiP Threhold"),
+      sliderInput("slider", h3("Set PIP Threhold"),
                   min = 0, max = 1, value = 0)
     ),
     mainPanel(
