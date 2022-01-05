@@ -8,7 +8,7 @@ getwd()
 source("./scripts/graph_functions.R")
 
 server <- function(input, output) {
-  pip_threshold <- reactiveVal(0)
+  pip_threshold <- reactiveVal(0.5)
 
   observeEvent(input$slider, {
     pip_threshold()
@@ -20,7 +20,7 @@ server <- function(input, output) {
 }
 
 ui <- fluidPage(
-  colorbar <- readImage("/Users/helen/Downloads/colorbar"), 
+  colorbar <- renderImage("./colorbar.png"), 
   
   titlePanel("Multioviz"),
   
@@ -32,7 +32,6 @@ ui <- fluidPage(
     mainPanel(
       fluidRow(
         imageOutput("colorbar")
-        
       ),
       fluidRow(
         visNetworkOutput("subgraph")
