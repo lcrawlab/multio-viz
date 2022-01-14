@@ -6,12 +6,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxt-dev \
     libssl-dev \
     libssh2-1-dev \
-    visNetwork \
     && rm -rf /var/lib/apt/lists/*
+    
 RUN install.r shiny
 COPY Rshiny.R /srv/shiny-server
 COPY scripts /srv/shiny-server
 COPY colorbar.png /srv/shiny-server
+
 EXPOSE 3838
 RUN sudo chown -R shiny:shiny /srv/shiny-server
 CMD ["R", "-e", "shiny::runApp('/home/app')"]
