@@ -1,4 +1,4 @@
-install.packages('visNetwork')
+#install.packages('visNetwork')
 library(visNetwork)
 
 #create node dataframe
@@ -6,7 +6,7 @@ library(visNetwork)
 default_graph <- function(){
   gene_file <- read.csv(file = './data/gene_list.csv', header=T, as.is=T)
   cpg_file <- read.csv(file = './data/cpg_list.csv', header=T, as.is=T)
-  bed_file <- read.csv(file = './gene_to_cpg_map.csv', header=T, as.is=T)
+  bed_file <- read.csv(file = './data/gene_to_cpg_map.csv', header=T, as.is=T)
   
   gene_list <- as.data.frame(gene_file, stringsAsFactors = FALSE)
   cpg_list <- as.data.frame(cpg_file, stringsAsFactors = FALSE)

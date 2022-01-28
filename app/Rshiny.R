@@ -2,10 +2,12 @@
 #install.packages("shiny")
 library(shiny)
 library(visNetwork)
-library(shiny)
 getwd()
 #source('~/multio-viz/scripts/Rshiny.R')
-source("./scripts/graph_functions.R")
+app_dir <- getwd()
+source(paste(app_dir, "/scripts/graph_functions.R", sep = ""))
+
+
 
 server <- function(input, output) {
   pip_threshold <- reactiveVal(0.5)
@@ -20,7 +22,7 @@ server <- function(input, output) {
 }
 
 ui <- fluidPage(
-  colorbar <- renderImage("./colorbar.png"), 
+  colorbar <- renderImage("./app/www/colorbar.png"), 
   
   titlePanel("Multioviz"),
   

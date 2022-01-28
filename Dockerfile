@@ -1,4 +1,5 @@
-FROM rocker/r-base:latest
+FROM rocker/r-base:latest ## * if you change this to shiny base image
+RUN mkdir -p /srv/shiny-server
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     libcurl4-gnutls-dev \
@@ -6,14 +7,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxt-dev \
     libssl-dev \
     libssh2-1-dev \
-    visNetwork \
-    && rm -rf /var/lib/apt/lists/*
+RUN R -e "install.packages('visNetwork', repos='http://cran.rstudio.com/')"
 RUN install.r shiny
-COPY Rshiny.R /srv/shiny-server
-COPY scripts /srv/shiny-server
-COPY colorbar.png /srv/shiny-server
+COPY app /srv/shiny-server
+COPY data /srv/shiny-server
 EXPOSE 3838
-RUN sudo chown -R shiny:shiny /srv/shiny-server
-CMD ["R", "-e", "shiny::runApp('/home/app')"]
+#RUN sudo chown -R shiny:shiny /srv/shiny-server ## *
+CMD ["R", "-e", "shiny::runApp("/srv/shiny-server/app/Rshiny.R")"]
 CMD ["/usr/bin/shiny-server.sh"]
+#CMD [runApp("/srv/shiny-server/app/Rshiny.R")]
 
