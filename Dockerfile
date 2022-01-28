@@ -11,7 +11,7 @@ RUN R -e "install.packages('visNetwork', repos='http://cran.rstudio.com/')"
 RUN install.r shiny
 COPY app /srv/shiny-server
 COPY data /srv/shiny-server
-EXPOSE 3838
+#EXPOSE 3838
 #RUN sudo chown -R shiny:shiny /srv/shiny-server ## *
 CMD ["R", "-e", "shiny::runApp("/srv/shiny-server/app/Rshiny.R")"]
 CMD ["/usr/bin/shiny-server.sh"]
