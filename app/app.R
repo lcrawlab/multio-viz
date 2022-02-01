@@ -2,10 +2,10 @@
 #install.packages("shiny")
 library(shiny)
 library(visNetwork)
-getwd()
+print(getwd())(.)
 #source('~/multio-viz/scripts/Rshiny.R')
 app_dir <- getwd()
-source(paste(app_dir, "/scripts/graph_functions.R", sep = ""))
+source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 
 
 
@@ -18,6 +18,7 @@ server <- function(input, output) {
   
   output$subgraph <- renderVisNetwork({
     subgraph(pip_threshold())
+    par(mar=c(1,1,1,1))
     })
 }
 
