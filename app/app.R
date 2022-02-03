@@ -2,12 +2,17 @@
 #install.packages("shiny")
 library(shiny)
 library(visNetwork)
-print(getwd())(.)
-#source('~/multio-viz/scripts/Rshiny.R')
 app_dir <- getwd()
+#print(getwd())(.)
+#source('~/multio-viz/scripts/Rshiny.R')
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 
-
+# Use this to test
+# ui <- fluidPage(
+#   "Hello, world!"
+# )
+# server <- function(input, output, session) {
+# }
 
 server <- function(input, output) {
   pip_threshold <- reactiveVal(0.5)
@@ -35,12 +40,15 @@ ui <- fluidPage(
     mainPanel(
       fluidRow(
         imageOutput("colorbar")
+#         "Hi"
       ),
       fluidRow(
         visNetworkOutput("subgraph")
+#        "Hi2"
       )
     )
   )
 )
 
-shinyApp(ui = ui, server = server)
+#shinyApp(ui = ui, server = server)
+shinyApp(ui, server)
