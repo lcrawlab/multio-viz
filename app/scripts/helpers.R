@@ -4,9 +4,9 @@ library(visNetwork)
 #create node dataframe
 
 default_graph <- function(){
-  gene_file <- read.csv(file = './data/gene_list.csv', header=T, as.is=T)
-  cpg_file <- read.csv(file = './data/cpg_list.csv', header=T, as.is=T)
-  bed_file <- read.csv(file = './data/gene_to_cpg_map.csv', header=T, as.is=T)
+  gene_file <- read.csv(file = '../data/gene_list.csv', header=T, as.is=T)
+  cpg_file <- read.csv(file = '../data/cpg_list.csv', header=T, as.is=T)
+  bed_file <- read.csv(file = '../data/gene_to_cpg_map.csv', header=T, as.is=T)
   
   gene_list <- as.data.frame(gene_file, stringsAsFactors = FALSE)
   cpg_list <- as.data.frame(cpg_file, stringsAsFactors = FALSE)
@@ -82,9 +82,9 @@ default_graph <- function(){
 #SUBGRAPH
 #create nodes dataframe for subgraph
 subgraph <- function(thres){
-  gene_file <- read.csv(file = './data/gene_list.csv', header=T, as.is=T)
-  cpg_file <- read.csv(file = './data/cpg_list.csv', header=T, as.is=T)
-  bed_file <- read.csv(file = './data/gene_to_cpg_map.csv', header=T, as.is=T)
+  gene_file <- read.csv(file = '../data/gene_list.csv', header=T, as.is=T)
+  cpg_file <- read.csv(file = '../data/cpg_list.csv', header=T, as.is=T)
+  bed_file <- read.csv(file = '../data/gene_to_cpg_map.csv', header=T, as.is=T)
   
   gene_list <- as.data.frame(gene_file, stringsAsFactors = FALSE)
   cpg_list <- as.data.frame(cpg_file, stringsAsFactors = FALSE)
@@ -145,13 +145,16 @@ subgraph <- function(thres){
       edgelist2 = rbind(edgelist2, mapping[i,])
     }
   }
-  
-  visNetwork(nodes2, edgelist2) %>%
-    visIgraphLayout(layout = "layout_with_kk") %>%
-    visOptions(highlightNearest = list(enabled =TRUE, degree = 2, hover = T), nodesIdSelection = TRUE, selectedBy = list(variable = "group", highlight = TRUE),
-               manipulation = TRUE)%>%
-    visEdges(hoverWidth = 3, selectionWidth = 3) %>%
-    visNodes(label = NULL, labelHighlightBold = TRUE, borderWidthSelected = 4) %>%
-    visGroups(groupname = "a", color = "orange", shape = "circle") %>%
-    visGroups(groupname = "b", color = "blue", shape = "triangle") 
+  #print("here")
+  #print(nodes2)
+  #print(edgelist2)
+  return(list(nodes=nodes2, edges=edgelist2))
+  # visNetwork(nodes2, edgelist2) %>%
+  #   visIgraphLayout(layout = "layout_with_kk") %>%
+  #   visOptions(highlightNearest = list(enabled =TRUE, degree = 2, hover = T), nodesIdSelection = TRUE, selectedBy = list(variable = "group", highlight = TRUE),
+  #              manipulation = TRUE)%>%
+  #   visEdges(hoverWidth = 3, selectionWidth = 3) %>%
+  #   visNodes(label = NULL, labelHighlightBold = TRUE, borderWidthSelected = 4) %>%
+  #   visGroups(groupname = "a", color = "orange", shape = "circle") %>%
+  #   visGroups(groupname = "b", color = "blue", shape = "triangle") 
 }
