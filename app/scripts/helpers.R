@@ -22,7 +22,6 @@ default_graph <- function(){
   cpg_list$color <- cpg_palette(length(cpg_list))[as.numeric(cut(cpg_list$feature, breaks = length(cpg_list)))]
   
   nodes <- rbind(gene_list, cpg_list)
-  nodes
   
   nodes$feature <- as.numeric(nodes$feature)
   is.numeric(nodes$feature)
@@ -48,8 +47,6 @@ default_graph <- function(){
   edge_list <- as.data.frame(gene_edges)
   colnames(edge_list) <- c('from', 'to')
   edges <- rbind(edge_list, mapping)
-  edges
-  nodes
   
   #assign node and edges attributes for default graph
   nodes$size <- nodes$feature*30
@@ -67,20 +64,20 @@ default_graph <- function(){
 }
 
 # Function to plot color bar
-color.bar <- function(lut, min, max, nticks=11, ticks=seq(min, max, len=nticks), title='') {
-  scale = (length(lut)-1)/(max-min)
+#color.bar <- function(lut, min, max, nticks=11, ticks=seq(min, max, len=nticks), title='') {
+  #scale = (length(lut)-1)/(max-min)
   
-  dev.new(width=1, height=5)
-  plot(c(0,10), c(min,max), type='n', bty='n', xaxt='n', xlab='', yaxt='n', ylab='', main=title)
-  axis(2, ticks, las=1)
-  for (i in 1:(length(lut)-1)) {
-    y = (i-1)/scale + min
-    rect(0,y,10,y+1/scale, col=lut[i], border=NA)
-  }
-}
-color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
+ # dev.new(width=1, height=5)
+ # plot(c(0,10), c(min,max), type='n', bty='n', xaxt='n', xlab='', yaxt='n', ylab='', main=title)
+  #axis(2, ticks, las=1)
+  #for (i in 1:(length(lut)-1)) {
+  #  y = (i-1)/scale + min
+ #   rect(0,y,10,y+1/scale, col=lut[i], border=NA)
+ # }
+#}
+#color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
 
-color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
+#color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
 
 #SUBGRAPH
 #create nodes dataframe for subgraph
@@ -158,4 +155,3 @@ subgraph <- function(thres){
     visGroups(groupname = "a", color = "orange", shape = "circle") %>%
     visGroups(groupname = "b", color = "blue", shape = "triangle") 
 }
-
