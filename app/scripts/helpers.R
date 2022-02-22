@@ -1,13 +1,14 @@
 library(visNetwork)
 
-subgraph <- function(){
-  gene_file <- read.csv(file = './data/gene_list.csv', header=T, as.is=T)
-  cpg_file <- read.csv(file = './data/cpg_list.csv', header=T, as.is=T)
-  bed_file <- read.csv(file = './data/gene_to_cpg_map.csv', header=T, as.is=T)
+# function to plot subgraph
+subgraph <- function(df1, df2, df3){
+  #gene_file <- read.csv(file = './data/gene_list.csv', header=T, as.is=T)
+  #cpg_file <- read.csv(file = './data/cpg_list.csv', header=T, as.is=T)
+  #bed_file <- read.csv(file = './data/gene_to_cpg_map.csv', header=T, as.is=T)
   
-  gene_list <- as.data.frame(gene_file, stringsAsFactors = FALSE)
-  cpg_list <- as.data.frame(cpg_file, stringsAsFactors = FALSE)
-  mapping <- as.data.frame(bed_file, stringsAsFactors = FALSE)
+  gene_list <- as.data.frame(df1, stringsAsFactors = FALSE)
+  cpg_list <- as.data.frame(df2, stringsAsFactors = FALSE)
+  mapping <- as.data.frame(df3, stringsAsFactors = FALSE)
   
   colnames(gene_list) <- c('feature', 'id', 'group', 'color', 'size')
   colnames(cpg_list) <- c('feature', 'id', 'group', 'color', 'size')
@@ -82,4 +83,17 @@ subgraph <- function(){
   }
   
   return(list(nodes=nodes2, edges=edgelist2))
+}
+
+# Function to plot color bar
+color.bar <- function(lut, min, max, nticks=11, ticks=seq(min, max, len=nticks), title='') {
+ par(mar=c(1, 1, 1, 1))
+ scale = (length(lut)-1)/(max-min)
+ dev.new(width=.5, height=2.5)
+ plot(c(0,10), c(min,max), type='n', bty='n', xaxt='n', xlab='', yaxt='n', ylab='', main=title)
+ axis(2, ticks, las=1)
+ for (i in 1:(length(lut)-1)) {
+  y = (i-1)/scale + min
+   rect(0,y,10,y+1/scale, col=lut[i], border=NA)
+ }
 }
