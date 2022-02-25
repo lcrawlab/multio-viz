@@ -87,9 +87,8 @@ subgraph <- function(df1, df2, df3){
 
 # Function to plot color bar
 color.bar <- function(lut, min, max, nticks=11, ticks=seq(min, max, len=nticks), title='') {
- par(mar=c(1, 1, 1, 1))
  scale = (length(lut)-1)/(max-min)
- dev.new(width=.5, height=2.5)
+ dev.new(width=1.75, height=5)
  plot(c(0,10), c(min,max), type='n', bty='n', xaxt='n', xlab='', yaxt='n', ylab='', main=title)
  axis(2, ticks, las=1)
  for (i in 1:(length(lut)-1)) {

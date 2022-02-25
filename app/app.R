@@ -54,11 +54,17 @@ server <- function(input, output) {
   
   # colorbar (still working on this!)
   output$colorbar1 <- renderPlot({
-    color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
+    img <- htmltools::capturePlot({
+      color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
+    }, height = 400, width = 400)
+    list(src = img, width = 100, height = 100)
   })
   
-  output$colorbar2 <- renderPlot({
-    color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
+   output$colorbar2 <- renderPlot({
+     img <- htmltools::capturePlot({
+       color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
+     }, height = 400, width = 400)
+     list(src = img, width = 100, height = 100)
   })
 }
 
@@ -80,19 +86,22 @@ ui <- fluidPage(
         textInput("txt3", "statistical_ranking:"))
       ),
       
-      fluidRow(
-      img(src="colorbar.png", align = "left", width = "200px", height = "400px")),
-      
       # fluidRow(
-      #   column(width = 12,plotOutput(
-      #     "colorbar1",
-      #     width = "100%",
-      #     height = "400px")),
-        # column(width = 12, plotOutput(
-        #   "colorbar2",
-        #   width = "100%",
-        #   height = "400px"))
-      #),
+      # img(src="colorbar.png", align = "left", width = "200px", height = "400px")),
+
+      fluidRow(
+        column(width = 4,plotOutput(
+          "colorbar1",
+          # width = "100%",
+          # height = "400px"
+          )
+         ),
+      column(width = 4, plotOutput(
+        "colorbar2",
+        # width = "100%",
+        # height = "400px"
+        ))
+      ),
       
       fluidRow(
         column(width = 4, textInput("txt1", "molecular_level_1:")),
@@ -122,7 +131,7 @@ ui <- fluidPage(
                              "text/comma-separated-values,text/plain",
                              ".csv"))),
       ),
-      tabPanel("View Graph", visNetworkOutput("subgraph", height = "800px", width = "100%"))
+      tabPanel("View Graph", visNetworkOutput("subgraph", height = "800px", width = "100%")),
       )
     )
   )
