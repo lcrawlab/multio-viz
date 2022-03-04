@@ -55,7 +55,7 @@ server <- function(input, output) {
   # colorbar (still working on this!)
   output$colorbar1 <- renderPlot({
     img <- htmltools::capturePlot({
-      color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1)
+      color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1, title='molecular_level_1')
     }, height = 400, width = 400)
     list(src = img, width = 100, height = 100)
   })
@@ -66,6 +66,14 @@ server <- function(input, output) {
      }, height = 400, width = 400)
      list(src = img, width = 100, height = 100)
   })
+   
+   output$TEST <- renderPlot({
+     par(mar=c(1, 1, 1, 1), xpd=TRUE)
+     plot(1:20,20:1,type="l")
+     legend("topright", inset=c(-0.2,0.4), legend=c("A","B"), pch=c(1,3), title="Group")})
+   
+   output$ml1 <- renderText({ input$txt1 })
+   
 }
 
 ui <- fluidPage(  
@@ -73,66 +81,75 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
+      
       fluidRow(
-        sliderInput("slider", "Set PIP Threhold",
-                    min = 0, max = 1, value = 0)),
+        fileInput("file1", "Choose File for Molecular Level 1",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv"))),
+      fluidRow(
+        fileInput("file2", "Choose File for Molecular Level 2",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv"))),
+      
+      fluidRow(
+        fileInput("file3", "Choose Bed File",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv"))),
+      
       fluidRow(
         selectInput("layout", "Select Graph Layout", 
                     choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
                     selected = "layout_with_sugiyama")),
       
       fluidRow(
-        column(width = 4,
-        textInput("txt3", "statistical_ranking:"))
+        sliderInput("slider", "Set Threholding For Molecular Level 1",
+                    min = 0, max = 1, value = 0)),
+      fluidRow(
+        img(src="colorbar1.png", align = "left", width = "440px", height = "50px")),
+      
+      fluidRow(
+        sliderInput("slider2", "Set Threholding for Molecular Level 2",
+                    min = 0, max = 1, value = 0)),
+      fluidRow(
+        img(src="colorbar2.png", align = "left", width = "440px", height = "50px")),
+      
+      fluidRow(
+        textInput("txt1", textOutput("ml1")),
+       # textOutput("ml1"),
       ),
+      
       
       # fluidRow(
-      # img(src="colorbar.png", align = "left", width = "200px", height = "400px")),
-
-      fluidRow(
-        column(width = 4,plotOutput(
-          "colorbar1",
-          # width = "100%",
-          # height = "400px"
-          )
-         ),
-      column(width = 4, plotOutput(
-        "colorbar2",
-        # width = "100%",
-        # height = "400px"
-        ))
-      ),
-      
-      fluidRow(
-        column(width = 4, textInput("txt1", "molecular_level_1:")),
-        column(width = 4, textInput("txt2", "molecular_level_2:"))
-      ),
+      #   column(width = 4,
+      #   textInput("txt3", "statistical_ranking:"))
+      # ),
+      # 
+      # 
+      # fluidRow(
+      #   column(width = 4,plotOutput(
+      #     "colorbar1",
+      #     )
+      #    ),
+      # column(width = 4, plotOutput(
+      #   "colorbar2",
+      #   ))
+      # ),
+      # 
+      # fluidRow(
+      #   column(width = 4, textInput("txt1", "molecular_level_1:")),
+      #   column(width = 4, textInput("txt2", "molecular_level_2:"))
+      # ),
     ),
     
     mainPanel(
-      tabsetPanel(
-      tabPanel("File Input",
-        fluidRow(
-        fileInput("file1", "Choose File for Molecular Level 1",
-                  multiple = FALSE,
-                  accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv"))),
-        fluidRow(
-        fileInput("file2", "Choose File for Molecular Level 3",
-                  multiple = FALSE,
-                  accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv"))),
-        fluidRow(
-        fileInput("file3", "Choose Bed File",
-                  multiple = FALSE,
-                  accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv"))),
-      ),
-      tabPanel("View Graph", visNetworkOutput("subgraph", height = "800px", width = "100%")),
-      )
+    visNetworkOutput("subgraph", height = "800px", width = "100%"),
+      
     )
   )
 )
