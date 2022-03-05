@@ -23,7 +23,7 @@ server <- function(input, output) {
   #reactive expression for pip thresholding
   pip <- reactive(input$slider)
   #build graph from helper function
-  output$subgraph <- renderVisNetwork({
+  output$input_graph <- renderVisNetwork({
     req(input$file1)
     req(input$file2)
     req(input$file3)
@@ -32,6 +32,23 @@ server <- function(input, output) {
     df2 <- read.csv(input$file2$datapath)
     df3 <- read.csv(input$file3$datapath)
 
+    nodes <- nodes %>% mutate(font.size = 40)
+    nodes <- nodes %>% filter(feature > as.double(pip()))
+    
+    visNetwork(nodes, edges) %>%
+      visNodes(label = "id", size = 100, shadow = list(enabled = TRUE, size = 10)) %>%
+      visLayout(randomSeed = 12) %>%
+      visIgraphLayout(input$layout) %>% 
+      visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+      visGroups(groupname = "a", shape = "circle") %>%
+      visGroups(groupname = "b", shape = "triangle") %>%
+      visEvents(doubleClick = "function(nodes) {
+                   Shiny.onInputChange('click', nodes.nodes[0]);
+                   }")
+  })
+  
+  output$our_graph <- renderVisNetwork({
+   
     nodes <- nodes %>% mutate(font.size = 40)
     nodes <- nodes %>% filter(feature > as.double(pip()))
     
@@ -77,7 +94,7 @@ server <- function(input, output) {
 }
 
 ui <- fluidPage(  
-  titlePanel("Multioviz"),
+  titlePanel(tags$img(src = "logo.png", height="8%", width="8%")),
   
   sidebarLayout(
     sidebarPanel(
@@ -148,7 +165,10 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-    visNetworkOutput("subgraph", height = "800px", width = "100%"),
+      tabsetPanel(
+        tabPanel("Example Graph", visNetworkOutput("our_graph", height = "800px", width = "100%")),
+        tabPanel("Input Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
+      )
       
     )
   )
