@@ -56,7 +56,7 @@ server <- function(input, output) {
       visNodes(label = "id", size = 100, shadow = list(enabled = TRUE, size = 10)) %>%
       visLayout(randomSeed = 12) %>%
       visIgraphLayout(input$layout) %>% 
-      visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+      visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE), manipulation = TRUE) %>%
       visGroups(groupname = "a", shape = "circle") %>%
       visGroups(groupname = "b", shape = "triangle") %>%
       visEvents(doubleClick = "function(nodes) {
@@ -65,7 +65,7 @@ server <- function(input, output) {
   })
   
   observe({
-    visNetworkProxy("subgraph") %>%
+    visNetworkProxy("our_graph") %>%
       visRemoveNodes(id = input$click)
   })
   
@@ -126,13 +126,13 @@ ui <- fluidPage(
       
       fluidRow(
         sliderInput("slider", "Set Threholding For Molecular Level 1",
-                    min = 0, max = 1, value = 0)),
+                    min = 0, max = 1, value = 0.5)),
       fluidRow(
         img(src="colorbar1.png", align = "left", width = "440px", height = "50px")),
       
       fluidRow(
         sliderInput("slider2", "Set Threholding for Molecular Level 2",
-                    min = 0, max = 1, value = 0)),
+                    min = 0, max = 1, value = 0.5)),
       fluidRow(
         img(src="colorbar2.png", align = "left", width = "440px", height = "50px")),
       
@@ -166,6 +166,7 @@ ui <- fluidPage(
     
     mainPanel(
       tabsetPanel(
+        tabPanel("Instructions"),
         tabPanel("Example Graph", visNetworkOutput("our_graph", height = "800px", width = "100%")),
         tabPanel("Input Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
       )
