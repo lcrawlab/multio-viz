@@ -166,7 +166,27 @@ ui <- fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel("Instructions"),
+        tabPanel("Instructions",
+                 h1("Welcome! Thank you for using Multio-viz."),
+                 h4("Multio-viz accepts 3 inputs:"),
+                 tags$ol(
+                   tags$li("A csv file for vertices of Molecular Level 1 with 'feature' and 'id' columns"), 
+                   tags$li("A csv file for vertices of Molecular Level 2 with 'feature' and 'id' columns"), 
+                   tags$li("A csv file mapping vertices of Molecular Level 1 to vertices of Molecular Level 2 with 'from' and 'to' columns")),
+                 h4("QuickStart:"),
+                 tags$ol(
+                   tags$li("Convert data to accepted input formats"), 
+                   tags$li("Click 'Browse' to input data"), 
+                   ),
+                 h4("Features:"),
+                 tags$ul(
+                   tags$li("Choose graph layout with 'Select Graph Layout Dropdown'"), 
+                   tags$li("Filter out nodes  by statistical ranking with slider"),
+                   tags$li("Single click on node to highlight connected edges and nodes"),
+                   tags$li("Double click on node to remove node and connected edges"),
+                   tags$li("Click 'Edit' to add edges and nodes"),
+                 ),
+                 ),
         tabPanel("Example Graph", visNetworkOutput("our_graph", height = "800px", width = "100%")),
         tabPanel("Input Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
       )
