@@ -6,7 +6,7 @@ app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 
 server <- function(input, output) {
-  
+
   output$layer1 = renderText({input$txt1})
   output$layer2 = renderText({input$txt2})
   output$thres = renderText({input$txt3})
@@ -28,12 +28,19 @@ server <- function(input, output) {
     req(input$file2)
     req(input$file3)
     
-    df1 <- read.csv(input$file1$datapath)
-    df2 <- read.csv(input$file2$datapath)
-    df3 <- read.csv(input$file3$datapath)
+    df_mol_lev_1 <- read.csv(input$file1$datapath)
+    df_mol_lev_2 <- read.csv(input$file2$datapath)
+    df_map_lev_1_2 <- read.csv(input$file3$datapath)
 
+    df_withinmap_lev_1 <- read.csv(input$file4$datapath)
+    df_withinmap_lev_2 <- read.csv(input$file5$datapath)
+
+    nodes = bind_rows(df_mol_lev_1, df_mol_lev_2)
     nodes <- nodes %>% mutate(font.size = 40)
     nodes <- nodes %>% filter(feature > as.double(pip()))
+
+    # define edges too
+    print(nodes)
     
     visNetwork(nodes, edges) %>%
       visNodes(label = "id", size = 100, shadow = list(enabled = TRUE, size = 10)) %>%
@@ -47,22 +54,22 @@ server <- function(input, output) {
                    }")
   })
   
-  output$our_graph <- renderVisNetwork({
+  # output$our_graph <- renderVisNetwork({
    
-    nodes <- nodes %>% mutate(font.size = 40)
-    nodes <- nodes %>% filter(feature > as.double(pip()))
-    
-    visNetwork(nodes, edges) %>%
-      visNodes(label = "id", size = 100, shadow = list(enabled = TRUE, size = 10)) %>%
-      visLayout(randomSeed = 12) %>%
-      visIgraphLayout(input$layout) %>% 
-      visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE), manipulation = TRUE) %>%
-      visGroups(groupname = "a", shape = "circle") %>%
-      visGroups(groupname = "b", shape = "triangle") %>%
-      visEvents(doubleClick = "function(nodes) {
-                   Shiny.onInputChange('click', nodes.nodes[0]);
-                   }")
-  })
+  #   nodes <- nodes %>% mutate(font.size = 40)
+  #   nodes <- nodes %>% filter(feature > as.double(pip()))
+
+  #   visNetwork(nodes, edges) %>%
+  #     visNodes(label = "id", size = 100, shadow = list(enabled = TRUE, size = 10)) %>%
+  #     visLayout(randomSeed = 12) %>%
+  #     visIgraphLayout(input$layout) %>% 
+  #     visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE), manipulation = TRUE) %>%
+  #     visGroups(groupname = "a", shape = "circle") %>%
+  #     visGroups(groupname = "b", shape = "triangle") %>%
+  #     visEvents(doubleClick = "function(nodes) {
+  #                  Shiny.onInputChange('click', nodes.nodes[0]);
+  #                  }")
+  # })
   
   observe({
     visNetworkProxy("our_graph") %>%
@@ -187,7 +194,7 @@ ui <- fluidPage(
                    tags$li("Click 'Edit' to add edges and nodes"),
                  ),
                  ),
-        tabPanel("Example Graph", visNetworkOutput("our_graph", height = "800px", width = "100%")),
+        #tabPanel("Example Graph", visNetworkOutput("our_graph", height = "800px", width = "100%")),
         tabPanel("Input Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
       )
       
