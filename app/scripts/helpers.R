@@ -1,5 +1,45 @@
 library(visNetwork)
 
+
+#function to make fully connected graph
+
+complete_graph <- function(nodes){
+  node_ids <- nodes$id
+  rownumber = 1
+  len = length(node_ids)
+  iterations = len*(len-1)/2
+  edgelist <- matrix(nrow = iterations, ncol = 2)
+  
+  for (i in 1:(len-1)) 
+  {
+    val <- node_ids[i]
+    for (j in 1:(len-i)) 
+    { 
+      val2 <- node_ids[j+i]
+      edgelist[rownumber, 1] = val
+      edgelist[rownumber, 2] = val2
+      rownumber = rownumber + 1
+    }
+  }
+  
+  edgelist = as.data.frame(edgelist)
+  colnames(edgelist) = c("from", "to")
+  return(edgelist)
+}
+
+graph_from_map <- function(mapping, df_ml_1, df_ml_2){
+  edgelist <- data.frame(matrix(ncol = 2, nrow = 0))
+  colnames(edgelist) <- c('from', 'to')
+  
+  for (i in 1: nrow(mapping))
+  {
+    if ((mapping[i, 1] %in% df_ml_1$id) & (mapping[i, 2] %in% df_ml_2$id))
+    {
+      edgelist = rbind(edgelist, mapping[i,])
+    }
+  }
+}
+
 # function to plot subgraph
 subgraph <- function(df1, df2, df3){
   #gene_file <- read.csv(file = './data/gene_list.csv', header=T, as.is=T)

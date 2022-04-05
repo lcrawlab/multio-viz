@@ -17,7 +17,7 @@ RUN R -e 'install.packages(c("shiny","visNetwork","shinydashboard", "ggplot2"))'
 COPY ./app/app.R /srv/shiny-server/
 COPY ./app/scripts /srv/shiny-server/
 COPY ./app/www /srv/shiny-server/
-COPY ./data 
+COPY ./data /srv/shiny-server/
 
 # Run app
 CMD ["/usr/bin/shiny-server"]
