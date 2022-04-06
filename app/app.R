@@ -18,16 +18,11 @@ server <- function(input, output, session) {
   
   #reactive expression for pip thresholding
   pip <- reactive(input$slider)
-  #build graph from helper function
-  output$input_graph <- renderVisNetwork({
-    req(input$mol_lev_1)
-    req(input$mol_lev_2)
-    req(input$map_lev_1_2)
-    
+  
+  make_graph <- eventReactive(input$go, {
     df_mol_lev_1 <- read.csv(input$mol_lev_1$datapath)
     df_mol_lev_2 <- read.csv(input$mol_lev_2$datapath)
     df_map_lev_1_2 <- read.csv(input$map_lev_1_2$datapath)
-
     df_withinmap_lev_1 <- read.csv(input$map_lev_1$datapath)
     df_withinmap_lev_2 <- read.csv(input$map_lev_2$datapath)
     
@@ -36,16 +31,19 @@ server <- function(input, output, session) {
     
     colnames(df_withinmap_lev_1) <- c('from', 'to')
     colnames(df_withinmap_lev_2) <- c('from', 'to')
+    colnames(df_map_lev_1_2) <- c('from', 'to')
     
     df_mol_lev_1['level'] = 1
     df_mol_lev_2['level'] = 2
+    
+    print(df_withinmap_lev_1)
     
     color_palette_ml1 = colorRampPalette(c("lightblue", "steelblue4"))
     color_palette_ml2 = colorRampPalette(c("yellow2","goldenrod","darkred"))
     
     df_mol_lev_1$color = color_palette_ml1(length(df_mol_lev_1))[as.numeric(cut(df_mol_lev_1$feature, breaks = length(df_mol_lev_1)))]
     df_mol_lev_2$color = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$feature, breaks = length(df_mol_lev_2)))]
-
+    
     nodes = bind_rows(df_mol_lev_1, df_mol_lev_2)
     nodes <- nodes %>% mutate(font.size = 40)
     nodes <- nodes %>% filter(feature > as.double(pip()))
@@ -70,7 +68,7 @@ server <- function(input, output, session) {
       edges_ml2 <- df_withinmap_lev_2
     }
     
-    edges <- rbind(edgelist_ml1, edgelist_ml2)
+    edges <- rbind(edges_ml1, edges_ml2)
     edges <- rbind(edges, df_map_lev_1_2)
     
     visNetwork(nodes, edges) %>%
@@ -83,6 +81,16 @@ server <- function(input, output, session) {
       visEvents(doubleClick = "function(nodes) {
                    Shiny.onInputChange('click', nodes.nodes[0]);
                    }")
+    
+  })
+  
+  #build graph from helper function
+  output$input_graph <- renderVisNetwork({
+    # req(input$mol_lev_1)
+    # req(input$mol_lev_2)
+    # req(input$map_lev_1_2)
+    
+    make_graph()
   })
   
   observe({
