@@ -19,12 +19,27 @@ server <- function(input, output, session) {
   #reactive expression for pip thresholding
   pip <- reactive(input$slider)
   
-  make_graph <- eventReactive(input$go, {
+  make_graph <- eventReactive(input$go, { 
+    print(input$mol_lev_1$datapat)
+    
     df_mol_lev_1 <- read.csv(input$mol_lev_1$datapath)
     df_mol_lev_2 <- read.csv(input$mol_lev_2$datapath)
     df_map_lev_1_2 <- read.csv(input$map_lev_1_2$datapath)
     df_withinmap_lev_1 <- read.csv(input$map_lev_1$datapath)
     df_withinmap_lev_2 <- read.csv(input$map_lev_2$datapath)
+    
+    # df_mol_lev_1 <- read.csv(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
+    # df_mol_lev_2 <- read.csv(paste(app_dir, "/data/simple_ml2.csv", sep = ""))
+    # df_map_lev_1_2 <- read.csv(paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""))
+    # df_withinmap_lev_1 <- read.csv(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+    # df_withinmap_lev_2 <- read.csv(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
+    
+    df_mol_lev_1 <- as.data.frame(df_mol_lev_1, stringsAsFactors = FALSE)
+    df_mol_lev_2 <- as.data.frame(df_mol_lev_2, stringsAsFactors = FALSE)
+    df_map_lev_1_2 <- as.data.frame(df_map_lev_1_2, stringsAsFactors = FALSE)
+    df_withinmap_lev_1 <- as.data.frame(df_withinmap_lev_1, stringsAsFactors = FALSE)
+    df_withinmap_lev_2 <- as.data.frame(df_withinmap_lev_2, stringsAsFactors = FALSE)
+    
     
     colnames(df_mol_lev_1) <- c('feature', 'id')
     colnames(df_mol_lev_2) <- c('feature', 'id')
@@ -33,23 +48,25 @@ server <- function(input, output, session) {
     colnames(df_withinmap_lev_2) <- c('from', 'to')
     colnames(df_map_lev_1_2) <- c('from', 'to')
     
-    df_mol_lev_1['level'] = 1
-    df_mol_lev_2['level'] = 2
-    
-    print(df_withinmap_lev_1)
+    df_mol_lev_1['group'] = "a"
+    df_mol_lev_2['group'] = "b"
     
     color_palette_ml1 = colorRampPalette(c("lightblue", "steelblue4"))
     color_palette_ml2 = colorRampPalette(c("yellow2","goldenrod","darkred"))
     
-    df_mol_lev_1$color = color_palette_ml1(length(df_mol_lev_1))[as.numeric(cut(df_mol_lev_1$feature, breaks = length(df_mol_lev_1)))]
-    df_mol_lev_2$color = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$feature, breaks = length(df_mol_lev_2)))]
+    df_mol_lev_1["color"] = color_palette_ml1(length(df_mol_lev_1))[as.numeric(cut(df_mol_lev_1$feature, breaks = length(df_mol_lev_1)))]
+    df_mol_lev_2["color"] = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$feature, breaks = length(df_mol_lev_2)))]
     
-    nodes = bind_rows(df_mol_lev_1, df_mol_lev_2)
-    nodes <- nodes %>% mutate(font.size = 40)
-    nodes <- nodes %>% filter(feature > as.double(pip()))
+    nodes <- bind_rows(df_mol_lev_1, df_mol_lev_2)
+    print(nodes)
+    #colnames(nodes) <- c('feature', 'id', 'level', 'color')
     
-    colnames(nodes) <- c('feature', 'id', 'level', 'color')
-    
+    nodes <- mutate(nodes, font_size = 40)
+    nodes <- filter(nodes, feature > as.double(pip()))
+    #nodes <- nodes %>% mutate(font.size = 40)
+    #nodes <- nodes %>% filter(feature > as.double(pip()))
+
+
     #create edgelist
     edges <- data.frame(matrix(ncol = 2, nrow = 0))
     colnames(edgelist) <- c('from', 'to')
@@ -72,7 +89,7 @@ server <- function(input, output, session) {
     edges <- rbind(edges, df_map_lev_1_2)
     
     visNetwork(nodes, edges) %>%
-      visNodes(label = "id", size = 100, shadow = list(enabled = TRUE, size = 10)) %>%
+      visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
       visLayout(randomSeed = 12) %>%
       visIgraphLayout(input$layout) %>% 
       visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
@@ -126,15 +143,15 @@ server <- function(input, output, session) {
    
    output$colorbar1 <- renderImage({
      list(src = "./www/colorbar1.png", width = "100%", height = "25%", alt = "Alternate text")
-   })
+   }, deleteFile = FALSE)
    
    output$colorbar2 <- renderImage({
      list(src = "./www/colorbar2.png", width = "100%", height = "25%", alt = "Alternate text")
-   })
+   }, deleteFile = FALSE)
    
    output$data_examples <- renderImage({
      list(src = "./www/example_data.jpeg", width = "85%", height = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
-   })
+   }, deleteFile = FALSE)
    
 }
 
