@@ -9,6 +9,7 @@ source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 server <- function(input, output, session) {
   # dropdown to select graph layout
   graphLayout <- reactive({
+    req(input$go)
     switch(input$layout,
            "layout_with_sugiyama" = layout$x,
            "layout_with_kk" = layout$y,
@@ -19,124 +20,92 @@ server <- function(input, output, session) {
   #reactive expression for pip thresholding
   pip <- reactive(input$slider)
   
-  make_graph <- eventReactive(input$go, { 
-    print(input$mol_lev_1$datapat)
-    
-    df_mol_lev_1 <- read.csv(input$mol_lev_1$datapath)
-    df_mol_lev_2 <- read.csv(input$mol_lev_2$datapath)
-    df_map_lev_1_2 <- read.csv(input$map_lev_1_2$datapath)
-    df_withinmap_lev_1 <- read.csv(input$map_lev_1$datapath)
-    df_withinmap_lev_2 <- read.csv(input$map_lev_2$datapath)
-    
-    # df_mol_lev_1 <- read.csv(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
-    # df_mol_lev_2 <- read.csv(paste(app_dir, "/data/simple_ml2.csv", sep = ""))
-    # df_map_lev_1_2 <- read.csv(paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""))
-    # df_withinmap_lev_1 <- read.csv(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
-    # df_withinmap_lev_2 <- read.csv(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
-    
-    df_mol_lev_1 <- as.data.frame(df_mol_lev_1, stringsAsFactors = FALSE)
-    df_mol_lev_2 <- as.data.frame(df_mol_lev_2, stringsAsFactors = FALSE)
-    df_map_lev_1_2 <- as.data.frame(df_map_lev_1_2, stringsAsFactors = FALSE)
-    df_withinmap_lev_1 <- as.data.frame(df_withinmap_lev_1, stringsAsFactors = FALSE)
-    df_withinmap_lev_2 <- as.data.frame(df_withinmap_lev_2, stringsAsFactors = FALSE)
-    
-    
-    colnames(df_mol_lev_1) <- c('feature', 'id')
-    colnames(df_mol_lev_2) <- c('feature', 'id')
-    
-    colnames(df_withinmap_lev_1) <- c('from', 'to')
-    colnames(df_withinmap_lev_2) <- c('from', 'to')
-    colnames(df_map_lev_1_2) <- c('from', 'to')
-    
-    df_mol_lev_1['group'] = "a"
-    df_mol_lev_2['group'] = "b"
-    
-    color_palette_ml1 = colorRampPalette(c("lightblue", "steelblue4"))
-    color_palette_ml2 = colorRampPalette(c("yellow2","goldenrod","darkred"))
-    
-    df_mol_lev_1["color"] = color_palette_ml1(length(df_mol_lev_1))[as.numeric(cut(df_mol_lev_1$feature, breaks = length(df_mol_lev_1)))]
-    df_mol_lev_2["color"] = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$feature, breaks = length(df_mol_lev_2)))]
-    
-    nodes <- bind_rows(df_mol_lev_1, df_mol_lev_2)
+  # demo_graph <- eventReactive(input$demo,
+  #                             # df_mol_lev_1 <- read.csv(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
+  #                             # df_mol_lev_2 <- read.csv(paste(app_dir, "/data/simple_ml2.csv", sep = ""))
+  #                             # df_map_lev_1_2 <- read.csv(paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""))
+  #                             # df_withinmap_lev_1 <- read.csv(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+  #                             # df_withinmap_lev_2 <- read.csv(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
+  #                             )
+  
+  make_nodes <- eventReactive({
+    req(input$go, input$mol_lev_1, input$mol_lev_2)},
+
+    {nodes <- make_nodes(input$mol_lev_1, input$mol_lev_2)
     print(nodes)
-    #colnames(nodes) <- c('feature', 'id', 'level', 'color')
-    
-    nodes <- mutate(nodes, font_size = 40)
-    nodes <- filter(nodes, feature > as.double(pip()))
-    #nodes <- nodes %>% mutate(font.size = 40)
-    #nodes <- nodes %>% filter(feature > as.double(pip()))
+    return(nodes)
+  })
 
-
-    #create edgelist
-    edges <- data.frame(matrix(ncol = 2, nrow = 0))
-    colnames(edgelist) <- c('from', 'to')
-    
-    #edges for molecular level 1
-    if (file.info(input$mol_lev_1$datapath)$size == 0) {
-      edges_ml1 <- complete_graph(df_mol_lev_1)
-    } else {
-      edges_ml1 <- df_withinmap_lev_1
+   make_edges_ml1 <- eventReactive({
+    req(input$go, input$input$map_lev_1 | input$no_con_ml1 | input$complete_ml1)}, {
+    if (!is.null(input$map_lev_1)){
+      df_withinmap_lev_1 <- read.csv(input$map_lev_1$datapath)
+      df_withinmap_lev_1 <- as.data.frame(df_withinmap_lev_1, stringsAsFactors = FALSE)
+      edgelist_ml1 <- df_withinmap_lev_1
     }
-    
-    #edges for molecular level 2
-    if (file.info(input$mol_lev_2$datapath)$size == 0) {
-      edges_ml2 <- complete_graph(df_mol_lev_2)
-    } else {
-      edges_ml2 <- df_withinmap_lev_2
+    else if (!is.null(input$no_con_ml1)){
+      edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
+      colnames(edgelist_ml1) <- c('from', 'to')
     }
-    
-    edges <- rbind(edges_ml1, edges_ml2)
-    edges <- rbind(edges, df_map_lev_1_2)
-    
-    visNetwork(nodes, edges) %>%
-      visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
-      visLayout(randomSeed = 12) %>%
-      visIgraphLayout(input$layout) %>% 
-      visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
-      visGroups(groupname = "a", shape = "circle") %>%
-      visGroups(groupname = "b", shape = "triangle") %>%
-      visEvents(doubleClick = "function(nodes) {
-                   Shiny.onInputChange('click', nodes.nodes[0]);
-                   }")
-    
+    else if (!is.null(input$complete_ml1)){
+      req(input$mol_lev_1)
+      edgelist_ml1 <- complete_edges(input$mol_lev_1)
+    }
+    return(edgelist_ml1)
   })
   
-  #build graph from helper function
+  make_edges_ml2 <- eventReactive({
+    req(input$go, input$input$map_lev_2 | input$no_con_ml2 | input$complete_ml2)}, {
+    if (!is.null(input$map_lev_2)){
+      df_withinmap_lev_2 <- read.csv(input$map_lev_1$datapath)
+      df_withinmap_lev_2 <- as.data.frame(df_withinmap_lev_2, stringsAsFactors = FALSE)
+      edgelist_ml2 <- df_withinmap_lev_2
+    }
+    else if (!is.null(input$no_con_ml2)){
+      edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
+      colnames(edgelist_ml2) <- c('from', 'to')
+    }
+    else if (!is.null(input$complete_ml2)){
+      req(input$mol_lev_2)
+      edgelist_ml2 <- complete_edges(input$mol_lev_2)
+    }
+    return(edgelist_ml2)
+  })
+  
+  make_edges <- eventReactive({
+    req(make_edges_ml1(), make_edges_ml2())}, {
+
+    df_map_lev_1_2 <- read.csv(input$map_lev_1_2$datapath)
+    df_map_lev_1_2 <- as.data.frame(df_map_lev_1_2, stringsAsFactors = FALSE)
+
+    edgelist_ml1 <- make_edges_ml1()
+    edgelist_ml2 <- make_edges_ml2()
+
+    edges <- rbind(edgelist_ml1, edgelist_ml2)
+    edges <- rbind(edges, df_map_lev_1_2)
+    return(edges)
+  })
+  
+  generate_graph <- eventReactive({req(make_edges(), make_nodes())}, { 
+    nodes <- make_nodes()
+    edges <- make_edges()
+    make_graph(nodes, edges)
+  })
+  
+  #build graph from helper functions
   output$input_graph <- renderVisNetwork({
-    # req(input$mol_lev_1)
-    # req(input$mol_lev_2)
-    # req(input$map_lev_1_2)
-    
-    make_graph()
+   generate_graph()
   })
   
   observe({
     visNetworkProxy("input_graph") %>%
       visRemoveNodes(id = input$click)
   })
-  
-  # colorbar (still working on this!)
-  # output$colorbar1 <- renderPlot({
-  #   img <- htmltools::capturePlot({
-  #     color.bar(colorRampPalette(c("yellow2","goldenrod","darkred"))(100), 0, 1, title='molecular_level_1')
-  #   }, height = 400, width = 400)
-  #   list(src = img, width = 100, height = 100)
-  # })
-  # 
-  # 
-  #  output$colorbar2 <- renderImage({
-  #    img <- htmltools::capturePlot({
-  #      color.bar(colorRampPalette(c("lightblue", "steelblue4"))(100), 0, 1)
-  #    }, height = 100, width = 400)
-  #    list(src = img, width = "100%", height = "100%")
-  # })
-   
+
    output$ml1 <- renderText("Score Name:")
    output$ml2 <- renderText("Score Name:")
 
    output$logo <- renderImage({
-     #width  <- session$clientData$output_logo_width
-     #height <- session$clientData$output_logo_height
     
      list(src = "./www/logo.png", width = "20%", height = "35%", alt = "Alternate text")
    }, deleteFile = FALSE)
@@ -156,15 +125,19 @@ server <- function(input, output, session) {
 }
 
 ui <- fluidPage(  
-  #titlePanel(tags$img(src = "logo.png", height="8%", width="8%")),
+
+  title <-
+    tags$a(tags$img(
+      src = "logo.png",
+      height = "auto",
+      width = "20%"
+    )),
   
-  titlePanel(
-    imageOutput("logo")
-  ),
+
   
   sidebarLayout(
     sidebarPanel(
-      
+            
       fluidRow(
         fileInput("mol_lev_1", "Choose File for ML1:",
                   multiple = FALSE,
@@ -186,18 +159,26 @@ ui <- fluidPage(
                              ".csv"))),
       
       fluidRow(
-        fileInput("map_lev_1", "Choose Mapping File for ML1:",
-                  multiple = FALSE,
-                  accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv"))),
+        column(width = 6, 
+               fileInput("map_lev_1", "Choose Mapping Type for ML1:",
+                         multiple = FALSE,
+                         accept = c("text/csv",
+                                    "text/comma-separated-values,text/plain",
+                                    ".csv"))),
+        column(width = 3, checkboxInput("no_con_ml1", "No Connections", FALSE)),
+        column(width = 3, checkboxInput("complete_ml1", "Fully Connected", FALSE))
+        ),
       
       fluidRow(
-        fileInput("map_lev_2", "Choose Mapping File for ML2:",
-                  multiple = FALSE,
-                  accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv"))),
+        column(width = 6, 
+               fileInput("map_lev_2", "Choose Mapping Type for ML2:",
+                         multiple = FALSE,
+                         accept = c("text/csv",
+                                    "text/comma-separated-values,text/plain",
+                                    ".csv"))),
+        column(width = 3, checkboxInput("no_con_ml2", "No Connections", FALSE)),
+        column(width = 3, checkboxInput("complete_ml2", "Fully Connected", FALSE))
+      ),
       
       fluidRow(
         align="center",
@@ -222,8 +203,14 @@ ui <- fluidPage(
         sliderInput("slider", "Set Threholding For ML1:",
                     min = 0, max = 1, value = 0.5)),
       fluidRow(
-        #img(src="colorbar1.png", align = "left", width = "440px", height = "50px")
-        imageOutput("colorbar1")),
+        #imageOutput("colorbar1"))
+        colorbar1 <-
+          tags$a(tags$img(
+            src = "colorbar1.png",
+            height = "auto",
+            width = "100%"
+          ))),
+        
       
       fluidRow(
                 align="center",
@@ -234,8 +221,13 @@ ui <- fluidPage(
         sliderInput("slider2", "Set Threholding for ML2:",
                     min = 0, max = 1, value = 0.5)),
       fluidRow(
-        #img(src="colorbar2.png", align = "left", width = "440px", height = "60px")
-        imageOutput("colorbar2")),
+        #imageOutput("colorbar2")
+        colorbar2 <-
+          tags$a(tags$img(
+            src = "colorbar2.png",
+            height = "auto",
+            width = "100%"
+        ))),
       
       fluidRow(
         align="center",
