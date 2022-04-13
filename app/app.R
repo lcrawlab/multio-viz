@@ -28,73 +28,75 @@ server <- function(input, output, session) {
   #                             # df_withinmap_lev_2 <- read.csv(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
   #                             )
   
-  make_nodes <- eventReactive({
-    req(input$go, input$mol_lev_1, input$mol_lev_2)},
-
-    {nodes <- make_nodes(input$mol_lev_1, input$mol_lev_2)
-    print(nodes)
-    return(nodes)
+  
+  generate_nodes <- eventReactive(
+    req(input$go, input$mol_lev_1, input$mol_lev_2)
+    ,{
+      nodes <- make_nodes(input$mol_lev_1, input$mol_lev_2, pip())
+      print(nodes)
+      return(nodes)
   })
-
-   make_edges_ml1 <- eventReactive({
-    req(input$go, input$input$map_lev_1 | input$no_con_ml1 | input$complete_ml1)}, {
-    if (!is.null(input$map_lev_1)){
+ 
+   generate_edges_ml1 <- eventReactive(
+    req(isTruthy(input$go), (isTruthy(input$map_lev_1) || isTruthy(input$no_con_ml1) || isTruthy(input$complete_ml1))), {
+    if (isTruthy(input$map_lev_1)){
       df_withinmap_lev_1 <- read.csv(input$map_lev_1$datapath)
       df_withinmap_lev_1 <- as.data.frame(df_withinmap_lev_1, stringsAsFactors = FALSE)
       edgelist_ml1 <- df_withinmap_lev_1
     }
-    else if (!is.null(input$no_con_ml1)){
+    else if (isTruthy(input$no_con_ml1)){
       edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
       colnames(edgelist_ml1) <- c('from', 'to')
     }
-    else if (!is.null(input$complete_ml1)){
+    else if (isTruthy(input$complete_ml1)){
       req(input$mol_lev_1)
       edgelist_ml1 <- complete_edges(input$mol_lev_1)
     }
     return(edgelist_ml1)
   })
-  
-  make_edges_ml2 <- eventReactive({
-    req(input$go, input$input$map_lev_2 | input$no_con_ml2 | input$complete_ml2)}, {
-    if (!is.null(input$map_lev_2)){
-      df_withinmap_lev_2 <- read.csv(input$map_lev_1$datapath)
+ 
+  generate_edges_ml2 <- eventReactive(
+    req(isTruthy(input$go), (isTruthy(input$map_lev_2) || isTruthy(input$no_con_ml2) || isTruthy(input$complete_ml2))), {
+    if (isTruthy(input$map_lev_2)){
+      df_withinmap_lev_2 <- read.csv(input$map_lev_2$datapath)
       df_withinmap_lev_2 <- as.data.frame(df_withinmap_lev_2, stringsAsFactors = FALSE)
       edgelist_ml2 <- df_withinmap_lev_2
     }
-    else if (!is.null(input$no_con_ml2)){
+    else if (isTruthy(input$no_con_ml2)){
       edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
       colnames(edgelist_ml2) <- c('from', 'to')
     }
-    else if (!is.null(input$complete_ml2)){
+    else if (isTruthy(input$complete_ml2)){
       req(input$mol_lev_2)
       edgelist_ml2 <- complete_edges(input$mol_lev_2)
     }
     return(edgelist_ml2)
   })
   
-  make_edges <- eventReactive({
-    req(make_edges_ml1(), make_edges_ml2())}, {
+  generate_edges <- eventReactive(
+    req(generate_edges_ml1(), generate_edges_ml2()), {
 
     df_map_lev_1_2 <- read.csv(input$map_lev_1_2$datapath)
     df_map_lev_1_2 <- as.data.frame(df_map_lev_1_2, stringsAsFactors = FALSE)
 
-    edgelist_ml1 <- make_edges_ml1()
-    edgelist_ml2 <- make_edges_ml2()
+    edgelist_ml1 <- generate_edges_ml1()
+    edgelist_ml2 <- generate_edges_ml2()
 
     edges <- rbind(edgelist_ml1, edgelist_ml2)
     edges <- rbind(edges, df_map_lev_1_2)
     return(edges)
   })
   
-  generate_graph <- eventReactive({req(make_edges(), make_nodes())}, { 
-    nodes <- make_nodes()
-    edges <- make_edges()
+  generate_graph <- eventReactive(req(generate_edges(), generate_nodes()), { 
+    #nodes <- generate_nodes()
+    #edges <- generate_edges()
     make_graph(nodes, edges)
+    
   })
   
   #build graph from helper functions
   output$input_graph <- renderVisNetwork({
-   generate_graph()
+    generate_graph()
   })
   
   observe({

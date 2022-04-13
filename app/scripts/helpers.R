@@ -13,7 +13,7 @@ make_graph <- function(nodes, edges){
                    }")
 }
 
-make_nodes <- function(ml1, ml2){
+make_nodes <- function(ml1, ml2, pip){
   df_mol_lev_1 <- read.csv(ml1$datapath)
   df_mol_lev_2 <- read.csv(ml2$datapath)
   
@@ -31,7 +31,7 @@ make_nodes <- function(ml1, ml2){
   
   nodes <- bind_rows(df_mol_lev_1, df_mol_lev_2)
   nodes <- mutate(nodes, font_size = 40)
-  nodes <- filter(nodes, feature > as.double(pip()))
+  nodes <- filter(nodes, feature > as.double(pip))
   return(nodes)
 }
 
