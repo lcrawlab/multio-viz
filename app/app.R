@@ -2,12 +2,288 @@ library(shiny)
 library(visNetwork)
 library(dplyr)
 library(shinyBS)
+#runApp("app/")
 
 app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 
 server <- function(input, output, session) {
-  # dropdown to select graph layout
+
+  #reactive expression for pip thresholding
+  pip <- reactive(input$slider)
+
+  # demo_pressed = reactiveVal(FALSE)
+  # go_pressed = reactiveVal(FALSE)
+  # input_mol_lev_1 = reactiveVal(FALSE)
+  # input_mol_lev_2 = reactiveVal(FALSE)
+  # input_map_1_2 = reactiveVal(FALSE)
+  # input_map_1 = reactiveVal(FALSE)
+  # input_map_2 = reactiveVal(FALSE)
+
+  ml1_filepath = reactiveVal()
+  ml2_filepath = reactiveVal()
+  map_between_filepath = reactiveVal()
+  map_ml1_filepath = reactiveVal()
+  map_ml2_filepath = reactiveVal()
+
+  read_ml_lev_1 = reactive({
+    if(input$demo) {
+      ml1_filepath(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
+    }
+    else if (isTruthy(input$mol_lev_1)) {
+      ml1_filepath(input$mol_lev_1$datapath)
+    }
+
+    if (is.null(ml1_filepath())) {
+      return()
+    }
+
+    read.csv(file = ml1_filepath(),
+             sep = ",",
+             header = TRUE)
+  })
+
+  read_ml_lev_2 = reactive({
+    if(input$demo) {
+      ml2_filepath(paste(app_dir, "/data/simple_ml2.csv", sep = ""))
+    }
+    else if (isTruthy(input$mol_lev_2)) {
+      ml2_filepath(input$mol_lev_2$datapath)
+    }
+
+    if (is.null(ml2_filepath())) {
+      return()
+    }
+
+    read.csv(file = ml2_filepath(),
+             sep = ",",
+             header = TRUE)
+  })
+
+  read_map_btw = reactive({
+    if(input$demo) {
+      map_between_filepath(paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""))
+    }
+    else if (isTruthy(input$map_lev_1_2)) {
+      map_between_filepath(input$map_lev_1_2$datapath)
+    }
+
+    if (is.null(map_between_filepath())) {
+      return()
+    }
+
+    read.csv(file = map_between_filepath(),
+             sep = ",",
+             header = TRUE)
+  })
+
+  read_map_ml1 = reactive({
+    if(input$demo) {
+      map_ml1_filepath(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+    }
+    else if (isTruthy(input$map_lev_1)) {
+      map_ml1_filepath(input$map_lev_1$datapath)
+    }
+
+    if (is.null(map_ml1_filepath())) {
+      return()
+    }
+
+    read.csv(file = map_ml1_filepath(),
+             sep = ",",
+             header = TRUE)
+  })
+
+    read_map_ml2 = reactive({
+    if(input$demo) {
+      map_ml2_filepath(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
+    }
+    else if (isTruthy(input$map_lev_2)) {
+      map_ml2_filepath(input$map_lev_2$datapath)
+    }
+
+    if (is.null(map_ml2_filepath())) {
+      return()
+    }
+
+    read.csv(file = map_ml2_filepath(),
+             sep = ",",
+             header = TRUE)
+  })
+
+
+
+  # nodes_demo_graph <- eventReactive(input$demo,
+  #   {
+  #   mol_level_1 <- paste(app_dir, "/data/simple_ml1.csv", sep = "")
+  #   mol_level_2 <- paste(app_dir, "/data/simple_ml2.csv", sep = "")
+  #   nodes <- make_nodes(mol_level_1, mol_level_2, pip())
+  #   return(nodes)
+  #   })
+
+  # edges_demo_graph <- eventReactive(input$demo,
+  #   {
+  #   df_withinmap_lev_1 <- read.csv(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+  #   df_withinmap_lev_1 <- as.data.frame(df_withinmap_lev_1, stringsAsFactors = FALSE)
+  #   edgelist_ml1 <- df_withinmap_lev_1
+
+  #   df_withinmap_lev_2 <- read.csv(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
+  #   df_withinmap_lev_2 <- as.data.frame(df_withinmap_lev_2, stringsAsFactors = FALSE)
+  #   edgelist_ml2 <- df_withinmap_lev_2
+
+  #   df_map_lev_1_2 <- read.csv(paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""))
+  #   df_map_lev_1_2 <- as.data.frame(df_map_lev_1_2, stringsAsFactors = FALSE)
+
+  #   edges <- rbind(edgelist_ml1, edgelist_ml2)
+  #   edges <- rbind(edges, df_map_lev_1_2)
+  #   return(edges)
+  #   })
+  
+  generate_nodes <- eventReactive(
+    req((isTruthy(input$go) || isTruthy(input$demo)), read_ml_lev_1(), read_ml_lev_2())
+    ,{
+      print(read_ml_lev_2())
+      print(is.null(read_ml_lev_1()))
+      print(!is.null(read_ml_lev_1()) && !is.null(read_ml_lev_1()))
+      if (!is.null(read_ml_lev_1()) && !is.null(read_ml_lev_1())){
+        node <- make_nodes(read_ml_lev_1(), read_ml_lev_2(), pip())
+        print(node)
+        return(node)
+      }
+      else {
+        print("No nodes")
+      }
+  })
+
+  generate_edges <- eventReactive(
+    req(isTruthy(input$go) || isTruthy(input$demo)), {
+      print("edges")
+      if (is.null(read_map_ml1())){
+        if (isTruthy(input$no_con_ml1)){
+          edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
+          colnames(edgelist_ml1) <- c('from', 'to')
+          }
+        else if (isTruthy(input$complete_ml1)){
+          req(input$mol_lev_1)
+          edgelist_ml1 <- complete_edges(input$mol_lev_1)
+          }
+      }
+      else{
+        df_withinmap_lev_1 <- as.data.frame(read_map_ml1(), stringsAsFactors = FALSE)
+        edgelist_ml1 <- df_withinmap_lev_1
+      }
+
+      if (is.null(read_map_ml2())){
+        if (isTruthy(input$no_con_ml2)){
+          edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
+          colnames(edgelist_ml2) <- c('from', 'to')
+          }
+        else if (isTruthy(input$complete_ml2)){
+          req(input$mol_lev_2)
+          edgelist_ml2 <- complete_edges(input$mol_lev_2)
+          }
+      }
+      else{
+        df_withinmap_lev_2 <- as.data.frame(read_map_ml2(), stringsAsFactors = FALSE)
+        edgelist_ml2 <- df_withinmap_lev_2
+      }
+      print("edgelistml1:")
+      print(edgelist_ml1)
+      print("edgelistml2:")
+      print(edgelist_ml2)
+
+      df_map_lev_1_2 <- as.data.frame(read_map_btw(), stringsAsFactors = FALSE)
+      edge <- rbind(edgelist_ml1, edgelist_ml2)
+      edge <- rbind(edge, df_map_lev_1_2)
+      print("edge:")
+      print(edge)
+      return(edge)
+    }
+  )
+ 
+  #  generate_edges_ml1 <- eventReactive(
+  #   req(isTruthy(input$go), (isTruthy(input$map_lev_1) || isTruthy(input$no_con_ml1) || isTruthy(input$complete_ml1))), {
+  #   if (isTruthy(input$map_lev_1)){
+  #     df_withinmap_lev_1 <- read.csv(input$map_lev_1$datapath)
+  #     df_withinmap_lev_1 <- as.data.frame(df_withinmap_lev_1, stringsAsFactors = FALSE)
+  #     edgelist_ml1 <- df_withinmap_lev_1
+  #   }
+  #   else if (isTruthy(input$no_con_ml1)){
+  #     edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
+  #     colnames(edgelist_ml1) <- c('from', 'to')
+  #   }
+  #   else if (isTruthy(input$complete_ml1)){
+  #     req(input$mol_lev_1)
+  #     edgelist_ml1 <- complete_edges(input$mol_lev_1)
+  #   }
+  #   return(edgelist_ml1)
+  # })
+ 
+  # generate_edges_ml2 <- eventReactive(
+  #   req(isTruthy(input$go), (isTruthy(input$map_lev_2) || isTruthy(input$no_con_ml2) || isTruthy(input$complete_ml2))), {
+  #   if (isTruthy(input$map_lev_2)){
+  #     df_withinmap_lev_2 <- read.csv(input$map_lev_2$datapath)
+  #     df_withinmap_lev_2 <- as.data.frame(df_withinmap_lev_2, stringsAsFactors = FALSE)
+  #     edgelist_ml2 <- df_withinmap_lev_2
+  #   }
+  #   else if (isTruthy(input$no_con_ml2)){
+  #     edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
+  #     colnames(edgelist_ml2) <- c('from', 'to')
+  #   }
+  #   else if (isTruthy(input$complete_ml2)){
+  #     req(input$mol_lev_2)
+  #     edgelist_ml2 <- complete_edges(input$mol_lev_2)
+  #   }
+  #   return(edgelist_ml2)
+  # })
+  
+  # generate_edges <- eventReactive(
+  #   req(generate_edges_ml1(), generate_edges_ml2()), {
+
+  #   df_map_lev_1_2 <- read.csv(input$map_lev_1_2$datapath)
+  #   df_map_lev_1_2 <- as.data.frame(df_map_lev_1_2, stringsAsFactors = FALSE)
+
+  #   edgelist_ml1 <- generate_edges_ml1()
+  #   edgelist_ml2 <- generate_edges_ml2()
+
+  #   edges <- rbind(edgelist_ml1, edgelist_ml2)
+  #   edges <- rbind(edges, df_map_lev_1_2)
+  #   return(edges)
+  # })
+
+  observeEvent(req(isTruthy(input$go) || isTruthy(input$demo)), {
+    print("graph")
+    node <- generate_nodes()
+    edge <- generate_edges()
+    if (!is.null(node) || !is.null(edge)){
+      print("here")
+      print(node)
+      output$input_graph <- renderVisNetwork({
+      visNetwork(node, edge) %>%
+        visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
+        visLayout(randomSeed = 12) %>%
+        visIgraphLayout(input$layout) %>% 
+        visOptions(highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+        visGroups(groupname = "a", shape = "circle") %>%
+        visGroups(groupname = "b", shape = "triangle") %>%
+        visEvents(doubleClick = "function(nodes) {
+                      Shiny.onInputChange('click', nodes.nodes[0]);
+                      }")
+    })
+    }
+  })
+
+  #build graph from helper functions
+  # output$input_graph <- renderVisNetwork({
+  #   generate_graph()
+  # })
+  
+  observe({
+    visNetworkProxy("input_graph") %>%
+      visRemoveNodes(id = input$click)
+  })
+
+  #dropdown to select graph layout
   graphLayout <- reactive({
     req(input$go)
     switch(input$layout,
@@ -16,99 +292,11 @@ server <- function(input, output, session) {
            "layout_nicely" = layout$z,
            "Please Select a Layout" = NULL)
   })
-  
-  #reactive expression for pip thresholding
-  pip <- reactive(input$slider)
-  
-  # demo_graph <- eventReactive(input$demo,
-  #                             # df_mol_lev_1 <- read.csv(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
-  #                             # df_mol_lev_2 <- read.csv(paste(app_dir, "/data/simple_ml2.csv", sep = ""))
-  #                             # df_map_lev_1_2 <- read.csv(paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""))
-  #                             # df_withinmap_lev_1 <- read.csv(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
-  #                             # df_withinmap_lev_2 <- read.csv(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
-  #                             )
-  
-  
-  generate_nodes <- eventReactive(
-    req(input$go, input$mol_lev_1, input$mol_lev_2)
-    ,{
-      nodes <- make_nodes(input$mol_lev_1, input$mol_lev_2, pip())
-      print(nodes)
-      return(nodes)
-  })
- 
-   generate_edges_ml1 <- eventReactive(
-    req(isTruthy(input$go), (isTruthy(input$map_lev_1) || isTruthy(input$no_con_ml1) || isTruthy(input$complete_ml1))), {
-    if (isTruthy(input$map_lev_1)){
-      df_withinmap_lev_1 <- read.csv(input$map_lev_1$datapath)
-      df_withinmap_lev_1 <- as.data.frame(df_withinmap_lev_1, stringsAsFactors = FALSE)
-      edgelist_ml1 <- df_withinmap_lev_1
-    }
-    else if (isTruthy(input$no_con_ml1)){
-      edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
-      colnames(edgelist_ml1) <- c('from', 'to')
-    }
-    else if (isTruthy(input$complete_ml1)){
-      req(input$mol_lev_1)
-      edgelist_ml1 <- complete_edges(input$mol_lev_1)
-    }
-    return(edgelist_ml1)
-  })
- 
-  generate_edges_ml2 <- eventReactive(
-    req(isTruthy(input$go), (isTruthy(input$map_lev_2) || isTruthy(input$no_con_ml2) || isTruthy(input$complete_ml2))), {
-    if (isTruthy(input$map_lev_2)){
-      df_withinmap_lev_2 <- read.csv(input$map_lev_2$datapath)
-      df_withinmap_lev_2 <- as.data.frame(df_withinmap_lev_2, stringsAsFactors = FALSE)
-      edgelist_ml2 <- df_withinmap_lev_2
-    }
-    else if (isTruthy(input$no_con_ml2)){
-      edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
-      colnames(edgelist_ml2) <- c('from', 'to')
-    }
-    else if (isTruthy(input$complete_ml2)){
-      req(input$mol_lev_2)
-      edgelist_ml2 <- complete_edges(input$mol_lev_2)
-    }
-    return(edgelist_ml2)
-  })
-  
-  generate_edges <- eventReactive(
-    req(generate_edges_ml1(), generate_edges_ml2()), {
-
-    df_map_lev_1_2 <- read.csv(input$map_lev_1_2$datapath)
-    df_map_lev_1_2 <- as.data.frame(df_map_lev_1_2, stringsAsFactors = FALSE)
-
-    edgelist_ml1 <- generate_edges_ml1()
-    edgelist_ml2 <- generate_edges_ml2()
-
-    edges <- rbind(edgelist_ml1, edgelist_ml2)
-    edges <- rbind(edges, df_map_lev_1_2)
-    return(edges)
-  })
-  
-  generate_graph <- eventReactive(req(generate_edges(), generate_nodes()), { 
-    #nodes <- generate_nodes()
-    #edges <- generate_edges()
-    make_graph(nodes, edges)
-    
-  })
-  
-  #build graph from helper functions
-  output$input_graph <- renderVisNetwork({
-    generate_graph()
-  })
-  
-  observe({
-    visNetworkProxy("input_graph") %>%
-      visRemoveNodes(id = input$click)
-  })
 
    output$ml1 <- renderText("Score Name:")
    output$ml2 <- renderText("Score Name:")
 
    output$logo <- renderImage({
-    
      list(src = "./www/logo.png", width = "20%", height = "35%", alt = "Alternate text")
    }, deleteFile = FALSE)
    
@@ -275,6 +463,10 @@ ui <- fluidPage(
                       tags$li("Click 'Browse' to input data"),
                       tags$li("Click 'Generate Graph'")
                     )
+                  ),
+
+                  fluidRow(
+                    actionButton("demo", "Demo")
                   ),
                  
                  fluidRow(

@@ -1,7 +1,7 @@
 library(visNetwork)
 
-make_graph <- function(nodes, edges){
-  visNetwork(nodes, edges) %>%
+make_graph <- function(n, e){
+  visNetwork(n, e) %>%
     visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
     visLayout(randomSeed = 12) %>%
     visIgraphLayout(input$layout) %>% 
@@ -14,11 +14,9 @@ make_graph <- function(nodes, edges){
 }
 
 make_nodes <- function(ml1, ml2, pip){
-  df_mol_lev_1 <- read.csv(ml1$datapath)
-  df_mol_lev_2 <- read.csv(ml2$datapath)
-  
-  df_mol_lev_1 <- as.data.frame(df_mol_lev_1, stringsAsFactors = FALSE)
-  df_mol_lev_2 <- as.data.frame(df_mol_lev_2, stringsAsFactors = FALSE)
+
+  df_mol_lev_1 <- as.data.frame(ml1, stringsAsFactors = FALSE)
+  df_mol_lev_2 <- as.data.frame(ml2, stringsAsFactors = FALSE)
   
   df_mol_lev_1['group'] = "a"
   df_mol_lev_2['group'] = "b"
@@ -30,7 +28,7 @@ make_nodes <- function(ml1, ml2, pip){
   df_mol_lev_2["color"] = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$feature, breaks = length(df_mol_lev_2)))]
   
   nodes <- bind_rows(df_mol_lev_1, df_mol_lev_2)
-  nodes <- mutate(nodes, font_size = 40)
+  nodes <- mutate(nodes, value = 40)
   nodes <- filter(nodes, feature > as.double(pip))
   return(nodes)
 }
