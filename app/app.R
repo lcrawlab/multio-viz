@@ -2,6 +2,7 @@ library(shiny)
 library(visNetwork)
 library(dplyr)
 library(shinyBS)
+library(shinythemes)
 #runApp("app")
 
 app_dir <- getwd()
@@ -194,8 +195,8 @@ server <- function(input, output, session) {
            "Please Select a Layout" = NULL)
   })
 
-   output$ml1 <- renderText("Score Name:")
-   output$ml2 <- renderText("Score Name:")
+   output$ml1 <- renderText("PIP Score")
+   output$ml2 <- renderText("PIP Score")
 
    output$logo <- renderImage({
      list(src = "./www/logo.png", width = "20%", height = "35%", alt = "Alternate text")
@@ -215,7 +216,8 @@ server <- function(input, output, session) {
    
 }
 
-ui <- fluidPage(  
+
+ui <- fluidPage(theme = shinytheme("cosmo"),  
 
   title <-
     tags$a(tags$img(
@@ -292,8 +294,8 @@ ui <- fluidPage(
       
       fluidRow(
         selectInput("layout", "Select Graph Layout:", 
-                    choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
-                    selected = "layout_with_sugiyama")),
+          choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
+          selected = "layout_with_sugiyama")),
       
       fluidRow(
         hr()
@@ -313,15 +315,15 @@ ui <- fluidPage(
         
       
       fluidRow(
-                align="center",
-                textInput("txt_ly_1", textOutput("ml1"), width = "100px")
+        align="center",
+        #textInput("txt_ly_1", textOutput("ml1"), width = "100px"),
+        textOutput("ml1")
       ),
       
       fluidRow(
         sliderInput("slider2", "Set Threholding for ML2:",
                     min = 0, max = 1, value = 0.5)),
       fluidRow(
-        #imageOutput("colorbar2")
         colorbar2 <-
           tags$a(tags$img(
             src = "colorbar2.png",
@@ -331,7 +333,8 @@ ui <- fluidPage(
       
       fluidRow(
         align="center",
-        textInput("txt_ly_2", textOutput("ml2"), width = "100px")
+        #textInput("txt_ly_2", textOutput("ml2"), width = "100px"),
+        textOutput("ml2")
       ),
       
     ),
@@ -340,60 +343,54 @@ ui <- fluidPage(
       tabsetPanel(
         tabPanel("Instructions",
                  
-                 fluidRow(h1("Welcome! Thank you for using Multio-viz.")),
+          fluidRow(h1("Welcome! Thank you for using Multio-viz.")),
                  
-                 fluidRow(
-                   hr()
-                 ),
+          fluidRow(
+            hr()
+          ),
 
-                 fluidRow(h4("Multio-viz accepts 5 inputs:"),
-                          tags$ol(
-                            tags$li("A csv file for vertices of Molecular Level 1"), 
-                            tags$li("A csv file for vertices of Molecular Level 2"), 
-                            tags$li("A csv file mapping vertices of Molecular Level 1 to vertices of Molecular Level 2"),
-                            tags$li("A csv file mapping vertices within Molecular Level 1"),
-                            tags$li("A csv file mapping vertices within Molecular Level 2"),
-                            tags$h6("NOTE FOR INPUTS 4 AND 5: If molecular level has complete edges, check 'Full Connections'. If molecular level has trivial edges, check 'No Connections' in lieu of file input.")
-                          )
-                          ),
+          fluidRow(h4("Multio-viz accepts 5 inputs:"),
+            tags$ol(
+              tags$li("A csv file for vertices of Molecular Level 1"), 
+              tags$li("A csv file for vertices of Molecular Level 2"), 
+              tags$li("A csv file mapping vertices of Molecular Level 1 to vertices of Molecular Level 2"),
+              tags$li("A csv file mapping vertices within Molecular Level 1"),
+              tags$li("A csv file mapping vertices within Molecular Level 2"),
+              tags$h6("NOTE FOR INPUTS 4 AND 5: If molecular level has complete edges, check 'Full Connections'. If molecular level has trivial edges, check 'No Connections' in lieu of file input.")
+            )),
                  
-                 fluidRow(
-                   actionButton("data", "View Example Data"),
-                   bsModal("modalExamples", "Example Data", "data", size = "large",imageOutput("data_examples"))
-                 ),
+          fluidRow(
+            actionButton("data", "View Example Data"),
+            bsModal("modalExamples", "Example Data", "data", size = "large",imageOutput("data_examples"))
+          ),
                  
-                 fluidRow(
-                   hr()
-                 ),
+          fluidRow(
+            hr()
+          ),
                  
-                  fluidRow(
-                    h4("QuickStart:"),
-                    tags$ol(
-                      tags$li("Convert data to accepted input formats"), 
-                      tags$li("Click 'Browse' to input data"),
-                      tags$li("Click 'Generate Graph'")
-                    )
-                  ),
+          fluidRow(
+            h4("QuickStart:"),
+              tags$ol(
+                tags$li("Convert data to accepted input formats"), 
+                tags$li("Click 'Browse' to input data"),
+                tags$li("Click 'Generate Graph'")
+              )),
                  
-                 fluidRow(
-                   hr()
-                 ),
+          fluidRow(
+            hr()
+          ),
                  
-                 fluidRow(h4("Features:"),
-                          tags$ul(
-                            tags$li("Choose graph layout with 'Select Graph Layout Dropdown'"), 
-                            tags$li("Filter out nodes  by statistical ranking with slider"),
-                            tags$li("Single click on node to highlight connected edges and nodes"),
-                            tags$li("Double click on node to remove node and connected edges"),
-                            tags$li("Click 'Edit' to add edges and nodes"),
-                          ))
-                 
-            
-                 ),
+          fluidRow(h4("Features:"),
+            tags$ul(
+              tags$li("Choose graph layout with 'Select Graph Layout Dropdown'"), 
+              tags$li("Filter out nodes  by statistical ranking with slider"),
+              tags$li("Single click on node to highlight connected edges and nodes"),
+              tags$li("Double click on node to remove node and connected edges"),
+              tags$li("Click 'Edit' to add edges and nodes"),
+            ))),
         
-        tabPanel("Input Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
+        tabPanel("View Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
       )
-      
     )
   )
 )
