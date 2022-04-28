@@ -170,7 +170,7 @@ server <- function(input, output, session) {
         visLayout(randomSeed = 12) %>%
         visIgraphLayout(input$layout) %>% 
         visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "feature", "group", "color", "value")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
-        visGroups(groupname = "a", shape = "circle") %>%
+        visGroups(groupname = "a", shape = "square") %>%
         visGroups(groupname = "b", shape = "triangle") %>%
         visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE) %>%
         visEvents(doubleClick = "function(nodes) {
