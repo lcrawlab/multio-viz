@@ -1,6 +1,6 @@
 from,to
-gene1,snp1
-gene1,snp4
-gene3,snp2
-gene4,snp3
+snp1,gene1
+snp4,gene1
+snp2,gene3
+snp3,gene4
 

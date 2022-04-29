@@ -1,5 +1,4 @@
 from,to
-gene1,gene2
-gene1,gene3
-gene2,gene4
-gene4,gene1
+snp1,snp3
+snp2,snp4
+snp3,snp1
