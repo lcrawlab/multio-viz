@@ -195,8 +195,8 @@ server <- function(input, output, session) {
            "Please Select a Layout" = NULL)
   })
 
-   output$ml1 <- renderText("PIP Score")
-   output$ml2 <- renderText("PIP Score")
+   output$ml1 <- renderText("Rank")
+   output$ml2 <- renderText("Rank")
 
    output$logo <- renderImage({
      list(src = "./www/logo.png", width = "20%", height = "35%", alt = "Alternate text")
