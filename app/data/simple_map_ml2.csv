@@ -1,4 +1,4 @@
 from,to
-cpg1,cpg3
-cpg4,cpg2
-cpg3,cpg1
+gene1,gene3
+snp2,gene4
+snp3,snp1
