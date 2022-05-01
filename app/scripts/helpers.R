@@ -21,15 +21,15 @@ make_nodes <- function(ml1, ml2, pip){
   df_mol_lev_1['group'] = "a"
   df_mol_lev_2['group'] = "b"
   
-  color_palette_ml1 = colorRampPalette(c("lightblue", "steelblue4"))
-  color_palette_ml2 = colorRampPalette(c("yellow2","goldenrod","darkred"))
+  color_palette_ml2 = colorRampPalette(c("lightblue", "steelblue4"))
+  color_palette_ml1 = colorRampPalette(c("yellow2","goldenrod","darkred"))
   
-  df_mol_lev_1["color"] = color_palette_ml1(length(df_mol_lev_1))[as.numeric(cut(df_mol_lev_1$feature, breaks = length(df_mol_lev_1)))]
-  df_mol_lev_2["color"] = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$feature, breaks = length(df_mol_lev_2)))]
+  df_mol_lev_1["color"] = color_palette_ml1(length(df_mol_lev_1))[as.numeric(cut(df_mol_lev_1$score, breaks = length(df_mol_lev_1)))]
+  df_mol_lev_2["color"] = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$score, breaks = length(df_mol_lev_2)))]
   
   nodes <- bind_rows(df_mol_lev_1, df_mol_lev_2)
   nodes <- mutate(nodes, value = 40)
-  nodes <- filter(nodes, feature > as.double(pip))
+  nodes <- filter(nodes, score > as.double(pip))
   return(nodes)
 }
 
@@ -83,15 +83,15 @@ subgraph <- function(df1, df2, df3){
   cpg_list <- as.data.frame(df2, stringsAsFactors = FALSE)
   mapping <- as.data.frame(df3, stringsAsFactors = FALSE)
   
-  colnames(gene_list) <- c('feature', 'id', 'group', 'color', 'size')
-  colnames(cpg_list) <- c('feature', 'id', 'group', 'color', 'size')
+  colnames(gene_list) <- c('score', 'id', 'group', 'color', 'size')
+  colnames(cpg_list) <- c('score', 'id', 'group', 'color', 'size')
   
   gene_list['group'] = 'a'
   cpg_list['group'] = 'b'
   
   gene_palette <- colorRampPalette(c("lightblue", "steelblue4"))
   gene_list$color <- gene_palette(length(gene_list))[as.numeric(cut(gene_list$feature, breaks = length(gene_list)))]
-  gene_list$feature <- as.numeric(gene_list$feature)
+  gene_list$score <- as.numeric(gene_list$score)
   
   cpg_palette <- colorRampPalette(c("yellow2","goldenrod","darkred"))
   cpg_list$color <- cpg_palette(length(cpg_list))[as.numeric(cut(cpg_list$feature, breaks = length(cpg_list)))]

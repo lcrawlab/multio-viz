@@ -169,9 +169,9 @@ server <- function(input, output, session) {
         visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
         visLayout(randomSeed = 12) %>%
         visIgraphLayout(input$layout) %>% 
-        visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "feature", "group", "color", "value")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
-        visGroups(groupname = "a", shape = "square") %>%
-        visGroups(groupname = "b", shape = "triangle") %>%
+        visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "score", "group", "color", "value")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+        visGroups(groupname = "a", shape = "triangle") %>%
+        visGroups(groupname = "b", shape = "square") %>%
         visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE) %>%
         visEvents(doubleClick = "function(nodes) {
                       Shiny.onInputChange('click', nodes.nodes[0]);
