@@ -276,7 +276,8 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
       
       fluidRow(
         align="center",
-        actionButton("go", "Generate Graph")
+        actionButton("go", "Generate Graph"),
+        actionButton("demo", "Demo")
       ),
 
       fluidRow(
@@ -285,7 +286,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
 
       fluidRow(
         align="center",
-        actionButton("demo", "Demo")
+        actionButton("run_model", "Run Model")
       ),
       
       fluidRow(
