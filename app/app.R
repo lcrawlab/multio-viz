@@ -10,8 +10,9 @@ source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 
 server <- function(input, output, session) {
 
-  #reactive expression for pip thresholding
-  pip <- reactive(input$slider)
+  #reactive expression for rank thresholding
+  score_threshold_ml1 <- reactive(input$slider1)
+  score_threshold_ml2 <- reactive(input$slider2)
 
   ml1_filepath = reactiveVal()
   ml2_filepath = reactiveVal()
@@ -109,7 +110,7 @@ server <- function(input, output, session) {
     ,{
 
       if (!is.null(read_ml_lev_1()) && !is.null(read_ml_lev_1())){
-        node <- make_nodes(read_ml_lev_1(), read_ml_lev_2(), pip())
+        node <- make_nodes(read_ml_lev_1(), read_ml_lev_2(), score_threshold_ml1(), score_threshold_ml2())
         return(node)
       }
       else {
@@ -302,7 +303,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
       ),
       
       fluidRow(
-        sliderInput("slider", "Set Threholding For ML1:",
+        sliderInput("slider1", "Set Threholding For ML1:",
                     min = 0, max = 1, value = 0.5)),
       fluidRow(
         #imageOutput("colorbar1"))
