@@ -308,7 +308,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
         #imageOutput("colorbar1"))
         colorbar1 <-
           tags$a(tags$img(
-            src = "colorbar1.png",
+            src = "colorbar2.png",
             height = "auto",
             width = "100%"
           ))),
@@ -326,7 +326,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
       fluidRow(
         colorbar2 <-
           tags$a(tags$img(
-            src = "colorbar2.png",
+            src = "colorbar1.png",
             height = "auto",
             width = "100%"
         ))),
