@@ -3,10 +3,11 @@ library(visNetwork)
 library(dplyr)
 library(shinyBS)
 library(shinythemes)
-#runApp("app")
+#library(multioviz)
 
 app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
+#source(paste(app_dir, "/scripts/perturb.R", sep = ""))
 
 server <- function(input, output, session) {
 
@@ -19,7 +20,7 @@ server <- function(input, output, session) {
   map_between_filepath = reactiveVal()
   map_ml1_filepath = reactiveVal()
   map_ml2_filepath = reactiveVal()
-
+  
   read_ml_lev_1 = reactive({
     if(input$demo) {
       ml1_filepath(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
@@ -27,6 +28,14 @@ server <- function(input, output, session) {
     else if (isTruthy(input$mol_lev_1)) {
       ml1_filepath(input$mol_lev_1$datapath)
     }
+    else if (input$run_model) {
+      ml1_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML1_pip.csv", sep = ""))
+    }
+    else if (input$rerun_model) {
+      ml1_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML1_pip_hyp.csv", sep = ""))
+    }
+    
+    
 
     if (is.null(ml1_filepath())) {
       return()
@@ -43,6 +52,12 @@ server <- function(input, output, session) {
     }
     else if (isTruthy(input$mol_lev_2)) {
       ml2_filepath(input$mol_lev_2$datapath)
+    }
+    else if (input$run_model) {
+      ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_pip.csv", sep = ""))
+    }
+    else if (input$rerun_model) {
+      ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_pip_hyp.csv", sep = ""))
     }
 
     if (is.null(ml2_filepath())) {
@@ -61,6 +76,12 @@ server <- function(input, output, session) {
     else if (isTruthy(input$map_lev_1_2)) {
       map_between_filepath(input$map_lev_1_2$datapath)
     }
+    else if (input$run_model) {
+      map_between_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/btw_ML_map.csv", sep = ""))
+    }
+    else if (input$rerun_model) {
+      map_between_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/btw_ML_map_hyp.csv", sep = ""))
+    }
 
     if (is.null(map_between_filepath())) {
       return()
@@ -78,6 +99,13 @@ server <- function(input, output, session) {
     else if (isTruthy(input$map_lev_1)) {
       map_ml1_filepath(input$map_lev_1$datapath)
     }
+    else if (input$run_model) {
+      map_ml1_filepath(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+    }
+    else if (input$rerun_model) {
+      map_ml1_filepath(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+    }
+
 
     if (is.null(map_ml1_filepath())) {
       return()
@@ -95,6 +123,12 @@ server <- function(input, output, session) {
     else if (isTruthy(input$map_lev_2)) {
       map_ml2_filepath(input$map_lev_2$datapath)
     }
+    else if (input$run_model) {
+      map_ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_map.csv", sep = ""))
+    }
+    else if (input$rerun_model) {
+      map_ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_map.csv", sep = ""))
+    }
 
     if (is.null(map_ml2_filepath())) {
       return()
@@ -106,7 +140,7 @@ server <- function(input, output, session) {
   })
   
   generate_nodes <- eventReactive(
-    req((isTruthy(input$go) || isTruthy(input$demo)), read_ml_lev_1(), read_ml_lev_2())
+    req((isTruthy(input$go) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), read_ml_lev_1(), read_ml_lev_2())
     ,{
 
       if (!is.null(read_ml_lev_1()) && !is.null(read_ml_lev_1())){
@@ -119,7 +153,7 @@ server <- function(input, output, session) {
   })
 
   generate_edges <- eventReactive(
-    req(isTruthy(input$go) || isTruthy(input$demo)), {
+    req(isTruthy(input$go) || isTruthy(input$demo)|| isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
       if (is.null(read_map_ml1())){
         if (isTruthy(input$no_con_ml1)){
           edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
@@ -157,7 +191,7 @@ server <- function(input, output, session) {
     }
   )
   
-  observeEvent(req(isTruthy(input$go) || isTruthy(input$demo)), {
+  observeEvent(req(isTruthy(input$go) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model) ), {
 
     node <- generate_nodes()
     edge <- generate_edges()
@@ -188,7 +222,7 @@ server <- function(input, output, session) {
 
   #dropdown to select graph layout
   graphLayout <- reactive({
-    req(input$go)
+    req(input$go || isTruthy(input$run_model) || isTruthy(input$rerun_model))
     switch(input$layout,
            "layout_with_sugiyama" = layout$x,
            "layout_with_kk" = layout$y,
@@ -214,6 +248,10 @@ server <- function(input, output, session) {
    output$data_examples <- renderImage({
      list(src = "./www/example_data.jpeg", width = "85%", height = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
    }, deleteFile = FALSE)
+
+   output$model_data_examples <- renderImage({
+     list(src = "./www/model_example_data.png", width = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
+   }, deleteFile = FALSE)
    
 }
 
@@ -233,34 +271,64 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
     sidebarPanel(
             
       fluidRow(
+        column(6,
+        h1("Visualize", align="center"),
         fileInput("mol_lev_1", "Choose File for ML1:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv"))),
+          column(6, 
+          h1("Perturb", align="center"),
+          fileInput("x_model_input", "Choose X:",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")))),                             
       fluidRow(
+        column(6,
         fileInput("mol_lev_2", "Choose File for ML2:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv"))),
+        column(6, 
+        fileInput("y_model_input", "Choose y:",
+                multiple = FALSE,
+                accept = c("text/csv",
+                            "text/comma-separated-values,text/plain",
+                            ".csv")))), 
       
       fluidRow(
+        column(6,
         fileInput("map_lev_1_2", "Choose Mapping File from ML1 to ML2:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv"))),
-      
+        column(6, 
+          fileInput("mask_input", "Choose mask:",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")))), 
       fluidRow(
         column(width = 6, 
                fileInput("map_lev_1", "Choose Mapping Type for ML1:",
                          multiple = FALSE,
                          accept = c("text/csv",
                                     "text/comma-separated-values,text/plain",
-                                    ".csv"))),
-        column(width = 3, checkboxInput("no_con_ml1", "No Connections", FALSE)),
-        column(width = 3, checkboxInput("complete_ml1", "Fully Connected", FALSE))
+                                    ".csv")),
+        column(width = 6, checkboxInput("no_con_ml1", "No Connections", FALSE)),
+        column(width = 6, checkboxInput("complete_ml1", "Fully Connected", FALSE))),
+        column(6, 
+        selectInput(
+          "organism",
+          label = NULL,
+          choices = c(
+          "Select a method" = "NA",
+          "BANNs" = "banns",
+          "BIOGRINN" = "biogrinn")))
         ),
       
       fluidRow(
@@ -269,27 +337,28 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                          multiple = FALSE,
                          accept = c("text/csv",
                                     "text/comma-separated-values,text/plain",
-                                    ".csv"))),
-        column(width = 3, checkboxInput("no_con_ml2", "No Connections", FALSE)),
-        column(width = 3, checkboxInput("complete_ml2", "Fully Connected", FALSE))
+                                    ".csv")),
+        column(width = 6, checkboxInput("no_con_ml2", "No Connections", FALSE)),
+        column(width = 6, checkboxInput("complete_ml2", "Fully Connected", FALSE))),
+
+        column(6,
+        align="center",
+        actionButton("run_model", "Run Model"),
+        actionButton("rerun_model", "Rerun Model"))
+      ),
+      
+      fluidRow(
+        column(6,
+        align="center",
+        actionButton("demo", "Demo")),
+        column(6,
+        align="center",
+        actionButton("demo", "Demo"))
       ),
       
       fluidRow(
         align="center",
         actionButton("go", "Generate Graph"),
-        actionButton("demo", "Demo")
-      ),
-
-      fluidRow(
-        tags$br()
-      ),
-
-      fluidRow(
-        align="center",
-        actionButton("run_model", "Run Model")
-      ),
-      
-      fluidRow(
         hr()
       ),
       
@@ -351,7 +420,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
             hr()
           ),
 
-          fluidRow(h4("Multio-viz accepts 5 inputs:"),
+          fluidRow(h3("Multio-viz accepts 5 inputs for visualization:"),
             tags$ol(
               tags$li("A csv file for vertices of Molecular Level 1"), 
               tags$li("A csv file for vertices of Molecular Level 2"), 
@@ -359,30 +428,47 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
               tags$li("A csv file mapping vertices within Molecular Level 1"),
               tags$li("A csv file mapping vertices within Molecular Level 2"),
               tags$h6("NOTE FOR INPUTS 4 AND 5: If molecular level has complete edges, check 'Full Connections'. If molecular level has trivial edges, check 'No Connections' in lieu of file input.")
-            )),
-                 
+            )),  
           fluidRow(
             actionButton("data", "View Example Data"),
             bsModal("modalExamples", "Example Data", "data", size = "large",imageOutput("data_examples"))
           ),
+
+          fluidRow(h3("Multio-viz accepts 4 inputs for perturbation:"),
+            tags$ol(
+              tags$li("A text file X of samples by Molecular Level 1 feature."), 
+              tags$li("A text file y of Molecular Level 2 feature for all samples."), 
+              tags$li("A text file mask of mapping between Molecular Levels 1 and 2.")
+            )),
+            fluidRow(
+            actionButton("model_data", "View Example Data"),
+            bsModal("model_data_Examples", "Example Data", "model_data", size = "large",imageOutput("model_data_examples"))
+          ),
                  
           fluidRow(
             hr()
           ),
                  
           fluidRow(
-            h4("QuickStart:"),
+            h3("QuickStart: Visualize"),
               tags$ol(
-                tags$li("Convert data to accepted input formats"), 
-                tags$li("Click 'Browse' to input data"),
-                tags$li("Click 'Generate Graph'")
+                tags$li("Convert data to accepted input formats."), 
+                tags$li("Click 'Browse' to input data."),
+                tags$li("Click 'Generate Graph' to generate gene regulatory network.")
+              ),
+            
+            h3("QuickStart: Perturb"),
+              tags$ol(
+                tags$li("Convert data to accepted input formats."), 
+                tags$li("Click 'Browse' to input data."),
+                tags$li("Click 'Run Model' to generate gene regulatory network'.")
               )),
-                 
+
           fluidRow(
             hr()
           ),
                  
-          fluidRow(h4("Features:"),
+          fluidRow(h3("Features:"),
             tags$ul(
               tags$li("Choose graph layout with 'Select Graph Layout Dropdown'"), 
               tags$li("Filter out nodes  by statistical ranking with slider"),
