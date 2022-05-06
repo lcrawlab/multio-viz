@@ -3,6 +3,9 @@ library(visNetwork)
 library(dplyr)
 library(shinyBS)
 library(shinythemes)
+library(shinydashboard)
+library(shinydashboardPlus)
+library(shinyWidgets)
 #library(multioviz)
 
 app_dir <- getwd()
@@ -21,6 +24,7 @@ server <- function(input, output, session) {
   map_ml1_filepath = reactiveVal()
   map_ml2_filepath = reactiveVal()
   
+  # CREATING NODES AND EDGES 
   read_ml_lev_1 = reactive({
     if(input$demo) {
       ml1_filepath(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
@@ -29,10 +33,10 @@ server <- function(input, output, session) {
       ml1_filepath(input$mol_lev_1$datapath)
     }
     else if (input$run_model) {
-      ml1_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML1_pip.csv", sep = ""))
+      ml1_filepath(paste("/data/ML1_pip.csv", sep = ""))
     }
     else if (input$rerun_model) {
-      ml1_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML1_pip_hyp.csv", sep = ""))
+      ml1_filepath(paste("/data/ML1_pip_hyp.csv", sep = ""))
     }
     
     
@@ -124,10 +128,10 @@ server <- function(input, output, session) {
       map_ml2_filepath(input$map_lev_2$datapath)
     }
     else if (input$run_model) {
-      map_ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_map.csv", sep = ""))
+      map_ml2_filepath(paste("/data/ML2_map.csv", sep = ""))
     }
     else if (input$rerun_model) {
-      map_ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_map.csv", sep = ""))
+      map_ml2_filepath(paste("/data/ML2_map.csv", sep = ""))
     }
 
     if (is.null(map_ml2_filepath())) {
@@ -191,6 +195,7 @@ server <- function(input, output, session) {
     }
   )
   
+  #GENERATE GRAPH
   observeEvent(req(isTruthy(input$go) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model) ), {
 
     node <- generate_nodes()
@@ -220,6 +225,8 @@ server <- function(input, output, session) {
       visRemoveNodes(id = input$click)
   })
 
+  #UI THINGS
+ 
   #dropdown to select graph layout
   graphLayout <- reactive({
     req(input$go || isTruthy(input$run_model) || isTruthy(input$rerun_model))
@@ -252,235 +259,503 @@ server <- function(input, output, session) {
    output$model_data_examples <- renderImage({
      list(src = "./www/model_example_data.png", width = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
    }, deleteFile = FALSE)
-   
+
+  observeEvent("", {
+    showModal(modalDialog(
+      includeHTML("intro_text.html"),
+      easyClose = TRUE,
+    ))
+  })
+
+  observeEvent(input$instructions, {
+    showModal(modalDialog(
+      includeHTML("intro_text2.html"),
+      easyClose = TRUE,
+      #footer = actionButton(inputId = "example_data_viz", label = "VIEW EXAMPLE DATA", icon = icon("info-circle"))
+    ))
+  })
+
+
+
 }
 
-
-ui <- fluidPage(theme = shinytheme("cosmo"),  
-
-  title <-
-    tags$a(tags$img(
+ui <- dashboardPage(
+  title = "Multioviz",
+  skin = "black",
+  dashboardHeader(
+    tags$li(class = "dropdown",
+      tags$style(".main-header {max-height: 100px}"),
+      tags$style(".main-header .logo {height: 80px}")),
+    title = tags$a(tags$img(
       src = "logo.png",
       height = "auto",
-      width = "20%"
+      width = "50%"
     )),
+    titleWidth = 300
+  ),
   
-
-  
-  sidebarLayout(
-    sidebarPanel(
-            
-      fluidRow(
-        column(6,
-        h1("Visualize", align="center"),
-        fileInput("mol_lev_1", "Choose File for ML1:",
+  dashboardSidebar(
+     width = 300,
+     sidebarMenu(
+          div(class = "inlay", style = "height:15px;width:100%;background-color: #ecf0f5;"),
+          HTML("",sep="<br/>"), # new line
+          menuItem(
+            "Visualize",
+            tabName = "visualize",
+            fileInput("mol_lev_1", "Input ML1 Scores:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
-                             ".csv"))),
-          column(6, 
-          h1("Perturb", align="center"),
-          fileInput("x_model_input", "Choose X:",
+                             ".csv")),
+            fileInput("mol_lev_2", "Input ML2 Scores:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
-                             ".csv")))),                             
-      fluidRow(
-        column(6,
-        fileInput("mol_lev_2", "Choose File for ML2:",
+                             ".csv")),
+            fileInput("map_lev_1_2", "Input Map:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
-                             ".csv"))),
-        column(6, 
-        fileInput("y_model_input", "Choose y:",
-                multiple = FALSE,
-                accept = c("text/csv",
-                            "text/comma-separated-values,text/plain",
-                            ".csv")))), 
-      
-      fluidRow(
-        column(6,
-        fileInput("map_lev_1_2", "Choose Mapping File from ML1 to ML2:",
+                             ".csv")),
+            hr(),
+            fileInput("map_lev_1", "Choose ONE Map Type for ML1:",
                   multiple = FALSE,
                   accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv"))),
-        column(6, 
-          fileInput("mask_input", "Choose mask:",
+                              "text/comma-separated-values,text/plain",
+                              ".csv")),
+            checkboxInput("no_con_ml1", "No Connections", FALSE),
+            checkboxInput("complete_ml1", "Fully Connected", FALSE),
+            hr(),
+            fileInput("map_lev_2", "Choose ONE Map Type for ML2:",
                   multiple = FALSE,
                   accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
-                             ".csv")))), 
-      fluidRow(
-        column(width = 6, 
-               fileInput("map_lev_1", "Choose Mapping Type for ML1:",
-                         multiple = FALSE,
-                         accept = c("text/csv",
-                                    "text/comma-separated-values,text/plain",
-                                    ".csv")),
-        column(width = 6, checkboxInput("no_con_ml1", "No Connections", FALSE)),
-        column(width = 6, checkboxInput("complete_ml1", "Fully Connected", FALSE))),
-        column(6, 
-        selectInput(
-          "organism",
-          label = NULL,
-          choices = c(
-          "Select a method" = "NA",
-          "BANNs" = "banns",
-          "BIOGRINN" = "biogrinn")))
-        ),
-      
-      fluidRow(
-        column(width = 6, 
-               fileInput("map_lev_2", "Choose Mapping Type for ML2:",
-                         multiple = FALSE,
-                         accept = c("text/csv",
-                                    "text/comma-separated-values,text/plain",
-                                    ".csv")),
-        column(width = 6, checkboxInput("no_con_ml2", "No Connections", FALSE)),
-        column(width = 6, checkboxInput("complete_ml2", "Fully Connected", FALSE))),
-
-        column(6,
-        align="center",
-        actionButton("run_model", "Run Model"),
-        actionButton("rerun_model", "Rerun Model"))
-      ),
-      
-      fluidRow(
-        column(6,
-        align="center",
-        actionButton("demo", "Demo")),
-        column(6,
-        align="center",
-        actionButton("demo", "Demo"))
-      ),
-      
-      fluidRow(
-        align="center",
-        actionButton("go", "Generate Graph"),
-        hr()
-      ),
-      
-      
-      fluidRow(
-        selectInput("layout", "Select Graph Layout:", 
-          choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
-          selected = "layout_with_sugiyama")),
-      
-      fluidRow(
-        hr()
-      ),
-      
-      fluidRow(
-        sliderInput("slider1", "Set Threholding For ML1:",
-                    min = 0, max = 1, value = 0.5)),
-      fluidRow(
-        #imageOutput("colorbar1"))
-        colorbar1 <-
-          tags$a(tags$img(
-            src = "colorbar2.png",
-            height = "auto",
-            width = "100%"
-          ))),
-        
-      
-      fluidRow(
-        align="center",
-        #textInput("txt_ly_1", textOutput("ml1"), width = "100px"),
-        textOutput("ml1")
-      ),
-      
-      fluidRow(
-        sliderInput("slider2", "Set Threholding for ML2:",
-                    min = 0, max = 1, value = 0.5)),
-      fluidRow(
-        colorbar2 <-
-          tags$a(tags$img(
-            src = "colorbar1.png",
-            height = "auto",
-            width = "100%"
-        ))),
-      
-      fluidRow(
-        align="center",
-        #textInput("txt_ly_2", textOutput("ml2"), width = "100px"),
-        textOutput("ml2")
-      ),
-      
-    ),
-    
-    mainPanel(
-      tabsetPanel(
-        tabPanel("Instructions",
-                 
-          fluidRow(h1("Welcome! Thank you for using Multio-viz.")),
-                 
-          fluidRow(
+                              "text/comma-separated-values,text/plain",
+                              ".csv")),
+            checkboxInput("no_con_ml2", "No Connections", FALSE),
+            checkboxInput("complete_ml2", "Fully Connected", FALSE),
+            hr(),
+            fluidRow(align = "center", bsButton("go", label = "GENERATE NETWORK", icon = icon("play-circle"), style = "danger", size = 'large')),
             hr()
           ),
-
-          fluidRow(h3("Multio-viz accepts 5 inputs for visualization:"),
-            tags$ol(
-              tags$li("A csv file for vertices of Molecular Level 1"), 
-              tags$li("A csv file for vertices of Molecular Level 2"), 
-              tags$li("A csv file mapping vertices of Molecular Level 1 to vertices of Molecular Level 2"),
-              tags$li("A csv file mapping vertices within Molecular Level 1"),
-              tags$li("A csv file mapping vertices within Molecular Level 2"),
-              tags$h6("NOTE FOR INPUTS 4 AND 5: If molecular level has complete edges, check 'Full Connections'. If molecular level has trivial edges, check 'No Connections' in lieu of file input.")
-            )),  
-          fluidRow(
-            actionButton("data", "View Example Data"),
-            bsModal("modalExamples", "Example Data", "data", size = "large",imageOutput("data_examples"))
-          ),
-
-          fluidRow(h3("Multio-viz accepts 4 inputs for perturbation:"),
-            tags$ol(
-              tags$li("A text file X of samples by Molecular Level 1 feature."), 
-              tags$li("A text file y of Molecular Level 2 feature for all samples."), 
-              tags$li("A text file mask of mapping between Molecular Levels 1 and 2.")
-            )),
+          menuItem(
+            "Perturb",
+            tabName = "perturb",
+            fileInput("x_model_input", "Input X:",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")),
+            fileInput("y_model_input", "Input y:",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                              "text/comma-separated-values,text/plain",
+                              ".csv")),
+            fileInput("mask_input", "Input mask:",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")),
+            fileInput("ml1_map_perturb_input", "Input map for ML1:",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")),
+            fileInput("ml2_map_perturb_input", "Input map for ML2:",
+                  multiple = FALSE,
+                  accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")),
+            selectInput(
+              "organism",
+              label = NULL,
+              choices = c(
+              "Select a model" = "NA",
+              "BANNs" = "banns",
+              "BIOGRINN" = "biogrinn")),
             fluidRow(
-            actionButton("model_data", "View Example Data"),
-            bsModal("model_data_Examples", "Example Data", "model_data", size = "large",imageOutput("model_data_examples"))
-          ),
-                 
-          fluidRow(
-            hr()
-          ),
-                 
-          fluidRow(
-            h3("QuickStart: Visualize"),
-              tags$ol(
-                tags$li("Convert data to accepted input formats."), 
-                tags$li("Click 'Browse' to input data."),
-                tags$li("Click 'Generate Graph' to generate gene regulatory network.")
-              ),
-            
-            h3("QuickStart: Perturb"),
-              tags$ol(
-                tags$li("Convert data to accepted input formats."), 
-                tags$li("Click 'Browse' to input data."),
-                tags$li("Click 'Run Model' to generate gene regulatory network'.")
-              )),
+              align = "center", bsButton("run_model", label = "RUN MODEL", icon = icon("play-circle"), style = "danger", size = 'large')
+              #column(width = 4, actionButton("run_model", "Run Model")),
+              #column(width = 4, actionButton("rerun_model", "Rerun Model"))
+            ),
+            fluidRow(
+              align = "center", bsButton("rerun_model", label = "RERUN MODEL", icon = icon("play-circle"), style = "danger", size = 'large')),
+            hr()                          
+          )
+          # menuItem(
+          #   "Edit Graph",
+          #   selectInput("layout", "Select Graph Layout:", 
+          #     choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
+          #     selected = "layout_with_sugiyama"),
+          #   hr(),
+          #   chooseSliderSkin("Flat"),
+          #   sliderInput("slider1", "Set Threholding For ML1:",
+          #           min = 0, max = 1, value = 0.5),
+          #   colorbar1 <-
+          #     tags$a(tags$img(
+          #     src = "colorbar2.png",
+          #     height = "auto",
+          #     width = "100%")),
+          #   h6("Score", align="center"),
+          #   hr(),
+          #   chooseSliderSkin("Flat"),
+          #   sliderInput("slider2", "Set Threholding For ML2:",
+          #           min = 0, max = 1, value = 0.5),
+          #   colorbar1 <-
+          #     tags$a(tags$img(
+          #     src = "colorbar1.png",
+          #     height = "auto",
+          #     width = "100%")),
+          #   h6("Score", align="center")          
+          # ),
+          #fluidRow(align = "center", bsButton("go", label = "GENERATE NETWORK", icon = icon("play-circle"), style = "danger", size = 'large'))
 
-          fluidRow(
-            hr()
-          ),
-                 
-          fluidRow(h3("Features:"),
-            tags$ul(
-              tags$li("Choose graph layout with 'Select Graph Layout Dropdown'"), 
-              tags$li("Filter out nodes  by statistical ranking with slider"),
-              tags$li("Single click on node to highlight connected edges and nodes"),
-              tags$li("Double click on node to remove node and connected edges"),
-              tags$li("Click 'Edit' to add edges and nodes"),
-            ))),
-        
-        tabPanel("View Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
-      )
-    )
+  )),
+dashboardBody(
+  width = 12,
+      fluidRow(
+      column(
+        width = 12,
+          bsButton("instructions", 
+                   label = "INSTRUCTIONS", 
+                   icon = icon("user"), 
+                   style = "success", size = 'large'),
+          bsButton("example_data_viz", label = "EXAMPLE DATA VISUALIZATION", style = "success", size = 'large'),
+          bsButton("example_data_perturb", label = "EXAMPLE DATA PERTURBATION", style = "success", size = 'large'),
+          bsButton("demo", 
+                   label = "DEMO", 
+                   icon = icon("spinner", class = "spinner-box"),
+                   style = "success", size = 'large'),
+          bsModal("example_data_viz", "Example Data", "data", size = "large",imageOutput("data_examples")),
+          bsModal("example_data_perturb", "Example Data", "data", size = "large",imageOutput("model_example_data.png"))        
+          )
+  ),
+  hr(),
+    fluidRow(
+    box(
+            selectInput("layout", "Select Graph Layout:", 
+              choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
+              selected = "layout_with_sugiyama"),
+            hr(),
+            chooseSliderSkin("Flat"),
+            sliderInput("slider1", "Set Threholding For ML1:",
+                    min = 0, max = 1, value = 0.5),
+            colorbar1 <-
+              tags$a(tags$img(
+              src = "colorbar2.png",
+              height = "auto",
+              width = "100%")),
+            h6("Score", align="center"),
+            hr(),
+            chooseSliderSkin("Flat"),
+            sliderInput("slider2", "Set Threholding For ML2:",
+                    min = 0, max = 1, value = 0.5),
+            colorbar1 <-
+              tags$a(tags$img(
+              src = "colorbar1.png",
+              height = "auto",
+              width = "100%")),
+            h6("Score", align="center"),
+            hr(),
+            fluidRow(align = "center", bsButton("go", label = "GENERATE NETWORK", icon = icon("play-circle"), style = "danger", size = 'large')), title = "Edit Graph", collapsible = TRUE),
+    box(visNetworkOutput("input_graph", height = "800px", width = "100%"), width = 6))
   )
 )
+    
+    # tabsetPanel(
+    #     tabPanel("Instructions",
+                 
+    #       fluidRow(h1("Welcome! Thank you for using Multio-viz.")),
+                 
+    #       fluidRow(
+    #         hr()
+    #       ),
+
+    #       fluidRow(h3("Multio-viz accepts 5 inputs for visualization:"),
+    #         tags$ol(
+    #           tags$li("A csv file for vertices of Molecular Level 1"), 
+    #           tags$li("A csv file for vertices of Molecular Level 2"), 
+    #           tags$li("A csv file mapping vertices of Molecular Level 1 to vertices of Molecular Level 2"),
+    #           tags$li("A csv file mapping vertices within Molecular Level 1"),
+    #           tags$li("A csv file mapping vertices within Molecular Level 2"),
+    #           tags$h6("NOTE FOR INPUTS 4 AND 5: If molecular level has complete edges, check 'Full Connections'. If molecular level has trivial edges, check 'No Connections' in lieu of file input.")
+    #         )),  
+    #       fluidRow(
+    #         actionButton("data", "View Example Data"),
+    #         bsModal("example_data_viz", "Example Data", "data", size = "large",imageOutput("data_examples"))
+    #       ),
+
+    #       fluidRow(h3("Multio-viz accepts 4 inputs for perturbation:"),
+    #         tags$ol(
+    #           tags$li("A text file X of samples by Molecular Level 1 feature."), 
+    #           tags$li("A text file y of Molecular Level 2 feature for all samples."), 
+    #           tags$li("A text file mask of mapping between Molecular Levels 1 and 2.")
+    #         )),
+    #         fluidRow(
+    #         actionButton("model_data", "View Example Data"),
+    #         bsModal("model_data_Examples", "Example Data", "model_data", size = "large",imageOutput("model_data_examples"))
+    #       ),
+                 
+    #       fluidRow(
+    #         hr()
+    #       ),
+                 
+    #       fluidRow(
+    #         h3("QuickStart: Visualize"),
+    #           tags$ol(
+    #             tags$li("Convert data to accepted input formats."), 
+    #             tags$li("Click 'Browse' to input data."),
+    #             tags$li("Click 'Generate Graph' to generate gene regulatory network.")
+    #           ),
+            
+    #         h3("QuickStart: Perturb"),
+    #           tags$ol(
+    #             tags$li("Convert data to accepted input formats."), 
+    #             tags$li("Click 'Browse' to input data."),
+    #             tags$li("Click 'Run Model' to generate gene regulatory network'.")
+    #           )),
+
+    #       fluidRow(
+    #         hr()
+    #       ),
+                 
+    #       fluidRow(h3("Features:"),
+    #         tags$ul(
+    #           tags$li("Choose graph layout with 'Select Graph Layout Dropdown'"), 
+    #           tags$li("Filter out nodes  by statistical ranking with slider"),
+    #           tags$li("Single click on node to highlight connected edges and nodes"),
+    #           tags$li("Double click on node to remove node and connected edges"),
+    #           tags$li("Click 'Edit' to add edges and nodes"),
+    #         ))),
+    #     tabPanel("View Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
+    #   )
+    # )
+
+
+
+
+# ui <- fluidPage(theme = shinytheme("cosmo"),  
+
+#   title <-
+#     tags$a(tags$img(
+#       src = "logo.png",
+#       height = "auto",
+#       width = "20%"
+#     )),
+
+#   sidebarLayout(
+#     sidebarPanel(
+            
+#       fluidRow(
+#         column(6,
+#         h1("Visualize", align="center"),
+#         fileInput("mol_lev_1", "Choose File for ML1:",
+#                   multiple = FALSE,
+#                   accept = c("text/csv",
+#                              "text/comma-separated-values,text/plain",
+#                              ".csv"))),
+#           column(6, 
+#           h1("Perturb", align="center"),
+#           fileInput("x_model_input", "Choose X:",
+#                   multiple = FALSE,
+#                   accept = c("text/csv",
+#                              "text/comma-separated-values,text/plain",
+#                              ".csv")))),                             
+#       fluidRow(
+#         column(6,
+#         fileInput("mol_lev_2", "Choose File for ML2:",
+#                   multiple = FALSE,
+#                   accept = c("text/csv",
+#                              "text/comma-separated-values,text/plain",
+#                              ".csv"))),
+#         column(6, 
+#         fileInput("y_model_input", "Choose y:",
+#                 multiple = FALSE,
+#                 accept = c("text/csv",
+#                             "text/comma-separated-values,text/plain",
+#                             ".csv")))), 
+      
+#       fluidRow(
+#         column(6,
+#         fileInput("map_lev_1_2", "Choose Mapping File from ML1 to ML2:",
+#                   multiple = FALSE,
+#                   accept = c("text/csv",
+#                              "text/comma-separated-values,text/plain",
+#                              ".csv"))),
+#         column(6, 
+#           fileInput("mask_input", "Choose mask:",
+#                   multiple = FALSE,
+#                   accept = c("text/csv",
+#                              "text/comma-separated-values,text/plain",
+#                              ".csv")))), 
+#       fluidRow(
+#         column(width = 6, 
+#                fileInput("map_lev_1", "Choose Mapping Type for ML1:",
+#                          multiple = FALSE,
+#                          accept = c("text/csv",
+#                                     "text/comma-separated-values,text/plain",
+#                                     ".csv")),
+#         column(width = 6, checkboxInput("no_con_ml1", "No Connections", FALSE)),
+#         column(width = 6, checkboxInput("complete_ml1", "Fully Connected", FALSE))),
+#         column(6, 
+#         selectInput(
+#           "organism",
+#           label = NULL,
+#           choices = c(
+#           "Select a method" = "NA",
+#           "BANNs" = "banns",
+#           "BIOGRINN" = "biogrinn")))
+#         ),
+      
+#       fluidRow(
+#         column(width = 6, 
+#                fileInput("map_lev_2", "Choose Mapping Type for ML2:",
+#                          multiple = FALSE,
+#                          accept = c("text/csv",
+#                                     "text/comma-separated-values,text/plain",
+#                                     ".csv")),
+#         column(width = 6, checkboxInput("no_con_ml2", "No Connections", FALSE)),
+#         column(width = 6, checkboxInput("complete_ml2", "Fully Connected", FALSE))),
+
+#         column(6,
+#         align="center",
+#         actionButton("run_model", "Run Model"),
+#         actionButton("rerun_model", "Rerun Model"))
+#       ),
+      
+#       fluidRow(
+#         column(6,
+#         align="center",
+#         actionButton("demo", "Demo")),
+#         column(6,
+#         align="center",
+#         actionButton("demo", "Demo"))
+#       ),
+      
+#       fluidRow(
+#         align="center",
+#         actionButton("go", "Generate Graph"),
+#         hr()
+#       ),
+      
+      
+#       fluidRow(
+#         selectInput("layout", "Select Graph Layout:", 
+#           choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
+#           selected = "layout_with_sugiyama")),
+      
+#       fluidRow(
+#         hr()
+#       ),
+      
+#       fluidRow(
+#         sliderInput("slider1", "Set Threholding For ML1:",
+#                     min = 0, max = 1, value = 0.5)),
+#       fluidRow(
+#         #imageOutput("colorbar1"))
+#         colorbar1 <-
+#           tags$a(tags$img(
+#             src = "colorbar2.png",
+#             height = "auto",
+#             width = "100%"
+#           ))),
+        
+      
+#       fluidRow(
+#         align="center",
+#         #textInput("txt_ly_1", textOutput("ml1"), width = "100px"),
+#         textOutput("ml1")
+#       ),
+      
+#       fluidRow(
+#         sliderInput("slider2", "Set Threholding for ML2:",
+#                     min = 0, max = 1, value = 0.5)),
+#       fluidRow(
+#         colorbar2 <-
+#           tags$a(tags$img(
+#             src = "colorbar1.png",
+#             height = "auto",
+#             width = "100%"
+#         ))),
+      
+#       fluidRow(
+#         align="center",
+#         #textInput("txt_ly_2", textOutput("ml2"), width = "100px"),
+#         textOutput("ml2")
+#       ),
+      
+#     ),
+    
+#     mainPanel(
+#       tabsetPanel(
+#         tabPanel("Instructions",
+                 
+#           fluidRow(h1("Welcome! Thank you for using Multio-viz.")),
+                 
+#           fluidRow(
+#             hr()
+#           ),
+
+#           fluidRow(h3("Multio-viz accepts 5 inputs for visualization:"),
+#             tags$ol(
+#               tags$li("A csv file for vertices of Molecular Level 1"), 
+#               tags$li("A csv file for vertices of Molecular Level 2"), 
+#               tags$li("A csv file mapping vertices of Molecular Level 1 to vertices of Molecular Level 2"),
+#               tags$li("A csv file mapping vertices within Molecular Level 1"),
+#               tags$li("A csv file mapping vertices within Molecular Level 2"),
+#               tags$h6("NOTE FOR INPUTS 4 AND 5: If molecular level has complete edges, check 'Full Connections'. If molecular level has trivial edges, check 'No Connections' in lieu of file input.")
+#             )),  
+#           fluidRow(
+#             actionButton("data", "View Example Data"),
+#             bsModal("modalExamples", "Example Data", "data", size = "large",imageOutput("data_examples"))
+#           ),
+
+#           fluidRow(h3("Multio-viz accepts 4 inputs for perturbation:"),
+#             tags$ol(
+#               tags$li("A text file X of samples by Molecular Level 1 feature."), 
+#               tags$li("A text file y of Molecular Level 2 feature for all samples."), 
+#               tags$li("A text file mask of mapping between Molecular Levels 1 and 2.")
+#             )),
+#             fluidRow(
+#             actionButton("model_data", "View Example Data"),
+#             bsModal("model_data_Examples", "Example Data", "model_data", size = "large",imageOutput("model_data_examples"))
+#           ),
+                 
+#           fluidRow(
+#             hr()
+#           ),
+                 
+#           fluidRow(
+#             h3("QuickStart: Visualize"),
+#               tags$ol(
+#                 tags$li("Convert data to accepted input formats."), 
+#                 tags$li("Click 'Browse' to input data."),
+#                 tags$li("Click 'Generate Graph' to generate gene regulatory network.")
+#               ),
+            
+#             h3("QuickStart: Perturb"),
+#               tags$ol(
+#                 tags$li("Convert data to accepted input formats."), 
+#                 tags$li("Click 'Browse' to input data."),
+#                 tags$li("Click 'Run Model' to generate gene regulatory network'.")
+#               )),
+
+#           fluidRow(
+#             hr()
+#           ),
+                 
+#           fluidRow(h3("Features:"),
+#             tags$ul(
+#               tags$li("Choose graph layout with 'Select Graph Layout Dropdown'"), 
+#               tags$li("Filter out nodes  by statistical ranking with slider"),
+#               tags$li("Single click on node to highlight connected edges and nodes"),
+#               tags$li("Double click on node to remove node and connected edges"),
+#               tags$li("Click 'Edit' to add edges and nodes"),
+#             ))),
+        
+#         tabPanel("View Graph", visNetworkOutput("input_graph", height = "800px", width = "100%")),
+#       )
+#     )
+#   )
+# )
 
 shinyApp(ui, server)
