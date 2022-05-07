@@ -6,6 +6,7 @@ library(shinythemes)
 library(shinydashboard)
 library(shinydashboardPlus)
 library(shinyWidgets)
+library(shinyjs)
 #library(multioviz)
 
 app_dir <- getwd()
@@ -13,6 +14,58 @@ source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 #source(paste(app_dir, "/scripts/perturb.R", sep = ""))
 
 server <- function(input, output, session) {
+
+  observeEvent(c(input$mol_lev_1, input$mol_lev_2, input$map_lev_1_2, input$map_lev_1, input$map_lev_2), {
+      disable("x_model_input")
+      disable("y_model_input")
+      disable("mask_input")
+      disable("ml1_map_perturb_input")
+      disable("ml2_map_perturb_input")
+      disable("run_model")
+      disable("rerun_model")
+  })
+
+  observeEvent(c(input$x_model_input, input$y_model_input, input$mask_input, input$ml1_map_perturb_input, input$ml2_map_perturb_input, input$run_model, input$rerun_model), {
+    disable("mol_lev_1")
+    disable("input$mol_lev_2")
+    disable("map_lev_1_2")
+    disable("map_lev_1")
+    disable("map_lev_2")
+    disable("go")
+  })
+
+  observeEvent(input$map_lev_1, {
+    disable("no_con_ml1")
+    disable("complete_ml1")
+  })
+
+  observeEvent(input$no_con_ml1, {
+    disable("quickstart")
+    disable("map_lev_1")
+    disable("complete_ml1")
+  })
+
+
+  observeEvent(input$complete_ml1, {
+    disable("no_con_ml1")
+    disable("map_lev_1")
+  })
+
+    observeEvent(input$map_lev_2, {
+    disable("no_con_ml2")
+    disable("complete_ml2")
+  })
+
+  observeEvent(input$no_con_ml2, {
+    disable("map_lev_2")
+    disable("complete_ml2")
+  })
+
+
+  observeEvent(input$complete_ml2, {
+    disable("no_con_ml2")
+    disable("map_lev_2")
+  })
 
   #reactive expression for rank thresholding
   score_threshold_ml1 <- reactive(input$slider1)
@@ -31,6 +84,14 @@ server <- function(input, output, session) {
     }
     else if (isTruthy(input$mol_lev_1)) {
       ml1_filepath(input$mol_lev_1$datapath)
+      disable("x_model_input")
+      disable("y_model_input")
+      disable("mask_input")
+      disable("ml1_map_perturb_input")
+      disable("ml2_map_perturb_input")
+      disable("run_model")
+      disable("rerun_model")
+
     }
     else if (input$run_model) {
       ml1_filepath(paste("/data/ML1_pip.csv", sep = ""))
@@ -58,10 +119,10 @@ server <- function(input, output, session) {
       ml2_filepath(input$mol_lev_2$datapath)
     }
     else if (input$run_model) {
-      ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_pip.csv", sep = ""))
+      ml2_filepath(paste("/data/ML2_pip.csv", sep = ""))
     }
     else if (input$rerun_model) {
-      ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_pip_hyp.csv", sep = ""))
+      ml2_filepath(paste("/data/ML2_pip_hyp.csv", sep = ""))
     }
 
     if (is.null(ml2_filepath())) {
@@ -81,10 +142,10 @@ server <- function(input, output, session) {
       map_between_filepath(input$map_lev_1_2$datapath)
     }
     else if (input$run_model) {
-      map_between_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/btw_ML_map.csv", sep = ""))
+      map_between_filepath(paste("/data/btw_ML_map.csv", sep = ""))
     }
     else if (input$rerun_model) {
-      map_between_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/btw_ML_map_hyp.csv", sep = ""))
+      map_between_filepath(paste("/data/btw_ML_map_hyp.csv", sep = ""))
     }
 
     if (is.null(map_between_filepath())) {
@@ -144,7 +205,7 @@ server <- function(input, output, session) {
   })
   
   generate_nodes <- eventReactive(
-    req((isTruthy(input$go) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), read_ml_lev_1(), read_ml_lev_2())
+    req((isTruthy(input$go) || isTruthy(input$go2) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), read_ml_lev_1(), read_ml_lev_2())
     ,{
 
       if (!is.null(read_ml_lev_1()) && !is.null(read_ml_lev_1())){
@@ -157,7 +218,7 @@ server <- function(input, output, session) {
   })
 
   generate_edges <- eventReactive(
-    req(isTruthy(input$go) || isTruthy(input$demo)|| isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
+    req(isTruthy(input$go) || isTruthy(input$go2) || isTruthy(input$demo)|| isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
       if (is.null(read_map_ml1())){
         if (isTruthy(input$no_con_ml1)){
           edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
@@ -171,6 +232,7 @@ server <- function(input, output, session) {
       else{
         df_withinmap_lev_1 <- as.data.frame(read_map_ml1(), stringsAsFactors = FALSE)
         edgelist_ml1 <- df_withinmap_lev_1
+
       }
 
       if (is.null(read_map_ml2())){
@@ -196,7 +258,7 @@ server <- function(input, output, session) {
   )
   
   #GENERATE GRAPH
-  observeEvent(req(isTruthy(input$go) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model) ), {
+  observeEvent(req(isTruthy(input$go) || isTruthy(input$go2) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model) ), {
 
     node <- generate_nodes()
     edge <- generate_edges()
@@ -229,7 +291,7 @@ server <- function(input, output, session) {
  
   #dropdown to select graph layout
   graphLayout <- reactive({
-    req(input$go || isTruthy(input$run_model) || isTruthy(input$rerun_model))
+    req(input$go || input$go2 || isTruthy(input$run_model) || isTruthy(input$rerun_model))
     switch(input$layout,
            "layout_with_sugiyama" = layout$x,
            "layout_with_kk" = layout$y,
@@ -252,11 +314,11 @@ server <- function(input, output, session) {
      list(src = "./www/colorbar2.png", width = "100%", height = "25%", alt = "Alternate text")
    }, deleteFile = FALSE)
    
-   output$data_examples <- renderImage({
+   output$data_examples_vis <- renderImage({
      list(src = "./www/example_data.jpeg", width = "85%", height = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
    }, deleteFile = FALSE)
 
-   output$model_data_examples <- renderImage({
+   output$data_examples_perturb <- renderImage({
      list(src = "./www/model_example_data.png", width = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
    }, deleteFile = FALSE)
 
@@ -267,7 +329,7 @@ server <- function(input, output, session) {
     ))
   })
 
-  observeEvent(input$instructions, {
+  observeEvent(input$quickstart, {
     showModal(modalDialog(
       includeHTML("intro_text2.html"),
       easyClose = TRUE,
@@ -302,6 +364,8 @@ ui <- dashboardPage(
           menuItem(
             "Visualize",
             tabName = "visualize",
+            fluidRow(align = "center", bsButton("example_data_viz", label = "Example Data Visualization", style = "success", size = 'large')),
+            fluidRow(align = "center", bsButton("demo", label = "Demo", icon = icon("spinner", class = "spinner-box"),style = "success", size = 'large')),
             fileInput("mol_lev_1", "Input ML1 Scores:",
                   multiple = FALSE,
                   accept = c("text/csv",
@@ -318,7 +382,8 @@ ui <- dashboardPage(
                              "text/comma-separated-values,text/plain",
                              ".csv")),
             hr(),
-            fileInput("map_lev_1", "Choose ONE Map Type for ML1:",
+            h6("Choose ONE Map Type for ML1:"),
+            fileInput("map_lev_1", "Sparse Connections File",
                   multiple = FALSE,
                   accept = c("text/csv",
                               "text/comma-separated-values,text/plain",
@@ -326,7 +391,8 @@ ui <- dashboardPage(
             checkboxInput("no_con_ml1", "No Connections", FALSE),
             checkboxInput("complete_ml1", "Fully Connected", FALSE),
             hr(),
-            fileInput("map_lev_2", "Choose ONE Map Type for ML2:",
+            h6("Choose ONE Map Type for ML1:"),
+            fileInput("map_lev_2", "Sparse Connections File",
                   multiple = FALSE,
                   accept = c("text/csv",
                               "text/comma-separated-values,text/plain",
@@ -339,6 +405,7 @@ ui <- dashboardPage(
           ),
           menuItem(
             "Perturb",
+            fluidRow(align = "center", bsButton("example_data_perturb", label = "Example Data Perturbation", style = "success", size = 'large')),
             tabName = "perturb",
             fileInput("x_model_input", "Input X:",
                   multiple = FALSE,
@@ -379,7 +446,7 @@ ui <- dashboardPage(
             ),
             fluidRow(
               align = "center", bsButton("rerun_model", label = "RERUN MODEL", icon = icon("play-circle"), style = "danger", size = 'large')),
-            hr()                          
+            hr()
           )
           # menuItem(
           #   "Edit Graph",
@@ -415,18 +482,12 @@ dashboardBody(
       fluidRow(
       column(
         width = 12,
-          bsButton("instructions", 
-                   label = "INSTRUCTIONS", 
+          bsButton("quickstart", 
+                   label = "Quickstart", 
                    icon = icon("user"), 
                    style = "success", size = 'large'),
-          bsButton("example_data_viz", label = "EXAMPLE DATA VISUALIZATION", style = "success", size = 'large'),
-          bsButton("example_data_perturb", label = "EXAMPLE DATA PERTURBATION", style = "success", size = 'large'),
-          bsButton("demo", 
-                   label = "DEMO", 
-                   icon = icon("spinner", class = "spinner-box"),
-                   style = "success", size = 'large'),
-          bsModal("example_data_viz", "Example Data", "data", size = "large",imageOutput("data_examples")),
-          bsModal("example_data_perturb", "Example Data", "data", size = "large",imageOutput("model_example_data.png"))        
+          bsModal("example_data_viz_modal", "Example Data for Visualization", "example_data_viz", size = "large",imageOutput("data_examples_vis")),
+          bsModal("example_data_perturb_modal", "Example Data for Perturbation", "example_data_perturb", size = "large",imageOutput("data_examples_perturb"))        
           )
   ),
   hr(),
@@ -456,8 +517,8 @@ dashboardBody(
               width = "100%")),
             h6("Score", align="center"),
             hr(),
-            fluidRow(align = "center", bsButton("go", label = "GENERATE NETWORK", icon = icon("play-circle"), style = "danger", size = 'large')), title = "Edit Graph", collapsible = TRUE),
-    box(visNetworkOutput("input_graph", height = "800px", width = "100%"), width = 6))
+            fluidRow(align = "center", bsButton("go2", label = "GENERATE NETWORK", icon = icon("play-circle"), style = "danger", size = 'large')), title = "Edit Graph", width = 4, collapsible = TRUE),
+    box(visNetworkOutput("input_graph", height = "800px", width = "100%"), width = 8))
   )
 )
     
