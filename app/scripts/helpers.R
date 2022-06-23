@@ -1,5 +1,10 @@
 library(visNetwork)
 
+multioviz <- function(outdir){
+ #Sys.sleep(4)
+ runApp("app/")
+}
+
 make_graph <- function(n, e){
   visNetwork(n, e) %>%
     visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%

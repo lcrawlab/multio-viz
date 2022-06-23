@@ -3,7 +3,7 @@ library(visNetwork)
 library(dplyr)
 library(shinyBS)
 library(shinythemes)
-#library(multioviz)
+library(multioviz) # Followed: https://tinyheero.github.io/jekyll/update/2015/07/26/making-your-first-R-package.html
 
 app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
@@ -197,7 +197,6 @@ server <- function(input, output, session) {
     edge <- generate_edges()
 
     if (!is.null(node) || !is.null(edge)){
-      print("here")
       print(node)
       output$input_graph <- renderVisNetwork({
       visNetwork(node, edge) %>%
