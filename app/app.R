@@ -3,148 +3,136 @@ library(visNetwork)
 library(dplyr)
 library(shinyBS)
 library(shinythemes)
-library(multioviz) # Followed: https://tinyheero.github.io/jekyll/update/2015/07/26/making-your-first-R-package.html
+#library(multioviz) # Followed: https://tinyheero.github.io/jekyll/update/2015/07/26/making-your-first-R-package.html
 
+#for debugging, started R session in multio-viz directory, type "runApp('app/app.R')", and click "demo")
 app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
-#source(paste(app_dir, "/scripts/perturb.R", sep = ""))
+source(paste(app_dir, "/scripts/perturb.R", sep = ""))
 
 server <- function(input, output, session) {
+  options(shiny.maxRequestSize=30*1024^2) 
+
+  X_file = reactive(input$x_model_input$datapath)
+  y_file = reactive(input$y_model_input$datapath)
+  mask_file = reactive(input$mask_input$datapath)
+  demo = reactive(input$demo)
+
+  reactivesModel = reactiveValues()
+  reactivesModel$X = NULL
+  reactivesModel$y = NULL
+  reactivesModel$mask = NULL
+  
+  observeEvent(req(isTruthy(input$demo) || isTruthy(input$run_model)), {
+    if(isTruthy(input$demo)) {
+      X_matrix = as.matrix(read.table(paste(app_dir, "/data/Xtest.txt", sep = "")))
+    }
+    else if(isTruthy(input$x_model_input)) {
+      X_matrix = as.matrix(read.table(X_file()))
+    }
+    else {
+      X_matrix = NULL
+    }
+    if(isTruthy(input$demo)) {
+      y_matrix = as.matrix(read.table(paste(app_dir, "/data/ytest.txt", sep = "")))
+    }
+    else if (isTruthy(input$y_model_input)) {
+      y_matrix = as.matrix(read.table(y_file()))
+    }
+    else {
+      y_matrix = NULL
+    }
+    if(isTruthy(input$demo)) {
+      mask_matrix = as.matrix(read.table(paste(app_dir, "/data/masktest.txt", sep = "")))
+    }
+    else if (isTruthy(input$mask_model_input)) {
+      mask_matrix = as.matrix(read.table(mask_file()))
+    }
+    else {
+      mask_matrix = NULL
+    }
+
+    if(!is.null(mask_matrix)) {
+      s_names <- paste("s", 1:dim(mask_matrix)[1], sep="")
+      g_names <- paste("g", 1:dim(mask_matrix)[2], sep="")
+      rownames(mask_matrix) <- s_names
+      colnames(mask_matrix) <- g_names
+    }
+
+    if(!is.null(X_matrix) & !is.null(mask_matrix)) {
+      colnames(X_matrix) <- s_names
+    }
+
+    reactivesModel$X = X_matrix
+    reactivesModel$y = y_matrix
+    reactivesModel$mask = mask_matrix
+
+    print(is.null(reactivesModel$X))
+    print(is.null(reactivesModel$y))
+    print(is.null(reactivesModel$mask))
+  })
+
+  addedNodesML1 = list()
+  addedNodesML2 = list()
+  addedEdges = list()
+
+  deletedNodesML1 = list()
+  deletedNodesML2 = list()
+  deletedEdges = list()
+
+  observeEvent(req(isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
+    print(is.null(reactivesModel$X))
+    print(is.null(reactivesModel$y))
+    print(is.null(reactivesModel$mask))
+    
+    lst = runModel(reactivesModel$X, reactivesModel$y, reactivesModel$map)
+    ML1 = lst[1]
+    ML2 = lst[2]
+    map = lst[3]
+  })
+
+  reactiveMapML1 <- reactiveVal()
+  reactiveMapML2 <- reactiveVal()
 
   #reactive expression for rank thresholding
   score_threshold_ml1 <- reactive(input$slider1)
   score_threshold_ml2 <- reactive(input$slider2)
-
-  ml1_filepath = reactiveVal()
-  ml2_filepath = reactiveVal()
-  map_between_filepath = reactiveVal()
-  map_ml1_filepath = reactiveVal()
-  map_ml2_filepath = reactiveVal()
   
-  read_ml_lev_1 = reactive({
-    if(input$demo) {
-      ml1_filepath(paste(app_dir, "/data/simple_ml1.csv", sep = ""))
-    }
-    else if (isTruthy(input$mol_lev_1)) {
-      ml1_filepath(input$mol_lev_1$datapath)
-    }
-    else if (input$run_model) {
-      ml1_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML1_pip.csv", sep = ""))
-    }
-    else if (input$rerun_model) {
-      ml1_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML1_pip_hyp.csv", sep = ""))
-    }
-    
-    
-
-    if (is.null(ml1_filepath())) {
-      return()
-    }
-
-    read.csv(file = ml1_filepath(),
-             sep = ",",
-             header = TRUE)
-  })
-
-  read_ml_lev_2 = reactive({
-    if(input$demo) {
-      ml2_filepath(paste(app_dir, "/data/simple_ml2.csv", sep = ""))
-    }
-    else if (isTruthy(input$mol_lev_2)) {
-      ml2_filepath(input$mol_lev_2$datapath)
-    }
-    else if (input$run_model) {
-      ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_pip.csv", sep = ""))
-    }
-    else if (input$rerun_model) {
-      ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_pip_hyp.csv", sep = ""))
-    }
-
-    if (is.null(ml2_filepath())) {
-      return()
-    }
-
-    read.csv(file = ml2_filepath(),
-             sep = ",",
-             header = TRUE)
-  })
-
-  read_map_btw = reactive({
-    if(input$demo) {
-      map_between_filepath(paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""))
-    }
-    else if (isTruthy(input$map_lev_1_2)) {
-      map_between_filepath(input$map_lev_1_2$datapath)
-    }
-    else if (input$run_model) {
-      map_between_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/btw_ML_map.csv", sep = ""))
-    }
-    else if (input$rerun_model) {
-      map_between_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/btw_ML_map_hyp.csv", sep = ""))
-    }
-
-    if (is.null(map_between_filepath())) {
-      return()
-    }
-
-    read.csv(file = map_between_filepath(),
-             sep = ",",
-             header = TRUE)
-  })
-
   read_map_ml1 = reactive({
     if(input$demo) {
-      map_ml1_filepath(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+      reactiveMapML1(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
     }
     else if (isTruthy(input$map_lev_1)) {
-      map_ml1_filepath(input$map_lev_1$datapath)
+      reactiveMapML1(input$map_lev_1$datapath)
     }
-    else if (input$run_model) {
-      map_ml1_filepath(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
-    }
-    else if (input$rerun_model) {
-      map_ml1_filepath(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
-    }
-
-
     if (is.null(map_ml1_filepath())) {
       return()
     }
-
-    read.csv(file = map_ml1_filepath(),
+    read.csv(file = reactiveMapML1(),
              sep = ",",
              header = TRUE)
   })
 
-    read_map_ml2 = reactive({
+  read_map_ml2 = reactive({
     if(input$demo) {
-      map_ml2_filepath(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
+      reactiveMapML2(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
     }
     else if (isTruthy(input$map_lev_2)) {
-      map_ml2_filepath(input$map_lev_2$datapath)
+      reactiveMapML2(input$map_lev_2$datapath)
     }
-    else if (input$run_model) {
-      map_ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_map.csv", sep = ""))
-    }
-    else if (input$rerun_model) {
-      map_ml2_filepath(paste("/Users/ashleyconard/Desktop/multio-viz/results/ML2_map.csv", sep = ""))
-    }
-
-    if (is.null(map_ml2_filepath())) {
+    if (is.null(reactiveMapML2())) {
       return()
     }
-
-    read.csv(file = map_ml2_filepath(),
+    read.csv(file = reactiveMapML2(),
              sep = ",",
              header = TRUE)
   })
   
   generate_nodes <- eventReactive(
-    req((isTruthy(input$go) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), read_ml_lev_1(), read_ml_lev_2())
-    ,{
-
-      if (!is.null(read_ml_lev_1()) && !is.null(read_ml_lev_1())){
-        node <- make_nodes(read_ml_lev_1(), read_ml_lev_2(), score_threshold_ml1(), score_threshold_ml2())
+    req(isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)),
+    {
+      if (!is.null(ML1) && !is.null(ML2)){
+        node <- make_nodes(ML1, ML2, score_threshold_ml1(), score_threshold_ml2())
         return(node)
       }
       else {
@@ -153,7 +141,8 @@ server <- function(input, output, session) {
   })
 
   generate_edges <- eventReactive(
-    req(isTruthy(input$go) || isTruthy(input$demo)|| isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
+    req(isTruthy(input$demo)|| isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
+
       if (is.null(read_map_ml1())){
         if (isTruthy(input$no_con_ml1)){
           edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
@@ -161,7 +150,7 @@ server <- function(input, output, session) {
           }
         else if (isTruthy(input$complete_ml1)){
           req(input$mol_lev_1)
-          edgelist_ml1 <- complete_edges(input$mol_lev_1)
+          edgelist_ml1 <- complete_edges(ML1)
           }
       }
       else{
@@ -184,44 +173,95 @@ server <- function(input, output, session) {
         edgelist_ml2 <- df_withinmap_lev_2
       }
 
-      df_map_lev_1_2 <- as.data.frame(read_map_btw(), stringsAsFactors = FALSE)
       edge <- rbind(edgelist_ml1, edgelist_ml2)
-      edge <- rbind(edge, df_map_lev_1_2)
+      edge <- rbind(edge, map)
       return(edge)
     }
   )
   
-  observeEvent(req(isTruthy(input$go) || isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model) ), {
+  observeEvent(req(isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
 
-    node <- generate_nodes()
-    edge <- generate_edges()
+    nodes <- generate_nodes()
+    edges <- generate_edges()
 
-    if (!is.null(node) || !is.null(edge)){
-      print(node)
+    if (!is.null(nodes) || !is.null(edges)) {
       output$input_graph <- renderVisNetwork({
-      visNetwork(node, edge) %>%
-        visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
-        visLayout(randomSeed = 12) %>%
-        visIgraphLayout(input$layout) %>% 
-        visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "score", "group", "color", "value")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
-        visGroups(groupname = "a", shape = "triangle") %>%
-        visGroups(groupname = "b", shape = "square") %>%
-        visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE) %>%
-        visEvents(doubleClick = "function(nodes) {
-                      Shiny.onInputChange('click', nodes.nodes[0]);
-                      }")
-    })
+        visNetwork(nodes, edges) %>%
+          visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
+          visLayout(randomSeed = 12) %>%
+          visIgraphLayout(input$layout) %>% 
+          visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "group"), addEdgeCols = c("from", "to", "id")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+          visGroups(groupname = "a", shape = "triangle") %>%
+          visGroups(groupname = "b", shape = "square") %>%
+          visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
+      })
+    }
+  })
+
+  observeEvent(input$input_graph_graphChange, {
+    # If the user added a node, add it to the data frame of nodes.
+    if(input$input_graph_graphChange$cmd == "addNode") {
+      if(input$input_graph_graphChange$group == 'ML1') {
+        addedNodesML1 = c(addedNodesML1, input$input_graph_graphChange$id)
+      }
+      if(input$input_graph_graphChange$group == 'ML2') {
+        addedNodesML2 = c(addedNodesML2, input$input_graph_graphChange$id)
+      }
+    }
+
+    # If the user added an edge, add it to the data frame of edges.
+    else if(input$input_graph_graphChange$cmd == "addEdge") {
+      row = c(input$input_graph_graphChange$id, input$input_graph_graphChange$from, input$input_graph_graphChange$to)
+      addedEdges = c(addedEdges, row)
+    }
+
+    # If the user edited a node, update that record.
+    else if(input$input_graph_graphChange$cmd == "editNode") {
+      temp = nodes
+      temp$label[temp$id == input$input_graph_graphChange$id] = input$input_graph_graphChange$label
+      nodes = temp
+    }
+
+    # If the user edited an edge, update that record.
+    else if(input$input_graph_graphChange$cmd == "editEdge") {
+      temp = edges
+      temp$from[temp$id == input$input_graph_graphChange$id] = input$input_graph_graphChange$from
+      temp$to[temp$id == input$editableinput_graph_graphChange_network_graphChange$id] = input$input_graph_graphChange$to
+      edges = temp
+    }
+
+    # If the user deleted something, remove those records.
+    else if(input$input_graph_graphChange$cmd == "deleteElements") {
+      for(node.id in input$input_graph_graphChange$nodes) {
+        r = nodes[nodes$id == node.id]
+        if (r$group == 'ML1') {
+          deletedNodesML1 = c(deletedNodesML1, node.id)
+        }
+        if (r$group == 'ML2') {
+          deletedNodesML2 = c(deletedNodesML2, node.id)       
+        }
+      }
+      for(edge.id in input$input_graph_graphChange$edges) {
+        temp = edges[edges$id == edge.id]
+        row = c(edge.id, temp$from, temp$to)
+        addedEdges = c(addedEdges, row)
+      }
+    }
+  })
+
+  observeEvent(input$rerun_model, {
+    reactivesModel$X = reactivesModel$X[,!colnames(reactivesModel$X) %in% deletedNodesML1]
+    reactivesModel$mask = reactivesModel$X[!rownames(reactivesModel$matrix) %in% deletedNodesML1, !colnames(reactivesModel$matrix) %in% deletedNodesML2]
+    for(n in deletedEdges) {
+      if((n[2] %in% rownames(reactivesModel$matrix)) & (n[3] %in% colnames(reactivesModel$matrix))) {
+        reactivesModel$mask[n[2], n[3]] = 0
+      }
     }
   })
   
-  observe({
-    visNetworkProxy("input_graph") %>%
-      visRemoveNodes(id = input$click)
-  })
-
   #dropdown to select graph layout
   graphLayout <- reactive({
-    req(input$go || isTruthy(input$run_model) || isTruthy(input$rerun_model))
+    req(isTruthy(input$run_model) || isTruthy(input$rerun_model))
     switch(input$layout,
            "layout_with_sugiyama" = layout$x,
            "layout_with_kk" = layout$y,
@@ -322,7 +362,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
         column(width = 6, checkboxInput("complete_ml1", "Fully Connected", FALSE))),
         column(6, 
         selectInput(
-          "organism",
+          "Model",
           label = NULL,
           choices = c(
           "Select a method" = "NA",

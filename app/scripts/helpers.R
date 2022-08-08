@@ -1,8 +1,6 @@
-library(visNetwork)
-
 multioviz <- function(outdir){
- #Sys.sleep(4)
- runApp("app/")
+  #Sys.sleep(4)
+  runApp("app/")
 }
 
 make_graph <- function(n, e){
@@ -18,13 +16,12 @@ make_graph <- function(n, e){
                    }")
 }
 
-make_nodes <- function(ml1, ml2, thres_1, thres_2){
-
-  df_mol_lev_1 <- as.data.frame(ml1, stringsAsFactors = FALSE)
-  df_mol_lev_2 <- as.data.frame(ml2, stringsAsFactors = FALSE)
+make_nodes <- function(ml1, ml2, thres_1, thres_2) {
+  df_mol_lev_1 <- ml1
+  df_mol_lev_2 <- ml2
   
-  df_mol_lev_1['group'] = "a"
-  df_mol_lev_2['group'] = "b"
+  df_mol_lev_1['group'] = "ML1"
+  df_mol_lev_2['group'] = "ML2"
   
   color_palette_ml2 = colorRampPalette(c("lightblue", "steelblue4"))
   color_palette_ml1 = colorRampPalette(c("yellow2","goldenrod","darkred"))
@@ -40,9 +37,6 @@ make_nodes <- function(ml1, ml2, thres_1, thres_2){
 }
 
 complete_edges <- function(nodes){
-  nodes <- read.csv(nodes$datapath)
-  nodes <- as.data.frame(nodes, stringsAsFactors = FALSE)
-  
   node_ids <- nodes$id
   rownumber = 1
   len = length(node_ids)
