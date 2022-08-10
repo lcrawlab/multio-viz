@@ -3,6 +3,7 @@ library(visNetwork)
 library(dplyr)
 library(shinyBS)
 library(shinythemes)
+library(igraph)
 #library(multioviz) # Followed: https://tinyheero.github.io/jekyll/update/2015/07/26/making-your-first-R-package.html
 
 #for debugging, started R session in multio-viz directory, type "runApp('app/app.R')", and click "demo")
@@ -23,7 +24,7 @@ server <- function(input, output, session) {
   reactivesModel$y = NULL
   reactivesModel$mask = NULL
   
-  observeEvent(req(isTruthy(input$demo) || isTruthy(input$run_model)), {
+  observe({
     if(isTruthy(input$demo)) {
       X_matrix = as.matrix(read.table(paste(app_dir, "/data/Xtest.txt", sep = "")))
     }
@@ -66,29 +67,19 @@ server <- function(input, output, session) {
     reactivesModel$X = X_matrix
     reactivesModel$y = y_matrix
     reactivesModel$mask = mask_matrix
-
-    print(is.null(reactivesModel$X))
-    print(is.null(reactivesModel$y))
-    print(is.null(reactivesModel$mask))
   })
 
-  addedNodesML1 = list()
-  addedNodesML2 = list()
-  addedEdges = list()
-
-  deletedNodesML1 = list()
-  deletedNodesML2 = list()
-  deletedEdges = list()
+  reactivesViz = reactiveValues()
+  reactivesViz$ML1 = NULL
+  reactivesViz$ML2 = NULL
+  reactivesViz$map = NULL
 
   observeEvent(req(isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
-    print(is.null(reactivesModel$X))
-    print(is.null(reactivesModel$y))
-    print(is.null(reactivesModel$mask))
-    
-    lst = runModel(reactivesModel$X, reactivesModel$y, reactivesModel$map)
-    ML1 = lst[1]
-    ML2 = lst[2]
-    map = lst[3]
+    lst = runModel(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
+
+    reactivesViz$ML1 = lst$ML1
+    reactivesViz$ML2 = lst$ML2
+    reactivesViz$map = lst$map
   })
 
   reactiveMapML1 <- reactiveVal()
@@ -98,95 +89,84 @@ server <- function(input, output, session) {
   score_threshold_ml1 <- reactive(input$slider1)
   score_threshold_ml2 <- reactive(input$slider2)
   
-  read_map_ml1 = reactive({
-    if(input$demo) {
-      reactiveMapML1(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
-    }
-    else if (isTruthy(input$map_lev_1)) {
-      reactiveMapML1(input$map_lev_1$datapath)
-    }
-    if (is.null(map_ml1_filepath())) {
-      return()
-    }
-    read.csv(file = reactiveMapML1(),
-             sep = ",",
-             header = TRUE)
-  })
+#  read_map_ml1 = reactive({
+#    if(input$demo) {
+#      reactiveMapML1(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
+#    }
+#    else if (isTruthy(input$map_lev_1)) {
+#      reactiveMapML1(input$map_lev_1$datapath)
+#    }
+#    if (is.null(reactiveMapML1())) {
+#      return()
+#    }
+#    read.csv(file = reactiveMapML1(),
+#             sep = ",",
+#             header = TRUE)
+#  })
 
-  read_map_ml2 = reactive({
-    if(input$demo) {
-      reactiveMapML2(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
-    }
-    else if (isTruthy(input$map_lev_2)) {
-      reactiveMapML2(input$map_lev_2$datapath)
-    }
-    if (is.null(reactiveMapML2())) {
-      return()
-    }
-    read.csv(file = reactiveMapML2(),
-             sep = ",",
-             header = TRUE)
-  })
+#  read_map_ml2 = reactive({
+#    if(input$demo) {
+#      reactiveMapML2(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
+#    }
+#    else if (isTruthy(input$map_lev_2)) {
+#      reactiveMapML2(input$map_lev_2$datapath)
+#    }
+#    if (is.null(reactiveMapML2())) {
+#      return()
+#    }
+#    read.csv(file = reactiveMapML2(),
+#             sep = ",",
+#             header = TRUE)
+#  })
   
-  generate_nodes <- eventReactive(
-    req(isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)),
+  reactivesGraph = reactiveValues()
+  reactivesGraph$nodes = NULL
+  reactivesGraph$edges = NULL
+
+  observeEvent(
+    req(isTruthy(input$run_model) || isTruthy(input$rerun_model)),
     {
-      if (!is.null(ML1) && !is.null(ML2)){
-        node <- make_nodes(ML1, ML2, score_threshold_ml1(), score_threshold_ml2())
-        return(node)
+      if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)){
+        reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
       }
       else {
         print("No nodes")
       }
-  })
 
-  generate_edges <- eventReactive(
-    req(isTruthy(input$demo)|| isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
-
-      if (is.null(read_map_ml1())){
-        if (isTruthy(input$no_con_ml1)){
-          edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
-          colnames(edgelist_ml1) <- c('from', 'to')
-          }
-        else if (isTruthy(input$complete_ml1)){
-          req(input$mol_lev_1)
-          edgelist_ml1 <- complete_edges(ML1)
-          }
+      if (isTruthy(input$no_con_ml1)){
+        edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
+        colnames(edgelist_ml1) <- c('from', 'to')
       }
-      else{
-        df_withinmap_lev_1 <- as.data.frame(read_map_ml1(), stringsAsFactors = FALSE)
-        edgelist_ml1 <- df_withinmap_lev_1
+      else if (isTruthy(input$complete_ml1)){
+        req(!is.null(reactivesViz$ML1))
+        edgelist_ml1 <- complete_edges(reactivesViz$ML1)
       }
+      #}
+      #else{
+        #df_withinmap_lev_1 <- as.data.frame(read_map_ml1(), stringsAsFactors = FALSE)
+        #edgelist_ml1 <- df_withinmap_lev_1
+      #}
 
-      if (is.null(read_map_ml2())){
-        if (isTruthy(input$no_con_ml2)){
-          edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
-          colnames(edgelist_ml2) <- c('from', 'to')
-          }
-        else if (isTruthy(input$complete_ml2)){
-          req(input$mol_lev_2)
-          edgelist_ml2 <- complete_edges(input$mol_lev_2)
-          }
+      #if (is.null(read_map_ml2())){
+      if (isTruthy(input$no_con_ml2)){
+        edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
+        colnames(edgelist_ml2) <- c('from', 'to')
       }
-      else{
-        df_withinmap_lev_2 <- as.data.frame(read_map_ml2(), stringsAsFactors = FALSE)
-        edgelist_ml2 <- df_withinmap_lev_2
+      else if (isTruthy(input$complete_ml2)){
+        req(!is.null(reactivesViz$ML2))
+        edgelist_ml2 <- complete_edges(reactivesViz$ML2)
       }
+      #}
+      #else{
+      #  df_withinmap_lev_2 <- as.data.frame(read_map_ml2(), stringsAsFactors = FALSE)
+      #  edgelist_ml2 <- df_withinmap_lev_2
+      #}
+      edges <- rbind(edgelist_ml1, edgelist_ml2)
+      reactivesGraph$edges <- rbind(edges, reactivesViz$map)
 
-      edge <- rbind(edgelist_ml1, edgelist_ml2)
-      edge <- rbind(edge, map)
-      return(edge)
-    }
-  )
-  
-  observeEvent(req(isTruthy(input$demo) || isTruthy(input$run_model) || isTruthy(input$rerun_model)), {
-
-    nodes <- generate_nodes()
-    edges <- generate_edges()
-
-    if (!is.null(nodes) || !is.null(edges)) {
+      if (!is.null(reactivesGraph$nodes) || !is.null(reactivesGraph$edges)) {
       output$input_graph <- renderVisNetwork({
-        visNetwork(nodes, edges) %>%
+        visNetwork(reactivesGraph$nodes, reactivesGraph$edges) %>%
           visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
           visLayout(randomSeed = 12) %>%
           visIgraphLayout(input$layout) %>% 
@@ -198,64 +178,133 @@ server <- function(input, output, session) {
     }
   })
 
+  reactivesPerturb = reactiveValues()
+  reactivesPerturb$addedNodesML1 = list()
+  reactivesPerturb$addedNodesML2 = list()
+  reactivesPerturb$addedEdges = list()
+
+  reactivesPerturb$deletedNodesML1 = list()
+  reactivesPerturb$deletedNodesML2 = list()
+  reactivesPerturb$deletedEdges = list()
+
   observeEvent(input$input_graph_graphChange, {
     # If the user added a node, add it to the data frame of nodes.
+    print(input$input_graph_graphChange)
     if(input$input_graph_graphChange$cmd == "addNode") {
       if(input$input_graph_graphChange$group == 'ML1') {
-        addedNodesML1 = c(addedNodesML1, input$input_graph_graphChange$id)
+        reactivesPerturb$addedNodesML1 = c(reactivesPerturb$addedNodesML1, input$input_graph_graphChange$id)
       }
       if(input$input_graph_graphChange$group == 'ML2') {
-        addedNodesML2 = c(addedNodesML2, input$input_graph_graphChange$id)
+        reactivesPerturb$addedNodesML2 = c(reactivesPerturb$addedNodesML2, input$input_graph_graphChange$id)
       }
     }
 
     # If the user added an edge, add it to the data frame of edges.
     else if(input$input_graph_graphChange$cmd == "addEdge") {
       row = c(input$input_graph_graphChange$id, input$input_graph_graphChange$from, input$input_graph_graphChange$to)
-      addedEdges = c(addedEdges, row)
+      reactivesPerturb$addedEdges = c(reactivesPerturb$addedEdges, row)
     }
 
     # If the user edited a node, update that record.
     else if(input$input_graph_graphChange$cmd == "editNode") {
-      temp = nodes
+      temp = reactivesGraph$nodes
       temp$label[temp$id == input$input_graph_graphChange$id] = input$input_graph_graphChange$label
-      nodes = temp
+      reactivesGraph$nodes = temp
     }
 
     # If the user edited an edge, update that record.
     else if(input$input_graph_graphChange$cmd == "editEdge") {
-      temp = edges
+      temp = reactivesGraph$edges
       temp$from[temp$id == input$input_graph_graphChange$id] = input$input_graph_graphChange$from
       temp$to[temp$id == input$editableinput_graph_graphChange_network_graphChange$id] = input$input_graph_graphChange$to
-      edges = temp
+      reactivesGraph$edges = temp
     }
 
     # If the user deleted something, remove those records.
     else if(input$input_graph_graphChange$cmd == "deleteElements") {
       for(node.id in input$input_graph_graphChange$nodes) {
-        r = nodes[nodes$id == node.id]
+        r = reactivesGraph$nodes[reactivesGraph$nodes$id == node.id,]
+        print(reactivesGraph$nodes)
+        print(node.id)
+        print(r)
         if (r$group == 'ML1') {
-          deletedNodesML1 = c(deletedNodesML1, node.id)
+          reactivesPerturb$deletedNodesML1 = c(reactivesPerturb$deletedNodesML1, node.id)
         }
         if (r$group == 'ML2') {
-          deletedNodesML2 = c(deletedNodesML2, node.id)       
+          reactivesPerturb$deletedNodesML2 = c(reactivesPerturb$deletedNodesML2, node.id)       
         }
       }
       for(edge.id in input$input_graph_graphChange$edges) {
-        temp = edges[edges$id == edge.id]
+        temp = reactivesGraph$edges[reactivesGraph$edges$id == edge.id,]
         row = c(edge.id, temp$from, temp$to)
-        addedEdges = c(addedEdges, row)
+        reactivesPerturb$addedEdges = c(reactivesPerturb$addedEdges, row)
       }
     }
   })
 
   observeEvent(input$rerun_model, {
-    reactivesModel$X = reactivesModel$X[,!colnames(reactivesModel$X) %in% deletedNodesML1]
-    reactivesModel$mask = reactivesModel$X[!rownames(reactivesModel$matrix) %in% deletedNodesML1, !colnames(reactivesModel$matrix) %in% deletedNodesML2]
-    for(n in deletedEdges) {
-      if((n[2] %in% rownames(reactivesModel$matrix)) & (n[3] %in% colnames(reactivesModel$matrix))) {
+    reactivesModel$X = reactivesModel$X[,!colnames(reactivesModel$X) %in% reactivesPerturb$deletedNodesML1]
+    reactivesModel$mask = reactivesModel$mask[!rownames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML1, !colnames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML2]
+    for(n in reactivesPerturb$deletedEdges) {
+      if((n[2] %in% rownames(reactivesModel$mask)) & (n[3] %in% colnames(reactivesModel$mask))) {
         reactivesModel$mask[n[2], n[3]] = 0
       }
+    }
+
+    lst = runModel(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
+    reactivesViz$ML1 = lst$ML1
+    reactivesViz$ML2 = lst$ML2
+    reactivesViz$map = lst$map
+
+      if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)){
+        reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
+      }
+      else {
+        print("No nodes")
+      }
+      
+      if (isTruthy(input$no_con_ml1)){
+        edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
+        colnames(edgelist_ml1) <- c('from', 'to')
+      }
+      else if (isTruthy(input$complete_ml1)){
+        req(!is.null(reactivesViz$ML1))
+        edgelist_ml1 <- complete_edges(reactivesViz$ML1)
+      }
+      #}
+      #else{
+        #df_withinmap_lev_1 <- as.data.frame(read_map_ml1(), stringsAsFactors = FALSE)
+        #edgelist_ml1 <- df_withinmap_lev_1
+      #}
+
+      #if (is.null(read_map_ml2())){
+      if (isTruthy(input$no_con_ml2)){
+        edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
+        colnames(edgelist_ml2) <- c('from', 'to')
+      }
+      else if (isTruthy(input$complete_ml2)){
+        req(!is.null(reactivesViz$ML2))
+        edgelist_ml2 <- complete_edges(reactivesViz$ML2)
+      }
+      #}
+      #else{
+      #  df_withinmap_lev_2 <- as.data.frame(read_map_ml2(), stringsAsFactors = FALSE)
+      #  edgelist_ml2 <- df_withinmap_lev_2
+      #}
+      edges <- rbind(edgelist_ml1, edgelist_ml2)
+      reactivesGraph$edges <- rbind(edges, reactivesViz$map)
+
+      if (!is.null(reactivesGraph$nodes) || !is.null(reactivesGraph$edges)) {
+      output$input_graph <- renderVisNetwork({
+        visNetwork(reactivesGraph$nodes, reactivesGraph$edges) %>%
+          visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
+          visLayout(randomSeed = 12) %>%
+          visIgraphLayout(input$layout) %>% 
+          visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "group"), addEdgeCols = c("from", "to", "id")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+          visGroups(groupname = "a", shape = "triangle") %>%
+          visGroups(groupname = "b", shape = "square") %>%
+          visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
+      })
     }
   })
   
@@ -303,8 +352,6 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
       height = "auto",
       width = "20%"
     )),
-  
-
   
   sidebarLayout(
     sidebarPanel(
@@ -389,7 +436,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
       fluidRow(
         column(6,
         align="center",
-        actionButton("demo", "Demo")),
+        actionButton("demo", "Load Demo Files")),
         column(6,
         align="center",
         actionButton("demo", "Demo"))
