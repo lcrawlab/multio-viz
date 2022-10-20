@@ -77,31 +77,38 @@ The multioviz package contains a runMultioviz() function that allows users to co
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ## Network Perturbation
+To faciliate in-silico hypothesis testing, multioviz allows users to manually delete nodes and edges, and then rerun the ranking model to generate a new network with different significant molecular variables. 
 
+### Steps
+1. Click "RUN MODEL" to visualize network
 <img
   src="./app/www/perturb1.png"
   alt="Alt text"
   title="After clicking 'Run Model', view generated network"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
+2. Select node(s) to delete and click "Edit"
 <img
   src="./app/www/perturb2.png"
   alt="Alt text"
   title="Select node to test and click 'Edit'"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
+3. Click "Delete selected to manually remove node"
 <img
   src="./app/www/perturb3.png"
   alt="Alt text"
   title="Click 'Delete selected'"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
+4. Click "RERUN MODEL" to generate new network
 <img
   src="./app/www/perturb4.png"
   alt="Alt text"
   title="Click 'RERUN MODEL' to generate new network"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
+5. Perturbed Network
 <img
   src="./app/www/perturb5.png"
   alt="Alt text"
