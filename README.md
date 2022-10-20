@@ -61,6 +61,13 @@ The multioviz package contains a runMultioviz() function that allows users to co
     (a) Contains arguments for X, y, and mask
     (b) Runs your ranking model
     (c) Returns a list of length 3 with scores for two molecular levels and a mapping between nodes in ML1 and ML2
+
+<img
+  src="./app/www/usercript_ex.png"
+  alt="Alt text"
+  title="runModel example"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
 2. Save X, y, and mask files as .rda files
 3. In terminal, navigate to the multio-viz repository
 4. Navigate to the multioviz subdirectory
