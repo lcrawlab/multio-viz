@@ -63,7 +63,7 @@ The multioviz package contains a runMultioviz() function that allows users to co
     (c) Returns a list of length 3 with scores for two molecular levels and a mapping between nodes in ML1 and ML2
 
 <img
-  src="./app/www/usercript_ex.png"
+  src="./app/www/userscript_ex.png"
   alt="Alt text"
   title="runModel example"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
