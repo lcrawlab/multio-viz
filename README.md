@@ -22,45 +22,94 @@ Biological mechanisms that drive cellular development and function can be repres
 - shinyWidgets (>= 0.7.4)
 - shinyjs (>= 2.1.0)
 
-# Basic multioviz
+## Web Application
 
-## Requirements to run
+### Requirements to run
 - X: a N x J dimensional matrix where N is the number of patient samples and J is the size of the set of molecular variables for molecular level one
 - y: a N-dimensional matrix of quantitative traits for a sample of patients
 - mask: a J x G matrix of pre-defined annotations where J is the number of molecular variables for molecular level 1 and G is the number of molecular variables for molecular level 2
-- 
-## Steps to run
+
+<img
+  src="./app/www/model_example_data.png"
+  alt="Alt text"
+  title="Model inputs"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
+### Steps to run
 1. In terminal, navigate to the multio-viz repository
 2. Start a new R session
 4. Load "shiny" package
 5. Run app with following command: runApp('app/app.R')
-6. Click on the perturbation drop on the left panel
+6. Click on the perturbation drop down the left panel
 7. Input X, y, and mask files for perturbation and select mathematical model (currently only BANNs is working)
 8. Select edge types for between molecular levels
 9. Select graph layout
 10. Set thresholding
 11. Click "RUN MODEL"
-12. Delete nodes or edges by selecting and clicking "Edit graph"
-13. Click "RERUN MODEL" to perturb network
 
-# Multioviz Package
-The multioviz package contains a runMultioviz() function that allows users to connect the perturbation and visualization capabilities with their own ranking model. runMultioviz() can take in 0 parameters for the demo, 3 parameters (X, y, and mask) to run user data with BANNs, and 4 parameters (X, y, mask, and userScript) to run user data with user model.
+<img
+  src="./app/www/model_example_data.png"
+  alt="Alt text"
+  title="Steps to visualize network"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
 
-## Run runMultioviz()
+## R Package 
+The multioviz package contains a runMultioviz() function that allows users to connect the perturbation and visualization capabilities with their own ranking model. The function  can take in 0 parameters to run the demo, 3 parameters runMultioviz(X, y, mask) to run user data with BANNs, and 4 parameters runMultioviz(X, y, mask, userScript) to run user data with user model.
+
+### runMultioviz() function tutorial
 1. Write script with a "runModel()" function that
     (a) Contains arguments for X, y, and mask
     (b) Runs your ranking model
     (c) Returns a list of length 3 with scores for two molecular levels and a mapping between nodes in ML1 and ML2
 2. Save X, y, and mask files as .rda files
-1. In terminal, navigate to the multio-viz repository
-2. Navigate to the multioviz subdirectory
-3. Start a new R session
-4. Install dependencies
-5. Load "multioviz" package
-6. Load in X, y, and mask matrices
-7. Run app with runMultioviz(X, y, mask, userScript) function (userScript should be the file path string to your script from step 1)
-8. Delete nodes or edges by selecting and clicking "Edit graph"
-9. Click "RERUN MODEL" to perturb network
+3. In terminal, navigate to the multio-viz repository
+4. Navigate to the multioviz subdirectory
+5. Start a new R session
+6. Install dependencies
+7. Load "multioviz" package
+8. Load in X, y, and mask matrices
+9. Run app with runMultioviz(X, y, mask, userScript) function (userScript should be the file path string to your script from step 1)
 
- 
+<img
+  src="./app/www/run_multioviz_pkg_steps.png"
+  alt="Alt text"
+  title="Terminal steps"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
+## Network Perturbation
+
+<img
+  src="./app/www/perturb1.png"
+  alt="Alt text"
+  title="After clicking 'Run Model', view generated network"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
+<img
+  src="./app/www/perturb2.png"
+  alt="Alt text"
+  title="Select node to test and click 'Edit'"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
+<img
+  src="./app/www/perturb3.png"
+  alt="Alt text"
+  title="Click 'Delete selected'"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
+<img
+  src="./app/www/perturb4.png"
+  alt="Alt text"
+  title="Click 'RERUN MODEL' to generate new network"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
+<img
+  src="./app/www/perturb5.png"
+  alt="Alt text"
+  title="Perturbed network"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
+
+
+
+
 
