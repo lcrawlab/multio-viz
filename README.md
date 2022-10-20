@@ -48,7 +48,7 @@ Biological mechanisms that drive cellular development and function can be repres
 11. Click "RUN MODEL"
 
 <img
-  src="./app/www/model_example_data.png"
+  src="./app/www/ui.png"
   alt="Alt text"
   title="Steps to visualize network"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
