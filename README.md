@@ -150,7 +150,7 @@ The multioviz package contains a runMultioviz() function that allows users to co
     (b) Runs your ranking model
     (c) Returns a list of length 3 with scores for two molecular levels and a mapping between nodes in ML1 and ML2
 
-'''
+```
 
 runModel <- function(X_input, y_input, mask_input) {
 
@@ -164,7 +164,7 @@ runModel <- function(X_input, y_input, mask_input) {
   lst$map = btw_ML_map
   return(lst)
 }
-'''
+```
 
 2. Save X, y, and mask files as .rda files
 3. In terminal, navigate to the multio-viz repository
@@ -176,7 +176,7 @@ runModel <- function(X_input, y_input, mask_input) {
 9. Run app with runMultioviz(X, y, mask, userScript) function (userScript should be the file path string to your script from step 1)
 10. Follow perturbation steps
 
-'''
+```
 
 > library(multioviz)
 > userScript = "'path to your script'"
@@ -184,7 +184,7 @@ runModel <- function(X_input, y_input, mask_input) {
 > load('path to y.rda file')
 > load('path to mask.rda file')
 > runMultioviz(X.rda, y.rda, mask.rda)
-'''
+```
 
 
 
