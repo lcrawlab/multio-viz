@@ -120,6 +120,8 @@ server <- function(input, output, session) {
       reactivesViz$ML2 = lst$ML2
       reactivesViz$map = lst$map
   })
+
+  
   
 #  read_map_ml1 = reactive({
 #    if(input$demo) {
