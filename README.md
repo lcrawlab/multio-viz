@@ -8,7 +8,12 @@
 ##### Authors: Helen Xie, Lorin Crawford, Ashley Conard
 
 ## About the Project
-Biological mechanisms that drive cellular development and function can be represented by complex networks of interactions between regulators, genes, and epigenetic factors known as gene regulatory networks (GRNs). Understanding the multi-omic landscapes of these mechanisms in both normal and dysregulated states is critical to discovering novel biomarkers and advancing treatment for diseases such as cancer. In-vitro experimental methods to identify significant genetic and epigenetic variables and their associations for traits of interest are both expensive and time-consuming, preventing researchers from testing each possible candidate variable for causality. While machine learning methods have been developed to infer GRN architectures by ranking variables across different -omic modalities, there is a gap between the high-dimensional ranked lists that these models output and interpretable visualizations that practitioners can use to generate and test biological hypotheses. To make the dissemination of such information accessible to end-users, we developed Multioviz: a user-friendly R Shiny application that facilitates in-silico hypothesis testing by combining computational inference of GRN architectures with interactive visualization and perturbation. We provide a corresponding  R package version of Multioviz that allows programmers to integrate any machine learning method to rank and map enriched molecular variables, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.
+Multioviz is a user-friendly R Shiny application that facilitates in-silico hypothesis testing by combining computational inference of gene regulatory network architectures with interactive visualization and perturbation. To generate a perturbable network, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs without perturbation by directly inputting ranked lists of molecular variables along with mapping data between molecular variables. We provide an R package version of Multioviz that allows programmers to integrate any machine learning method to rank and map enriched molecular variables, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.
+
+## Quickstart
+- [here](#computational-method-integration-with-multioviz-r-package)
+- [here](#perturbable-network-generation)
+- [here](#direct-network-visualization)
 
 ## Built With
 - R version 4.1.0
@@ -28,13 +33,27 @@ Biological mechanisms that drive cellular development and function can be repres
 - shinyWidgets (>= 0.7.4)
 - shinyjs (>= 2.1.0)
 
-## Network Visualization
+## Direct network visualization
 To faciliate in-silico hypothesis generation, multioviz allows users to visualize ranked lists and maps of molecular variables for a given phenotypic state as gene regulatory networks.
+
+<img
+  src="./app/www/ui_viz.png"
+  alt="Alt text"
+  title="User interface for GRN visualization"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
 
 ### Requirements to run
 - ML1: a dataframe with columns for the 'id' and 'score' of each variable in molecular level 1
 - ML2: a dataframe with columns for the 'id' and 'score' of each variable in molecular level 2
 - map: a dataframe with 'from' and 'to' columns to map variables in ML1 to variables in ML2 
+
+<img
+  src="./app/www/example_data.png"
+  alt="Alt text"
+  title="runModel example"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
+
 
 ### Steps to run
 1. In terminal, navigate to the multio-viz repository
@@ -48,8 +67,8 @@ To faciliate in-silico hypothesis generation, multioviz allows users to visualiz
 10. Set thresholding
 11. Click "GENERATE"
 
-## Network Perturbation
-To faciliate in-silico hypothesis testing, multioviz allows users to manually delete nodes and edges, and then rerun the ranking model to generate a new network with different significant molecular variables. 
+## Perturbable network generation
+##### To faciliate in-silico hypothesis testing, multioviz allows users to manually delete nodes and edges, and then rerun the ranking model to generate a new network with different significant molecular variables. 
 
 ### Requirements to run
 - X: a N x J dimensional matrix where N is the number of patient samples and J is the size of the set of molecular variables for molecular level one
@@ -116,8 +135,14 @@ To faciliate in-silico hypothesis testing, multioviz allows users to manually de
   title="Perturbed network"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
-## R Package 
-The multioviz package contains a runMultioviz() function that allows users to connect the perturbation and visualization capabilities with their own ranking model. The function  can take in 0 parameters to run the demo, 3 parameters runMultioviz(X, y, mask) to run user data with BANNs, and 4 parameters runMultioviz(X, y, mask, userScript) to run user data with user model.
+## Computational method integration with "multioviz" R package 
+The multioviz package contains a runMultioviz() function that allows users to connect the perturbation and visualization capabilities of the multioviz platform with their own ranking model. The function can take in 0 parameters to run the demo, 3 parameters runMultioviz(X, y, mask) to run user data with BANNs, and 4 parameters runMultioviz(X, y, mask, userScript) to run user data with user model.
+
+<img
+  src="./app/www/ui_pkg.png"
+  alt="Alt text"
+  title="runModel example"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ### runMultioviz() function tutorial
 1. Write script with a "runModel()" function that
@@ -125,11 +150,21 @@ The multioviz package contains a runMultioviz() function that allows users to co
     (b) Runs your ranking model
     (c) Returns a list of length 3 with scores for two molecular levels and a mapping between nodes in ML1 and ML2
 
-<img
-  src="./app/www/userscript_ex.png"
-  alt="Alt text"
-  title="runModel example"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+'''
+
+runModel <- function(X_input, y_input, mask_input) {
+
+  res = BANN(X_input, mask_input, y_input, centered=FALSE, show_progress = TRUE)
+
+  # convert method output to ranking and mapping dataframes 
+
+  lst = list()
+  lst$ML1 = ML1_pips
+  lst$ML2 = ML2_pips
+  lst$map = btw_ML_map
+  return(lst)
+}
+'''
 
 2. Save X, y, and mask files as .rda files
 3. In terminal, navigate to the multio-viz repository
@@ -141,11 +176,15 @@ The multioviz package contains a runMultioviz() function that allows users to co
 9. Run app with runMultioviz(X, y, mask, userScript) function (userScript should be the file path string to your script from step 1)
 10. Follow perturbation steps
 
-<img
-  src="./app/www/run_multioviz_pkg_steps.png"
-  alt="Alt text"
-  title="Terminal steps"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+'''
+
+> library(multioviz)
+> userScript = "'path to your script'"
+> load('path to X.rda file')
+> load('path to y.rda file')
+> load('path to mask.rda file')
+> runMultioviz(X.rda, y.rda, mask.rda)
+'''
 
 
 
