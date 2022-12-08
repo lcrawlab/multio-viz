@@ -14,9 +14,20 @@
 - [Visualize your ranked molecular variables as a GRN](#a-visualize-your-ranked-molecular-variables-as-a-grn)
 - [Generate a perturbable GRN to test your hypotheses in-silico](#b-generate-a-perturbable-grn-to-test-your-hypotheses-in-silico)
 - [Integrate your own computational method](#c-integrate-your-own-computational-method)
+<img
+  src="./app/readme/fig1.jpg"
+  alt="Alt text"
+  title="After clicking 'Run Model', view generated network"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ## Introduction
 Multioviz is a user-friendly R Shiny application that facilitates in-silico hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable network, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs without perturbation by directly inputting ranked lists of molecular variables along with mapping data between molecular variables. We provide an R package version of Multioviz that allows programmers to integrate any machine learning method to rank and map enriched molecular variables, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.
+
+<img
+  src="./app/readme/fig2.jpg"
+  alt="Alt text"
+  title="After clicking 'Run Model', view generated network"
+  style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ## Quickstart: 3 usages
 Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs or (2) perturb GRNs for in-silico hypothesis testing, visit [add link here for website]. To (3) Integrate your own computational method, install the multioviz R package ([see here for instructions](#steps-to-install-r-package)) 
