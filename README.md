@@ -13,14 +13,10 @@ Multioviz is a user-friendly R Shiny application that facilitates in-silico hypo
 
 ## Quickstart: 3 usages
 Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs or (2) perturb GRNs for in-silico hypothesis testing, visit [add link here for website]. To (3) Integrate your own computational method, install the multioviz R package ([see here for instructions](#steps-to-install-r-package)) 
-<ol> 
-  <li>For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "GENERATE NETWORK" to visualize your data. See the [visualization instructions](#a-visualize-your-ranked-molecular-variables-as-a-grn) for a detailed walk through.</li>
-  <li>For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN MODEL" to generate the network. For a detailed walk through on how to perturb and rerun your network, visit the [Generate a Perturbable Network](#b-generate-a-perturbable-grn-to-test-your-hypotheses-in-silico) section.</li>
-  <li>For (3), open a new R session ```$ R``` and load the multioviz package ```> library multioviz```. Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using your own method. Visit the [Integrate your own computational method](#c-integrate-your-own-computational-method) section for more detailed instructions.</li>
-</ol>
-- [Visualize ranked molecular features as a gene regulatory network](#direct-network-visualization)
-- [Generate a perturbable network](#perturbable-network-generation)
-- [Integrate your own computational method](#computational-method-integration-with-multioviz-r-package)
+1. For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "GENERATE NETWORK" to visualize your data. See the [visualization instructions](#a-visualize-your-ranked-molecular-variables-as-a-grn) for a detailed walk through.
+2. For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN MODEL" to generate the network. For a detailed walk through on how to perturb and rerun your network, visit the [Generate a Perturbable Network](#b-generate-a-perturbable-grn-to-test-your-hypotheses-in-silico) section.
+3. For (3), open a new R session ```$ R``` and load the multioviz package ```> library multioviz```. Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using your own method. Visit the [Integrate your own computational method](#c-integrate-your-own-computational-method) section for more detailed instructions
+
 
 ## Dependencies
 - R (>= 4.1.0)
