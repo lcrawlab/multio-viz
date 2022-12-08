@@ -526,7 +526,7 @@ dashboardBody(
     fluidRow(
     box(
             useShinyjs(),
-            selectInput("ml1_map", "Select ML1 Connection Type:", 
+            selectInput("ml1_map", "Select Molecular Level 1 (ML1) Connection Type:", 
               choices = c("None", "Complete", "Sparse"), 
               selected = "None"),
             disabled(fileInput("map_lev_1", "Sparse Connections File",
@@ -534,7 +534,7 @@ dashboardBody(
                   accept = c("text/csv",
                               "text/comma-separated-values,text/plain",
                               ".csv"))),
-            selectInput("ml2_map", "Select ML2 Connection Type:", 
+            selectInput("ml2_map", "Select Molecular Level 2 Connection Type:", 
               choices = c("None", "Complete", "Sparse"), 
               selected = "None"),
             disabled(fileInput("map_lev_2", "Sparse Connections File",
