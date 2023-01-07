@@ -65,6 +65,7 @@ server <- function(input, output, session) {
     {
       reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
       #reactivesGraph$edges <- make_edges(reactivesViz$ML1, reactivesViz$ML2, reactivesViz$map)
+      reactivesViz$map['arrows'] = 'to'
       reactivesGraph$edges <- reactivesViz$map
       output$input_graph <- make_graph(reactivesGraph$nodes, reactivesGraph$edges, input$layout)
   })
@@ -121,20 +122,6 @@ server <- function(input, output, session) {
     }
   })
 
-  # # track perturbation changes
-  # observeEvent(input$input_graph_graphChange, {
-  #   lst = change_graph(input$input_graph_graphChange, reactivesGraph, reactivesPerturb)
-  #   reactivesPerturb$addedNodesML1 = lst$addedNodesML1
-  #   reactivesPerturb$addedNodesML2 = lst$addedNodesML2
-  #   reactivesPerturb$addedEdges = lst$addedEdges
-  #   reactivesPerturb$deletedNodesML1 = lst$deletedNodesML1
-  #   reactivesPerturb$deletedNodesML2 = lst$deletedNodesML2
-  #   reactivesPerturb$deletedEdges = lst$deletedEdges
-  #   reactivesGraph$nodes = lst$nodes
-  #   reactivesGraph$edges = lst$edges
-  #   print('here')
-  # })
-
   # rerun model with changes (depends on user defined function that takes in lists of changes and making changes to ML model inputs)
   observeEvent(input$rerun_model, {
 
@@ -171,23 +158,8 @@ server <- function(input, output, session) {
            "layout_nicely" = layout$z,
            "Please Select a Layout" = NULL)
   })
-
-  # file upload for mapping within molecular level disabled
-  observeEvent(input$ml1_map, {
-    if(input$ml1_map == "Sparse"){
-      enable('map_lev_1')
-    }
-  })
-  observeEvent(input$ml2_map, {
-    if(input$ml2_map == "Sparse"){
-      enable('map_lev_2')
-    }
-  })
  
   # UI stuff
-  output$ml1 <- renderText("Rank")
-  output$ml2 <- renderText("Rank")
-
   output$logo <- renderImage({
     list(src = paste(app_dir, "/inst/app/www/logo.png", sep = ""), width = "20%", height = "35%", alt = "Alternate text")
   }, deleteFile = FALSE)
@@ -199,21 +171,14 @@ server <- function(input, output, session) {
   output$colorbar2 <- renderImage({
     list(src = paste(app_dir, "/inst/app/www/colorbar2.png", sep = ""), width = "100%", height = "25%", alt = "Alternate text")
   }, deleteFile = FALSE)
-   
-  output$data_examples_vis <- renderImage({
-    list(src = paste(app_dir, "/inst/app/www/example_data.jpeg", sep = ""), width = "85%", height = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
-  }, deleteFile = FALSE)
 
-  output$data_examples_perturb <- renderImage({
-    list(src = paste(app_dir, "/inst/app/www/model_example_data.png", sep = ""), width = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
-  }, deleteFile = FALSE)
 
-  # observeEvent("", {
-  #   showModal(modalDialog(
-  #     includeHTML(paste(app_dir, "/inst/app/www/intro_text.html", sep = "")),
-  #     easyClose = TRUE,
-  #   ))
-  # })
+  observeEvent("", {
+    showModal(modalDialog(
+      includeHTML(paste(app_dir, "/inst/app/www/intro_text.html", sep = "")),
+      easyClose = TRUE,
+    ))
+  })
 
   observeEvent(input$quickstart, {
     showModal(modalDialog(

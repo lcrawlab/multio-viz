@@ -1,33 +1,18 @@
-<p><img style="display: block; margin-left: auto; margin-right: auto;" src="radar.png" /></p>
+<p><img src="logo.png" style="width:100px"/></p>
 <h1 style="text-align: center;"><strong>QUICKSTART</strong></h1>
 <hr />
-<p style="text-align: left;">&nbsp;<strong>Visualization Only:</strong></p>
+<p style="text-align: left;">&nbsp;<strong>Method Integration:</strong></p>
+The multioviz package contains a runMultioviz() function that allows users to connect the perturbation and visualization capabilities of the multioviz platform with their own ranking model. The function can take in 0 parameters to run the demo, 3 parameters runMultioviz(X, y, mask) to run user data with BANNs, and 4 parameters runMultioviz(X, y, mask, userScript) to run user data with user model.
 <ol>
-<li style="text-align: left;">For Molecular Level 1 (ML1) nodes: Input a text file with "score" and "id" variables.</li>
-<li style="text-align: left;">For Molecular Level 2 (ML2) nodes: Input a text file with "score" and "id" variable.</li>
-<li style="text-align: left;">For Mapping from ML1 to ML2: Input a text file with "from" and "to" variables.</li>
-<li style="text-align: left;">For Mapping within ML1: Choose ONE of the following:</li>
-<ul>
-    <li style="text-align: left;">For trivial edges, check "No Connections"</li>
-    <li style="text-align: left;">For sparse edges, input a text file with "from" and "to" variables</li>
-    <li style="text-align: left;">For complete edges, check "Full Connections</li>
-</ul>
-<li style="text-align: left;">For Mapping within ML2: Choose ONE of the following:</li>
-<ul>
-    <li style="text-align: left;">For trivial edges, check "No Connections"</li>
-    <li style="text-align: left;">For sparse edges, input a text file with "from" and "to" variables</li>
-    <li style="text-align: left;">For complete edges, check "Full Connections</li>
-</ul>
-<li style="text-align: left;">Choose layout and set thresholds for ML1 and ML2 nodes</li>
-<li style="text-align: left;">Click generate graph to show visualization</li>
+<li style="text-align: left;">Write script with a "runModel()" function that (a) Contains arguments for X, y, and mask (b) Runs your ranking model (c) Returns a list of length 3 with scores for two molecular levels and a mapping between nodes in ML1 and ML2.</li>
+<li style="text-align: left;">Save X, y, and mask files as .rda files.</li>
+<li style="text-align: left;">Load in X, y, and mask matrices.</li>
+<li style="text-align: left;">Save path to your script as a variable.</li>
+<li style="text-align: left;">Run app with runMultioviz(X, y, mask, userScript) function.</li>
 </ol>
 <hr />
 <p style="text-align: left;">&nbsp;<strong>Perturbation:</strong></p>
 <ol>
-<li style="text-align: left;">Input a text file for population omics data for Ml1.</li>
-<li style="text-align: left;">Input a text file for associated population level phenotypic data.</li>
-<li style="text-align: left;">Input a text file mask of mapping from ML1 to ML2.</li>
-<li style="text-align: left;">Click "Run Model" to generate network</li>
 <li style="text-align: left;">Click "Edit" to perturb nodes and edges</li>
 <li style="text-align: left;">Click "Rerun Model" to generate new network:</li>
 </ol>

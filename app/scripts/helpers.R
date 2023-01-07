@@ -15,11 +15,14 @@ make_nodes <- function(ml1, ml2, thres_1, thres_2) {
   
   df_mol_lev_1["color"] = color_palette_ml1(length(df_mol_lev_1))[as.numeric(cut(df_mol_lev_1$score, breaks = length(df_mol_lev_1)))]
   df_mol_lev_2["color"] = color_palette_ml2(length(df_mol_lev_2))[as.numeric(cut(df_mol_lev_2$score, breaks = length(df_mol_lev_2)))]
+
+  df_mol_lev_1["shape"] = 'circle'
+  df_mol_lev_2["shape"] = 'square'
   
   df_mol_lev_1 <- filter(df_mol_lev_1, score > as.double(thres_1))
   df_mol_lev_2 <- filter(df_mol_lev_2, score > as.double(thres_2))
   nodes <- bind_rows(df_mol_lev_1, df_mol_lev_2)
-  nodes <- mutate(nodes, value = 40)
+  nodes <- mutate(nodes, value = 60)
   return(nodes)
 }
 

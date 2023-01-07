@@ -1,4 +1,4 @@
-runModel <- function(X_input, mask_input, y_input) {
+runMethod <- function(X_input, mask_input, y_input) {
 
   # Load mathemetical model here
   library(BANN)

@@ -110,48 +110,15 @@ server <- function(input, output, session) {
       reactivesViz$map = as.data.frame(read.csv(file = input$map_lev_1_2$datapath,
              sep = ",",
              header = TRUE), stringsAsFactors = FALSE)
-    
   })
 
   observeEvent(req(isTruthy(input$run_model)), {
-      lst = runModel(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
+      lst = runMethod(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
   
       reactivesViz$ML1 = lst$ML1
       reactivesViz$ML2 = lst$ML2
       reactivesViz$map = lst$map
   })
-
-  
-  
-#  read_map_ml1 = reactive({
-#    if(input$demo) {
-#      reactiveMapML1(paste(app_dir, "/data/simple_map_ml1.csv", sep = ""))
-#    }
-#    else if (isTruthy(input$map_lev_1)) {
-#      reactiveMapML1(input$map_lev_1$datapath)
-#    }
-#    if (is.null(reactiveMapML1())) {
-#      return()
-#    }
-#    read.csv(file = reactiveMapML1(),
-#             sep = ",",
-#             header = TRUE)
-#  })
-
-#  read_map_ml2 = reactive({
-#    if(input$demo) {
-#      reactiveMapML2(paste(app_dir, "/data/simple_map_ml2.csv", sep = ""))
-#    }
-#    else if (isTruthy(input$map_lev_2)) {
-#      reactiveMapML2(input$map_lev_2$datapath)
-#    }
-#    if (is.null(reactiveMapML2())) {
-#      return()
-#    }
-#    read.csv(file = reactiveMapML2(),
-#             sep = ",",
-#             header = TRUE)
-#  })
 
   observeEvent(
     req(((isTruthy(input$run_model)) | (isTruthy(input$go))) & ((!is.null(reactivesViz$ML1)) & (!is.null(reactivesViz$ML2)) & (!is.null(reactivesViz$map)))),
@@ -164,50 +131,57 @@ server <- function(input, output, session) {
       }
 
       if (input$ml1_map == "None"){
-        edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml1) <- c('from', 'to')
+        edgelist_ml1 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml1) <- c('from', 'to', 'arrows')
       }
       else if (input$ml1_map == "Complete"){
         req(!is.null(reactivesViz$ML1))
         edgelist_ml1 <- complete_edges(reactivesViz$ML1)
+        edgelist_ml1['arrows'] = FALSE
       }
-      else if ((input$ml1_map == "Sparse") & (isTruthy(input$sparse_ml1))){
-        df_withinmap_lev_1 <- as.data.frame(input$map_lev_1$datapath, stringsAsFactors = FALSE)
+      else if ((input$ml1_map == "Sparse") & (isTruthy(input$map_lev_1))){
+        df_withinmap_lev_1 <- as.data.frame(read.csv(file = input$map_lev_1$datapath,
+             sep = ",",
+             header = TRUE), stringsAsFactors = FALSE)
         edgelist_ml1 <- df_withinmap_lev_1
+        edgelist_ml1['arrows'] = FALSE
       }
       else{
-        edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml1) <- c('from', 'to')
+        edgelist_ml1 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml1) <- c('from', 'to', 'arrows')
       }
 
       if (input$ml2_map == "None"){
-        edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml2) <- c('from', 'to')
+        edgelist_ml2 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml2) <- c('from', 'to', 'arrows')
       }
       else if (input$ml2_map == "Complete"){
         req(!is.null(reactivesViz$ML2))
         edgelist_ml2 <- complete_edges(reactivesViz$ML2)
+        edgelist_ml2['arrows'] = FALSE
       }
-      else if ((input$ml2_map == "Sparse") & (isTruthy(input$sparse_ml2))){
-        df_withinmap_lev_2 <- as.data.frame(input$map_lev_2$datapath, stringsAsFactors = FALSE)
+      else if ((input$ml2_map == "Sparse") & (isTruthy(input$map_lev_2))){
+        df_withinmap_lev_2 <- as.data.frame(read.csv(file = input$map_lev_2$datapath,
+             sep = ",",
+             header = TRUE), stringsAsFactors = FALSE)
         edgelist_ml2 <- df_withinmap_lev_2
+        edgelist_ml2['arrows'] = FALSE
       }
       else{
-        edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml2) <- c('from', 'to')       
+        edgelist_ml2 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml2) <- c('from', 'to', 'arrows')  
       }
       edges <- rbind(edgelist_ml1, edgelist_ml2)
+      reactivesViz$map['arrows'] = 'to'
       reactivesGraph$edges <- rbind(edges, reactivesViz$map)
 
       if (!is.null(reactivesGraph$nodes) || !is.null(reactivesGraph$edges)) {
       output$input_graph <- renderVisNetwork({
         visNetwork(reactivesGraph$nodes, reactivesGraph$edges) %>%
-          visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
+          visNodes(label = "id", size = 40, shadow = list(enabled = TRUE, size = 10)) %>%
           visLayout(randomSeed = 12) %>%
           visIgraphLayout(input$layout) %>% 
           visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "group"), addEdgeCols = c("from", "to", "id")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
-          visGroups(groupname = "a", shape = "triangle") %>%
-          visGroups(groupname = "b", shape = "square") %>%
           visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
       })
     }
@@ -273,7 +247,7 @@ server <- function(input, output, session) {
       }
     }
 
-    lst = runModel(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
+    lst = runMethod(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
     reactivesViz$ML1 = lst$ML1
     reactivesViz$ML2 = lst$ML2
     reactivesViz$map = lst$map
@@ -286,51 +260,58 @@ server <- function(input, output, session) {
       }
       
       if (input$ml1_map == "None"){
-        edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml1) <- c('from', 'to')
+        edgelist_ml1 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml1) <- c('from', 'to', 'arrows')
       }
       else if (input$ml1_map == "Complete"){
         req(!is.null(reactivesViz$ML1))
         edgelist_ml1 <- complete_edges(reactivesViz$ML1)
+        edgelist_ml1['arrows'] = FALSE
       }
-      else if ((input$ml1_map == "Sparse") & (isTruthy(input$sparse_ml1))){
-        df_withinmap_lev_1 <- as.data.frame(input$map_lev_1$datapath, stringsAsFactors = FALSE)
+      else if ((input$ml1_map == "Sparse") & (isTruthy(input$map_lev_1))){
+        df_withinmap_lev_1 <- as.data.frame(read.csv(file = input$map_lev_1$datapath,
+             sep = ",",
+             header = TRUE), stringsAsFactors = FALSE)
         edgelist_ml1 <- df_withinmap_lev_1
+        edgelist_ml1['arrows'] = FALSE
       }
       else{
-        edgelist_ml1 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml1) <- c('from', 'to')
+        edgelist_ml1 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml1) <- c('from', 'to', 'arrows')
       }
 
       if (input$ml2_map == "None"){
-        edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml2) <- c('from', 'to')
+        edgelist_ml2 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml2) <- c('from', 'to', 'arrows')
       }
       else if (input$ml2_map == "Complete"){
         req(!is.null(reactivesViz$ML2))
         edgelist_ml2 <- complete_edges(reactivesViz$ML2)
+        edgelist_ml2['arrows'] = FALSE
       }
-      else if ((input$ml2_map == "Sparse") & (isTruthy(input$sparse_ml2))){
-        df_withinmap_lev_2 <- as.data.frame(input$map_lev_2$datapath, stringsAsFactors = FALSE)
+      else if ((input$ml2_map == "Sparse") & (isTruthy(input$map_lev_2))){
+        df_withinmap_lev_2 <- as.data.frame(read.csv(file = input$map_lev_2$datapath,
+             sep = ",",
+             header = TRUE), stringsAsFactors = FALSE)
         edgelist_ml2 <- df_withinmap_lev_2
+        edgelist_ml2['arrows'] = FALSE
       }
       else{
-        edgelist_ml2 <- data.frame(matrix(ncol = 2, nrow = 0))
-        colnames(edgelist_ml2) <- c('from', 'to')       
+        edgelist_ml2 <- data.frame(matrix(ncol = 3, nrow = 0))
+        colnames(edgelist_ml2) <- c('from', 'to', 'arrows')       
       }
+      reactivesViz$map['arrows'] = 'to'
       edges <- rbind(edgelist_ml1, edgelist_ml2)
       reactivesGraph$edges <- rbind(edges, reactivesViz$map)
 
       if (!is.null(reactivesGraph$nodes) || !is.null(reactivesGraph$edges)) {
       output$input_graph <- renderVisNetwork({
         visNetwork(reactivesGraph$nodes, reactivesGraph$edges) %>%
-          visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
+          visNodes(label = "id", size = 40, shadow = list(enabled = TRUE, size = 10)) %>%
           visLayout(randomSeed = 12) %>%
           visIgraphLayout(input$layout) %>% 
           visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "group"), addEdgeCols = c("from", "to", "id")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
-          visGroups(groupname = "a", shape = "triangle") %>%
-          visGroups(groupname = "b", shape = "square") %>%
-          visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
+          visExport(type = "pdf", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
       })
     }
   })
@@ -357,9 +338,6 @@ server <- function(input, output, session) {
     }
   })
 
-  output$ml1 <- renderText("Rank")
-  output$ml2 <- renderText("Rank")
-
   output$logo <- renderImage({
     list(src = "./www/logo.png", width = "20%", height = "35%", alt = "Alternate text")
   }, deleteFile = FALSE)
@@ -370,14 +348,6 @@ server <- function(input, output, session) {
    
   output$colorbar2 <- renderImage({
     list(src = "./www/colorbar2.png", width = "100%", height = "25%", alt = "Alternate text")
-  }, deleteFile = FALSE)
-   
-  output$data_examples_vis <- renderImage({
-    list(src = "./www/example_data.jpeg", width = "85%", height = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
-  }, deleteFile = FALSE)
-
-  output$data_examples_perturb <- renderImage({
-    list(src = "./www/model_example_data.png", width = "100%", style = "display: block; margin-left: auto; margin-right: auto;", alt = "Alternate text")
   }, deleteFile = FALSE)
 
   observeEvent("", {
@@ -391,25 +361,32 @@ server <- function(input, output, session) {
     showModal(modalDialog(
       includeHTML("./www/intro_text2.html"),
       easyClose = TRUE,
-      #footer = actionButton(inputId = "example_data_viz", label = "VIEW EXAMPLE DATA", icon = icon("info-circle"))
     ))
   }) 
 
-  # observeEvent(input$"example_data_viz", {
-  #   showModal(modalDialog(
-  #     title = 'Example Data for Visualization',
-  #     HTML('<img src="./www/example_data.jpeg"="250" ="400" />'),
-  #     easyClose = TRUE,
-  #   ))
-  # }) 
+  observeEvent(input$example_data_viz, {
+    showModal(modalDialog(
+      title = 'Example Data for Visualization',
+      HTML('<img src="example_data_viz.png" style="width:800px" class = "center"/>'),
+      size = "l",
+      easyClose = TRUE,
+    ))
+  }) 
 
-  # observeEvent(input$"example_data_perturb", {
-  #   showModal(modalDialog(
-  #     title = 'Example Data for Perturbation',
-  #     HTML('<img src="./www/model_example_data.jpeg" />'),
-  #     easyClose = TRUE,
-  #   ))
-  # }) 
+  observeEvent(input$example_data_perturb, {
+    showModal(modalDialog(
+      title = 'Example Data for Perturbation',
+      HTML('<img src="example_data_perturb.png" style="width:800px" class = "center"/>'),
+      size = "l",
+      easyClose = TRUE,
+    ))
+  }) 
+
+  observeEvent(input$demo, {
+    disable('x_model_input')
+    disable('y_model_input')
+    disable('mask_input')
+  })
 }
 
 ui <- dashboardPage(
@@ -422,7 +399,7 @@ ui <- dashboardPage(
     title = tags$a(tags$img(
       src = "logo.png",
       height = "auto",
-      width = "50%"
+      width = "60%"
     )),
     titleWidth = 300
   ),
@@ -433,12 +410,11 @@ ui <- dashboardPage(
      sidebarMenu(
           div(class = "inlay", style = "height:15px;width:100%;background-color: #ecf0f5;"),
           HTML("",sep="<br/>"), # new line
-          fluidRow(align = "center", bsButton("quickstart", label = "Quickstart", icon = icon("user"), style = "success", size = 'large')),
+          fluidRow(align = "center", bsButton("quickstart", label = "Quickstart",style = "success", size = 'large')),
           menuItem(
             "Visualize",
             tabName = "visualize",
             fluidRow(align = "center", bsButton("example_data_viz", label = "Example Data", style = "success", size = 'large')),
-            bsModal("example_data_viz_modal", "Example Data for Visualization", "example_data_viz", size = "large",imageOutput("data_examples_vis")),
             fileInput("mol_lev_1", "Input ML1 Scores:",
                   multiple = FALSE,
                   accept = c("text/csv",
@@ -449,20 +425,19 @@ ui <- dashboardPage(
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv")),
-            fileInput("map_lev_1_2", "Input Map:",
+            fileInput("map_lev_1_2", "Input Between Molecular Level Map:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv")),
-            fluidRow(align = "center", bsButton("go", label = "GENERATE NETWORK", icon = icon("play-circle"), style = "danger", size = 'large')),
+            fluidRow(align = "center", bsButton("go", label = "RUN", style = "danger", size = 'large')),
             hr()
           ),
           menuItem(
             "Perturb",
             tabName = "perturb",
             fluidRow(align = "center", bsButton("example_data_perturb", label = "Example Data", style = "success", size = 'large')),
-            bsModal("example_data_perturb_modal", "Example Data for Perturbation", "example_data_perturb", size = "large",imageOutput("data_examples_perturb")),
-            fluidRow(align = "center", bsButton("demo", label = "Load Demo Files", icon = icon("spinner", class = "spinner-box"),style = "success", size = 'large')),
+            fluidRow(align = "center", bsButton("demo", label = "Load Demo Files", style = "success", size = 'large')),
             fileInput("x_model_input", "Input X:",
                   multiple = FALSE,
                   accept = c("text/csv",
@@ -473,7 +448,7 @@ ui <- dashboardPage(
                   accept = c("text/csv",
                               "text/comma-separated-values,text/plain",
                               ".csv")),
-            fileInput("mask_input", "Input mask:",
+            fileInput("mask_input", "Input between ML mask:",
                   multiple = FALSE,
                   accept = c("text/csv",
                              "text/comma-separated-values,text/plain",
@@ -483,89 +458,65 @@ ui <- dashboardPage(
               label = NULL,
               choices = c(
               "Select a model" = "NA",
-              "BANNs" = "banns",
-              "BIOGRINN" = "biogrinn")),
+              "BANNs" = "banns")),
             fluidRow(
-              align = "center", bsButton("run_model", label = "RUN MODEL", icon = icon("play-circle"), style = "danger", size = 'large')
+              align = "center", bsButton("run_model", label = "RUN", style = "danger", size = 'large')
             ),
             fluidRow(
-              align = "center", bsButton("rerun_model", label = "RERUN MODEL", icon = icon("play-circle"), style = "danger", size = 'large')),
+              align = "center", bsButton("rerun_model", label = "RERUN",style = "danger", size = 'large')),
             hr()
           )
-          # menuItem(
-          #   "Edit Graph",
-          #   selectInput("layout", "Select Graph Layout:", 
-          #     choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
-          #     selected = "layout_with_sugiyama"),
-          #   hr(),
-          #   chooseSliderSkin("Flat"),
-          #   sliderInput("slider1", "Set Threholding For ML1:",
-          #           min = 0, max = 1, value = 0.5),
-          #   colorbar1 <-
-          #     tags$a(tags$img(
-          #     src = "colorbar2.png",
-          #     height = "auto",
-          #     width = "100%")),
-          #   h6("Score", align="center"),
-          #   hr(),
-          #   chooseSliderSkin("Flat"),
-          #   sliderInput("slider2", "Set Threholding For ML2:",
-          #           min = 0, max = 1, value = 0.5),
-          #   colorbar1 <-
-          #     tags$a(tags$img(
-          #     src = "colorbar1.png",
-          #     height = "auto",
-          #     width = "100%")),
-          #   h6("Score", align="center")          
-          # ),
-          #fluidRow(align = "center", bsButton("go", label = "GENERATE NETWORK", icon = icon("play-circle"), style = "danger", size = 'large'))
-
   )),
 dashboardBody(
   width = 12,
-    fluidRow(
-    box(
+  fluidRow(
+        box(
             useShinyjs(),
-            selectInput("ml1_map", "Select Molecular Level 1 (ML1) Connection Type:", 
+            h5("Customize map type for within a molecular level", align="center"),
+            selectInput("ml1_map", "Set ML1 map type:", 
               choices = c("None", "Complete", "Sparse"), 
               selected = "None"),
-            disabled(fileInput("map_lev_1", "Sparse Connections File",
+            disabled(fileInput("map_lev_1", "If 'sparse' upload mapping file:",
                   multiple = FALSE,
                   accept = c("text/csv",
                               "text/comma-separated-values,text/plain",
                               ".csv"))),
-            selectInput("ml2_map", "Select Molecular Level 2 Connection Type:", 
+            selectInput("ml2_map", "Select ML2 map type:", 
               choices = c("None", "Complete", "Sparse"), 
               selected = "None"),
-            disabled(fileInput("map_lev_2", "Sparse Connections File",
+            disabled(fileInput("map_lev_2", "If 'sparse' upload mapping file:",
                   multiple = FALSE,
                   accept = c("text/csv",
                               "text/comma-separated-values,text/plain",
                               ".csv"))),
             hr(),
-            selectInput("layout", "Select Graph Layout:", 
-              choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
-              selected = "layout_with_kk"),
-            hr(),
+            h5("Threshold features by statistical significance", align="center"),
             chooseSliderSkin("Flat"),
-            sliderInput("slider1", "Set Threholding For ML1:",
+            sliderInput("slider1", "Set ML1 threshold:",
                     min = 0, max = 1, value = 0.5),
             colorbar1 <-
               tags$a(tags$img(
               src = "colorbar2.png",
               height = "auto",
               width = "100%")),
-            h4("Score", align="center"),
+            h6("Score", align="center"),
             chooseSliderSkin("Flat"),
-            sliderInput("slider2", "Set Threholding For ML2:",
+            sliderInput("slider2", "Set ML2 threshold:",
                     min = 0, max = 1, value = 0.5),
             colorbar1 <-
               tags$a(tags$img(
               src = "colorbar1.png",
               height = "auto",
               width = "100%")),
-            h4("Score", align="center")),
-    box(visNetworkOutput("input_graph", height = "800px", width = "100%"), width = 6))
+            h6("Score", align="center"),
+            hr(),
+            selectInput("layout", "Select graph layout:", 
+              choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"), 
+              selected = "layout_with_kk"),
+            width = 4,
+            collapsible = TRUE,
+            collapsed = FALSE),
+    box(visNetworkOutput("input_graph", height = "800px", width = "100%"), width = 8))
   )
 )
 
