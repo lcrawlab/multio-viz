@@ -23,4 +23,4 @@ Imports:
     shinydashboard (>= 0.7.2),
     shinydashboardPlus (>= 2.0.3),
     shinyWidgets (>= 0.7.4),
-    shinyjs (>= 2.1.0),
+    shinyjs (>= 2.1.0)

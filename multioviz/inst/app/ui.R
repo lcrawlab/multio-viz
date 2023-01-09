@@ -13,7 +13,7 @@ ui <- dashboardPage(
     titleWidth = 300
   ),
   
-dashboardSidebar(),
+dashboardSidebar(width = 1),
 
 dashboardBody(
   width = 12,
@@ -26,24 +26,25 @@ dashboardBody(
               selected = "layout_with_kk"),
             chooseSliderSkin("Flat"),
             sliderInput("slider1", "Set Threholding For ML1:",
-                    min = 0, max = 1, value = 0.5),
+                    min = 0, max = 1, value = 0),
             colorbar1 <-
               tags$a(tags$img(
-              src = "colorbar2.png",
+              src = "colorbarML1.png",
               height = "auto",
               width = "100%")),
             h4("Score", align="center"),
             chooseSliderSkin("Flat"),
             sliderInput("slider2", "Set Threholding For ML2:",
-                    min = 0, max = 1, value = 0.5),
-            colorbar1 <-
+                    min = 0, max = 1, value = 0),
+            colorbar2 <-
               tags$a(tags$img(
-              src = "colorbar1.png",
+              src = "colorbarML2.png",
               height = "auto",
               width = "100%")),
             h4("Score", align="center"),
             fluidRow(align = "center", bsButton("run_model", label = "SET THRESHOLD", style = "danger", size = 'large')),
-            fluidRow(align = "center", bsButton("rerun_model", label = "RERUN METHOD", style = "danger", size = 'large'))
+            hr(),
+            fluidRow(align = "center", bsButton("rerun_model", label = "RERUN METHOD", style = "danger", size = 'large')),
             width = 4),
     box(visNetworkOutput("input_graph", height = "800px", width = "100%"), width = 8))
   )
