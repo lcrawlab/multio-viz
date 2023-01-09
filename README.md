@@ -25,7 +25,8 @@ Multioviz is a user-friendly R Shiny application that facilitates in-silico hypo
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ## Quickstart: 3 usages
-Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs and (2) perturb GRNs for in-silico hypothesis testing, visit [add link here for website]. The user can also (3) integrate their own computational method that performs feature selection and perturbation through the Multioviz R package ([see here for instructions](#steps-to-install-r-package)) 
+Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs and (2) perturb GRNs for in-silico hypothesis testing, visit [add link here for website]. The user can also (3) integrate their own computational method that performs feature selection and perturbation through the Multioviz R package.
+ 
 1. For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "GENERATE NETWORK" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-variables-as-a-grn) for a detailed walk through.
 2. For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN MODEL" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [Generate a Perturbable Network](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
 3. For (3), open a new R session (```$ R```) and load the multioviz package (```> library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions
