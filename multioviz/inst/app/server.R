@@ -1,7 +1,7 @@
 server <- function(input, output, session) {
   options(shiny.maxRequestSize=30*1024^2) 
   app_dir <- getwd()
-  source(paste(app_dir, "/inst/app/scripts/helpers.R", sep = ""))
+  source(paste(app_dir, "/multioviz/inst/app/scripts/helpers.R", sep = ""))
 
   # initialize reactive values for ML model args
 
@@ -37,7 +37,7 @@ server <- function(input, output, session) {
   observe({
   if(demo){
     # if no arguments, run demo
-    source(paste(app_dir, "/inst/app/scripts/perturb.R", sep = ""))
+    source(paste(app_dir, "/multioviz/inst/app/scripts/perturb.R", sep = ""))
     
     # BANNs is run
     lst = runModel(reactivesModel$X, reactivesModel$y, reactivesModel$mask)
@@ -161,28 +161,28 @@ server <- function(input, output, session) {
  
   # UI stuff
   output$logo <- renderImage({
-    list(src = paste(app_dir, "/inst/app/www/logo.png", sep = ""), width = "20%", height = "35%", alt = "Alternate text")
+    list(src = paste(app_dir, "/multioviz/inst/app/www/logo.png", sep = ""), width = "20%", height = "35%", alt = "Alternate text")
   }, deleteFile = FALSE)
    
   output$colorbar1 <- renderImage({
-    list(src = paste(app_dir, "/inst/app/www/colorbar1.png", sep = ""), width = "100%", height = "25%", alt = "Alternate text")
+    list(src = paste(app_dir, "/multioviz/inst/app/www/colorbar1.png", sep = ""), width = "100%", height = "25%", alt = "Alternate text")
   }, deleteFile = FALSE)
    
   output$colorbar2 <- renderImage({
-    list(src = paste(app_dir, "/inst/app/www/colorbar2.png", sep = ""), width = "100%", height = "25%", alt = "Alternate text")
+    list(src = paste(app_dir, "/multioviz/inst/app/www/colorbar2.png", sep = ""), width = "100%", height = "25%", alt = "Alternate text")
   }, deleteFile = FALSE)
 
 
   observeEvent("", {
     showModal(modalDialog(
-      includeHTML(paste(app_dir, "/inst/app/www/intro_text.html", sep = "")),
+      includeHTML(paste(app_dir, "/multioviz/inst/app/www/intro_text.html", sep = "")),
       easyClose = TRUE,
     ))
   })
 
   observeEvent(input$quickstart, {
     showModal(modalDialog(
-      includeHTML(paste(app_dir, "/inst/app/www/intro_text2.html", sep = "")),
+      includeHTML(paste(app_dir, "/multioviz/inst/app/www/intro_text2.html", sep = "")),
       easyClose = TRUE,
       #footer = actionButton(inputId = "example_data_viz", label = "VIEW EXAMPLE DATA", icon = icon("info-circle"))
     ))

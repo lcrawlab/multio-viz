@@ -33,7 +33,7 @@ Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs 
 
 
 ## Dependencies
-- R (>= 4.1.0)
+- R (>= 4.1.2)
 - BANN (>= 0.1.0)
 - shiny (>= 1.7.1)
 - visNetwork (>= 2.1.0)
