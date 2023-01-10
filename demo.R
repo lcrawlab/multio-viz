@@ -1,0 +1,2 @@
+library(multioviz)
+runMultioviz()

@@ -206,6 +206,8 @@ Perturbed GRN
 ## C. Integrate feature selection and prioritization method
 The multioviz package contains a runMultioviz() function that allows users to connect the perturbation and visualization capabilities of the multioviz platform with their own ranking model. The function can take in 0 parameters to run the demo, 3 parameters ```runMultioviz(X, y, mask)``` to run user data with BANNs, and 4 parameters ```runMultioviz(X, y, mask, userScript)``` to run user data with user model.
 
+To run a demo, 
+
 <img
   src="./app/readme/ui_pkg.png"
   alt="Alt text"
@@ -213,11 +215,10 @@ The multioviz package contains a runMultioviz() function that allows users to co
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ### runMultioviz() function tutorial
-0. Navigate to the multioviz subdirectory and start a new R session
-'''
-cd ../multio-viz/multioviz
-R
-'''
+0. To run a demo with BANNs, in the multioviz subdirectory, run
+```
+Rscript demo.R
+```
 1. Write script with a "runModel()" function
 2. Save X, y, and mask files as .rda files
 3. Load in X, y, and mask files
@@ -230,8 +231,10 @@ R
 ```
 > userScript = "'path to user script'"
 ```
+
 5. Run app with runMultioviz(X, y, mask, userScript) function
 ```
+
 runMultioviz(X.rda, y.rda, mask.rda)
 ```
 6. Follow perturbation steps from the [section above](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)
