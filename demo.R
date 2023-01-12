@@ -1,2 +1,0 @@
-library(multioviz)
-runMultioviz()
