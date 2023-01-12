@@ -6,18 +6,16 @@
 #' @param y N-dimensional matrix of quantitative traits
 #' @param mask J x G matrix of pre-defined annotations where J is the number of molecular variables for molecular level 1 and G is the number of molecular variables for molecular level 2
 #' @export
-runMultioviz <- function(X = NULL, y = NULL, mask = NULL, userScript = NULL){
-
-    if(is.null(X) & is.null(y) & is.null(mask)){
+runMultioviz <- function(X = NULL, y = NULL, mask = NULL, userScript = NULL) {
+    if (is.null(X) & is.null(y) & is.null(mask)) {
         X <- multioviz:::X_test
         y <- multioviz:::y_test
         mask <- multioviz:::mask_test
     }
 
-    if(is.null(userScript)){
+    if (is.null(userScript)) {
         demo <- TRUE
-    }
-    else{
+    } else {
         demo <- FALSE
     }
 
@@ -28,7 +26,7 @@ runMultioviz <- function(X = NULL, y = NULL, mask = NULL, userScript = NULL){
 
     ui <- server <- NULL # avoid NOTE about undefined globals
     source(appDir, local = TRUE, chdir = TRUE)
-    
+
     server_env <- environment(server)
     server_env$X <- X
     server_env$y <- y
