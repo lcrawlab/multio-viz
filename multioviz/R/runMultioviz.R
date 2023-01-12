@@ -1,6 +1,6 @@
 #' Run Shiny App
 #'
-#' This function takes in parameters for a mathematical model and the wrapper script for the model and runs the multioviz Shiny application
+#' This function takes in parameters for a computational model that performs feature selection and prioritization and the wrapper script for the method and runs the multioviz Shiny application
 #'
 #' @param X N x J matrix where N is the number of samples and J is the size of the set of molecular variables for molecular level one
 #' @param y N-dimensional matrix of quantitative traits
@@ -21,8 +21,7 @@ runMultioviz <- function(X = NULL, y = NULL, mask = NULL, userScript = NULL){
         demo <- FALSE
     }
 
-    appDir <- system.file("app", 'app.R', package = "multioviz")
-    print(appDir)
+    appDir <- system.file("app", "app.R", package = "multioviz")
     if (appDir == "") {
         stop("Could not find directory. Try re-installing `multioviz`.", call. = FALSE)
     }

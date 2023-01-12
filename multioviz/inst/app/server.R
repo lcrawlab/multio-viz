@@ -161,15 +161,15 @@ server <- function(input, output, session) {
  
   # UI stuff
   output$logo <- renderImage({
-    list(src = paste(app_dir, "/multioviz/inst/app/www/logo.png", sep = ""), width = "20%", height = "35%", alt = "Alternate text")
+    list(src = paste(app_dir, "/multioviz/inst/app/www/logo.png", sep = ""), width = "90%", height = "auto%", alt = "Alternate text")
   }, deleteFile = FALSE)
    
   output$colorbar1 <- renderImage({
-    list(src = paste(app_dir, "/multioviz/inst/app/www/colorbar1.png", sep = ""), width = "100%", height = "25%", alt = "Alternate text")
+    list(src = paste(app_dir, "/multioviz/inst/app/www/colorbarML1.png", sep = ""), width = "100%", height = "auto", alt = "Alternate text")
   }, deleteFile = FALSE)
    
   output$colorbar2 <- renderImage({
-    list(src = paste(app_dir, "/multioviz/inst/app/www/colorbar2.png", sep = ""), width = "100%", height = "25%", alt = "Alternate text")
+    list(src = paste(app_dir, "/multioviz/inst/app/www/colorbarML2.png", sep = ""), width = "100%", height = "auto", alt = "Alternate text")
   }, deleteFile = FALSE)
 
 
@@ -182,7 +182,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$quickstart, {
     showModal(modalDialog(
-      includeHTML(paste(app_dir, "/multioviz/inst/app/www/intro_text2.html", sep = "")),
+      includeHTML(paste(app_dir, "/multioviz/inst/www/intro_text2.html", sep = "")),
       easyClose = TRUE,
       #footer = actionButton(inputId = "example_data_viz", label = "VIEW EXAMPLE DATA", icon = icon("info-circle"))
     ))

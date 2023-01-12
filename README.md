@@ -209,7 +209,7 @@ The multioviz package contains a runMultioviz() function that allows users to co
 To run a demo, 
 
 <img
-  src="./app/readme/ui_pkg.png"
+  src="./app/readme/pkgUI.png"
   alt="Alt text"
   title="runModel() example"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
@@ -235,7 +235,7 @@ Rscript demo.R
 5. Run app with runMultioviz(X, y, mask, userScript) function
 ```
 
-runMultioviz(X.rda, y.rda, mask.rda)
+runMultioviz(X.rda, y.rda, mask.rda, userScript)
 ```
 6. Follow perturbation steps from the [section above](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)
 

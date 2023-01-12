@@ -9,6 +9,7 @@ library(shinydashboard)
 library(shinydashboardPlus)
 library(shinyWidgets)
 library(shinyjs)
+library(shinyalert)
 
 #library(multioviz) # Followed: https://tinyheero.github.io/jekyll/update/2015/07/26/making-your-first-R-package.html
 
@@ -338,17 +339,17 @@ server <- function(input, output, session) {
     }
   })
 
-  output$logo <- renderImage({
-    list(src = "./www/logo.png", width = "20%", height = "35%", alt = "Alternate text")
-  }, deleteFile = FALSE)
+  # output$logo <- renderImage({
+  #   list(src = "./www/logo.png", width = "20%", height = "35%", alt = "Alternate text")
+  # }, deleteFile = FALSE)
    
-  output$colorbar1 <- renderImage({
-    list(src = "./www/colorbar1.png", width = "100%", height = "25%", alt = "Alternate text")
-  }, deleteFile = FALSE)
+  # output$colorbar1 <- renderImage({
+  #   list(src = "./www/colorbar1.png", width = "100%", height = "25%", alt = "Alternate text")
+  # }, deleteFile = FALSE)
    
-  output$colorbar2 <- renderImage({
-    list(src = "./www/colorbar2.png", width = "100%", height = "25%", alt = "Alternate text")
-  }, deleteFile = FALSE)
+  # output$colorbar2 <- renderImage({
+  #   list(src = "./www/colorbar2.png", width = "100%", height = "25%", alt = "Alternate text")
+  # }, deleteFile = FALSE)
 
   observeEvent("", {
     showModal(modalDialog(
@@ -386,7 +387,19 @@ server <- function(input, output, session) {
     disable('x_model_input')
     disable('y_model_input')
     disable('mask_input')
+
+    shinyalert(
+      "Demo Files Uploaded",
+      "X, y, and mask are loaded. 
+      1) Customize within molecular level mapping.
+      2) Set thresholding.
+      3) Choose layout.
+      4) Click RUN to generate GRN",
+      type = "success"
+    )
   })
+
+  
 }
 
 ui <- dashboardPage(

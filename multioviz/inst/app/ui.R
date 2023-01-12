@@ -3,13 +3,9 @@ ui <- dashboardPage(
   skin = "black",
   dashboardHeader(
     tags$li(class = "dropdown",
-      tags$style(".main-header {max-height: 100px}"),
-      tags$style(".main-header .logo {height: 80px}")),
-    title = tags$a(tags$img(
-      src = "logo.png",
-      height = "auto",
-      width = "60%"
-    )),
+      tags$style(".main-header {max-height: 250px}"),
+      tags$style(".main-header .logo {height: 120px}")),
+    title = imageOutput("logo"),
     titleWidth = 300
   ),
   
@@ -27,20 +23,12 @@ dashboardBody(
             chooseSliderSkin("Flat"),
             sliderInput("slider1", "Set Threholding For ML1:",
                     min = 0, max = 1, value = 0),
-            colorbar1 <-
-              tags$a(tags$img(
-              src = "colorbarML1.png",
-              height = "auto",
-              width = "100%")),
+            imageOutput("colorbar1", width = "100%", height = "50px"),
             h4("Score", align="center"),
             chooseSliderSkin("Flat"),
             sliderInput("slider2", "Set Threholding For ML2:",
                     min = 0, max = 1, value = 0),
-            colorbar2 <-
-              tags$a(tags$img(
-              src = "colorbarML2.png",
-              height = "auto",
-              width = "100%")),
+            imageOutput("colorbar2", width = "100%", height = "50px"),
             h4("Score", align="center"),
             fluidRow(align = "center", bsButton("run_model", label = "SET THRESHOLD", style = "danger", size = 'large')),
             hr(),
