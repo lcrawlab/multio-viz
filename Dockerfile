@@ -25,8 +25,7 @@ RUN R -e 'install.packages("shinyWidgets", version = "0.7.4", repos="http://cran
 RUN R -e 'install.packages("shinyjs", version = "2.1.0", repos="http://cran.us.r-project.org")'
 RUN R -e 'install.packages("BANN")'
 
-# Copy contents of app directory
-
+# Copy contents of all multio-viz directories
 COPY ./app /srv/shiny-server/
 COPY ./BANNs /srv/shiny-server/
 COPY ./example_data /srv/shiny-server/
