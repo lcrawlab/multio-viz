@@ -26,21 +26,15 @@ RUN R -e 'install.packages("shinyjs", version = "2.1.0", repos="http://cran.us.r
 RUN R -e 'install.packages("BANN")'
 
 # Copy contents of all multio-viz directories
-COPY ./app /srv/shiny-server/
-COPY ./BANNs /srv/shiny-server/
-COPY ./example_data /srv/shiny-server/
-COPY ./multioviz /srv/shiny-server/
-COPY ./runMultioviz.R /srv/shiny-server/
-COPY ./setupMultioviz.sh /srv/shiny-server/
-COPY ./README.md /srv/shiny-server/
-COPY ./R_PACKAGE_DIRECTIONS /srv/shiny-server/
-COPY ./demo.R /srv/shiny-server/
-COPY ./load_multioviz.R /srv/shiny-server/
-COPY ./load_packages.R /srv/shiny-server/
-
-COPY ./multio-viz.Rproj /srv/shiny-server/
-COPY ./multio-viz_res /srv/shiny-server/
-COPY ./own_computational_method.R /srv/shiny-server/
+ADD app /srv/shiny-server/
+ADD BANNs /srv/shiny-server/
+ADD multioviz /srv/shiny-server/
+ADD runMultioviz.R /srv/shiny-server/
+ADD setupMultioviz.sh /srv/shiny-server/
+ADD README.md /srv/shiny-server/
+ADD demo.R /srv/shiny-server/
+ADD load_multioviz.R /srv/shiny-server/
+ADD load_packages.R /srv/shiny-server/
 
 # Run app
 EXPOSE 3838
