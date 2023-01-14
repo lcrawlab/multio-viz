@@ -11,7 +11,6 @@ library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
 
-# for debugging, started R session in multio-viz directory, type "runApp('app/app.R')", and click "demo")
 app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 source(paste(app_dir, "/scripts/perturb.R", sep = ""))
