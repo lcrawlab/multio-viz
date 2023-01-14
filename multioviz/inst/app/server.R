@@ -62,7 +62,6 @@ server <- function(input, output, session) {
     req((!is.null(reactivesViz$ML1)) & (!is.null(reactivesViz$ML2)) & (!is.null(reactivesViz$map))),
     {
       reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
-      # reactivesGraph$edges <- make_edges(reactivesViz$ML1, reactivesViz$ML2, reactivesViz$map)
       reactivesViz$map["arrows"] <- "to"
       reactivesGraph$edges <- reactivesViz$map
       output$input_graph <- make_graph(reactivesGraph$nodes, reactivesGraph$edges, input$layout)
@@ -141,7 +140,6 @@ server <- function(input, output, session) {
     reactivesViz$map <- lst$map
 
     reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
-    # reactivesGraph$edges <- make_edges(reactivesViz$ML1, reactivesViz$ML2, reactivesViz$map)
     reactivesGraph$edges <- reactivesViz$map
     output$input_graph <- make_graph(reactivesGraph$nodes, reactivesGraph$edges)
   })
@@ -179,7 +177,6 @@ server <- function(input, output, session) {
     deleteFile = FALSE
   )
 
-
   observeEvent("", {
     showModal(modalDialog(
       includeHTML(paste(app_dir, "/multioviz/inst/app/www/intro_text.html", sep = "")),
@@ -191,7 +188,6 @@ server <- function(input, output, session) {
     showModal(modalDialog(
       includeHTML(paste(app_dir, "/multioviz/inst/www/intro_text2.html", sep = "")),
       easyClose = TRUE,
-      # footer = actionButton(inputId = "example_data_viz", label = "VIEW EXAMPLE DATA", icon = icon("info-circle"))
     ))
   })
 }

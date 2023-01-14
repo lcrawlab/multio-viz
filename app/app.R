@@ -17,8 +17,9 @@ source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 source(paste(app_dir, "/scripts/perturb.R", sep = ""))
 
 server <- function(input, output, session) {
-  options(shiny.maxRequestSize = 30 * 1024^2)
+  options(shiny.maxRequestSize = 500 * 1024^2)
 
+  # initialize reactives for method input
   X_file <- reactive(input$x_model_input$datapath)
   y_file <- reactive(input$y_model_input$datapath)
   mask_file <- reactive(input$mask_input$datapath)
@@ -29,6 +30,7 @@ server <- function(input, output, session) {
   reactivesModel$y <- NULL
   reactivesModel$mask <- NULL
 
+  #initialize reactive for direct visualization
   reactivesViz <- reactiveValues()
   reactivesViz$ML1 <- NULL
   reactivesViz$ML2 <- NULL
@@ -54,9 +56,10 @@ server <- function(input, output, session) {
   reactivesPerturb$deletedNodesML2 <- list()
   reactivesPerturb$deletedEdges <- list()
 
+  # set X, y, and mask depending on whether demo is selected
   observe({
     if (isTruthy(input$demo)) {
-      X_matrix <- as.matrix(read.table(paste(app_dir, "/data/Xtest.txt", sep = "")))
+      X_matrix <- as.matrix(read.table(paste(app_dir, "/data/Xtest.txt", sep = "")), )
     } else if (isTruthy(input$x_model_input)) {
       X_matrix <- as.matrix(read.table(X_file()))
     } else {
@@ -72,20 +75,17 @@ server <- function(input, output, session) {
     if (isTruthy(input$demo)) {
       mask_matrix <- as.matrix(read.table(paste(app_dir, "/data/masktest.txt", sep = "")))
     } else if (isTruthy(input$mask_input)) {
-      mask_matrix <- as.matrix(read.table(mask_file()))
+      mask_matrix <- as.matrix(read.table(mask_file(), header = TRUE, row.names = 1, sep='\t'))
     } else {
       mask_matrix <- NULL
     }
 
-    if (!is.null(mask_matrix)) {
+    # set SNP and gene labels if mask does not have row/column names
+    if (!is.null(mask_matrix) & isTruthy(input$mask_labels)) {
       s_names <- paste("s", 1:dim(mask_matrix)[1], sep = "")
       g_names <- paste("g", 1:dim(mask_matrix)[2], sep = "")
       rownames(mask_matrix) <- s_names
       colnames(mask_matrix) <- g_names
-    }
-
-    if (!is.null(X_matrix) & !is.null(mask_matrix)) {
-      colnames(X_matrix) <- s_names
     }
 
     reactivesModel$X <- X_matrix
@@ -93,6 +93,7 @@ server <- function(input, output, session) {
     reactivesModel$mask <- mask_matrix
   })
 
+  # read in viz data if RUN button pressed for viz
   observeEvent(req(isTruthy(input$go)), {
     reactivesViz$ML1 <- as.data.frame(read.csv(
       file = input$mol_lev_1$datapath,
@@ -111,6 +112,7 @@ server <- function(input, output, session) {
     ), stringsAsFactors = FALSE)
   })
 
+  # if RUN pressed under perturb dropdown, run BANN method and sets viz reactives
   observeEvent(req(isTruthy(input$run_model)), {
     lst <- runMethod(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
 
@@ -119,15 +121,18 @@ server <- function(input, output, session) {
     reactivesViz$map <- lst$map
   })
 
+  # creates nodes and edges and visualizes graph object when RUN is pressed
   observeEvent(
     req(((isTruthy(input$run_model)) | (isTruthy(input$go))) & ((!is.null(reactivesViz$ML1)) & (!is.null(reactivesViz$ML2)) & (!is.null(reactivesViz$map)))),
     {
+      # makes nodes
       if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)) {
         reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
       } else {
         print("No nodes")
       }
 
+      # makes edges
       if (input$ml1_map == "None") {
         edgelist_ml1 <- data.frame(matrix(ncol = 3, nrow = 0))
         colnames(edgelist_ml1) <- c("from", "to", "arrows")
@@ -171,6 +176,7 @@ server <- function(input, output, session) {
       reactivesViz$map["arrows"] <- "to"
       reactivesGraph$edges <- rbind(edges, reactivesViz$map)
 
+      # makes graph
       if (!is.null(reactivesGraph$nodes) || !is.null(reactivesGraph$edges)) {
         output$input_graph <- renderVisNetwork({
           visNetwork(reactivesGraph$nodes, reactivesGraph$edges) %>%
@@ -184,6 +190,7 @@ server <- function(input, output, session) {
     }
   )
 
+  # keeps track of GRN perturbation
   observeEvent(input$input_graph_graphChange, {
     # If the user added a node, add it to the data frame of nodes.
     if (input$input_graph_graphChange$cmd == "addNode") {
@@ -235,7 +242,9 @@ server <- function(input, output, session) {
     }
   })
 
+  # generates new GRN if RERUN is clicked
   observeEvent(input$rerun_model, {
+    # change reactivesModel based on reactivesPerturb 
     reactivesModel$X <- reactivesModel$X[, !colnames(reactivesModel$X) %in% reactivesPerturb$deletedNodesML1]
     reactivesModel$mask <- reactivesModel$mask[!rownames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML1, !colnames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML2]
     for (n in reactivesPerturb$deletedEdges) {
@@ -244,11 +253,13 @@ server <- function(input, output, session) {
       }
     }
 
+    # reruns BANNs with new X, y, and mask
     lst <- runMethod(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
     reactivesViz$ML1 <- lst$ML1
     reactivesViz$ML2 <- lst$ML2
     reactivesViz$map <- lst$map
 
+    # makes new nodes and edges
     if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)) {
       reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
     } else {
@@ -298,6 +309,7 @@ server <- function(input, output, session) {
     edges <- rbind(edgelist_ml1, edgelist_ml2)
     reactivesGraph$edges <- rbind(edges, reactivesViz$map)
 
+    # visualize new GRN
     if (!is.null(reactivesGraph$nodes) || !is.null(reactivesGraph$edges)) {
       output$input_graph <- renderVisNetwork({
         visNetwork(reactivesGraph$nodes, reactivesGraph$edges) %>%
@@ -321,6 +333,7 @@ server <- function(input, output, session) {
     )
   })
 
+  # only allow upload of within ML map if sparse selected
   observeEvent(input$ml1_map, {
     if (input$ml1_map == "Sparse") {
       enable("map_lev_1")
@@ -333,6 +346,7 @@ server <- function(input, output, session) {
     }
   })
 
+  # UI stuff
   observeEvent("", {
     showModal(modalDialog(
       includeHTML("./www/intro_text.html"),
@@ -465,14 +479,7 @@ ui <- dashboardPage(
               ".csv"
             )
           ),
-          selectInput(
-            "model_type",
-            label = NULL,
-            choices = c(
-              "Select a model" = "NA",
-              "BANNs" = "banns"
-            )
-          ),
+          checkboxInput("mask_labels", "Check if mask does not have row and column names", FALSE),
           fluidRow(
             align = "center", bsButton("run_model", label = "RUN", style = "danger", size = "large")
           ),
