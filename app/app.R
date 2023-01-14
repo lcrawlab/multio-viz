@@ -87,6 +87,10 @@ server <- function(input, output, session) {
       colnames(mask_matrix) <- g_names
     }
 
+    if (!is.null(X_matrix) & !is.null(mask_matrix)) {
+      colnames(X_matrix) <- rownames(mask_matrix)
+    }
+
     reactivesModel$X <- X_matrix
     reactivesModel$y <- y_matrix
     reactivesModel$mask <- mask_matrix
