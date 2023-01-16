@@ -18,20 +18,21 @@ source(paste(app_dir, "/scripts/perturb.R", sep = ""))
 
 server <- function(input, output, session) {
   options(shiny.maxRequestSize = 10000 * 1024^2)
-  Sys.setenv('R_MAX_VSIZE'=16e9)
+  Sys.setenv("R_MAX_VSIZE" = 16e9)
 
   # initialize reactives for method input
   X_file <- reactive(input$x_model_input$datapath)
   y_file <- reactive(input$y_model_input$datapath)
   mask_file <- reactive(input$mask_input$datapath)
   demo <- reactive(input$demo)
+  demo_viz <- reactive(input$demo_viz)
 
   reactivesModel <- reactiveValues()
   reactivesModel$X <- NULL
   reactivesModel$y <- NULL
   reactivesModel$mask <- NULL
 
-  #initialize reactive for direct visualization
+  # initialize reactive for direct visualization
   reactivesViz <- reactiveValues()
   reactivesViz$ML1 <- NULL
   reactivesViz$ML2 <- NULL
@@ -76,14 +77,14 @@ server <- function(input, output, session) {
     if (isTruthy(input$demo)) {
       mask_matrix <- as.matrix(read.table(paste(app_dir, "/data/masktest.txt", sep = "")))
     } else if (isTruthy(input$mask_input)) {
-      #mask_matrix <- as.matrix(read.table(mask_file(), header = TRUE, row.names = 1, sep='\t'))
-      mask_matrix = as.matrix(fread(mask_file(), sep='\t', header=TRUE), rownames=1)
+      # mask_matrix <- as.matrix(read.table(mask_file(), header = TRUE, row.names = 1, sep='\t'))
+      mask_matrix <- as.matrix(fread(mask_file(), sep = "\t", header = TRUE), rownames = 1)
     } else {
       mask_matrix <- NULL
     }
 
     # set SNP and gene labels if mask does not have row/column names
-    if (!is.null(mask_matrix) & isTruthy(input$mask_labels)) {
+    if (!is.null(mask_matrix) & (isTruthy(input$mask_labels) | isTruthy(input$demo))) {
       s_names <- paste("s", 1:dim(mask_matrix)[1], sep = "")
       g_names <- paste("g", 1:dim(mask_matrix)[2], sep = "")
       rownames(mask_matrix) <- s_names
@@ -91,8 +92,6 @@ server <- function(input, output, session) {
     }
 
     if (!is.null(X_matrix) & !is.null(mask_matrix)) {
-      print(dim(mask_matrix))
-      print(dim(X_matrix))
       colnames(X_matrix) <- rownames(mask_matrix)
     }
 
@@ -103,29 +102,47 @@ server <- function(input, output, session) {
 
   # read in viz data if RUN button pressed for viz
   observeEvent(req(isTruthy(input$go)), {
-    reactivesViz$ML1 <- as.data.frame(read.csv(
-      file = input$mol_lev_1$datapath,
-      sep = ",",
-      header = TRUE
-    ), stringsAsFactors = FALSE)
-    reactivesViz$ML2 <- as.data.frame(read.csv(
-      file = input$mol_lev_2$datapath,
-      sep = ",",
-      header = TRUE
-    ), stringsAsFactors = FALSE)
-    reactivesViz$map <- as.data.frame(read.csv(
-      file = input$map_lev_1_2$datapath,
-      sep = ",",
-      header = TRUE
-    ), stringsAsFactors = FALSE)
+    if (isTruthy(input$demo_viz)) {
+      reactivesViz$ML1 <- as.data.frame(read.csv(
+        paste(app_dir, "/data/simple_ml1.csv", sep = ""),
+        sep = ",", header = TRUE
+      ), stringsAsFactors = FALSE)
+      reactivesViz$ML2 <- as.data.frame(read.csv(
+        paste(app_dir, "/data/simple_ml2.csv", sep = ""),
+        sep = ",", header = TRUE
+      ), stringsAsFactors = FALSE)
+      reactivesViz$map <- as.data.frame(read.csv(
+        paste(app_dir, "/data/simple_map_ml1_ml2.csv", sep = ""),
+        sep = ",", header = TRUE
+      ), stringsAsFactors = FALSE)
+    } else {
+      reactivesViz$ML1 <- as.data.frame(read.csv(
+        file = input$mol_lev_1$datapath,
+        sep = ",",
+        header = TRUE
+      ), stringsAsFactors = FALSE)
+      reactivesViz$ML2 <- as.data.frame(read.csv(
+        file = input$mol_lev_2$datapath,
+        sep = ",",
+        header = TRUE
+      ), stringsAsFactors = FALSE)
+      reactivesViz$map <- as.data.frame(read.csv(
+        file = input$map_lev_1_2$datapath,
+        sep = ",",
+        header = TRUE
+      ), stringsAsFactors = FALSE)
+    }
   })
 
   # if RUN pressed under perturb dropdown, run BANN method and sets viz reactives
   observeEvent(req(isTruthy(input$run_model)), {
     shinyalert(
       "
+      RUN
+      ",
+      "
       Reading in data...
-      Performing feature selection and perturbation...
+      Performing feature selection and prioritization...
       ",
       type = "success"
     )
@@ -134,6 +151,7 @@ server <- function(input, output, session) {
     reactivesViz$ML1 <- lst$ML1
     reactivesViz$ML2 <- lst$ML2
     reactivesViz$map <- lst$map
+    print('here')
   })
 
   # creates nodes and edges and visualizes graph object when RUN is pressed
@@ -259,7 +277,7 @@ server <- function(input, output, session) {
 
   # generates new GRN if RERUN is clicked
   observeEvent(input$rerun_model, {
-    # change reactivesModel based on reactivesPerturb 
+    # change reactivesModel based on reactivesPerturb
     reactivesModel$X <- reactivesModel$X[, !colnames(reactivesModel$X) %in% reactivesPerturb$deletedNodesML1]
     reactivesModel$mask <- reactivesModel$mask[!rownames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML1, !colnames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML2]
     for (n in reactivesPerturb$deletedEdges) {
@@ -395,7 +413,7 @@ server <- function(input, output, session) {
     ))
   })
 
-  #shinyalerts
+  # shinyalerts
   observeEvent(req(isTruthy(input$x_model_input) & isTruthy(input$y_model_input) & isTruthy(input$mask_input)), {
     shinyalert(
       "Input Files Uploaded",
@@ -416,10 +434,30 @@ server <- function(input, output, session) {
     shinyalert(
       "Demo Files Uploaded",
       "X, y, and mask are loaded.
+      Click RUN to generate GRN.
+
+      Option Changes:
       1) Customize within molecular level mapping.
       2) Set thresholding.
-      3) Choose layout.
-      4) Click RUN to generate GRN",
+      2) Choose layout",
+      type = "success"
+    )
+  })
+
+  observeEvent(input$demo_viz, {
+    disable("mol_lev_1")
+    disable("mol_lev_2")
+    disable("map_lev_1_2")
+
+    shinyalert(
+      "Demo Files Uploaded",
+      "ML1, ML2, and map are loaded.
+      Click RUN to generate GRN.
+
+      Optional Changes:
+      1) Customize within molecular level mapping.
+      2) Set thresholding.
+      2) Choose layout",
       type = "success"
     )
   })
@@ -447,11 +485,12 @@ ui <- dashboardPage(
       sidebarMenu(
         div(class = "inlay", style = "height:15px;width:100%;background-color: #ecf0f5;"),
         HTML("", sep = "<br/>"), # new line
-        fluidRow(align = "center", bsButton("quickstart", label = "Quickstart", style = "success", size = "large")),
+        fluidRow(align = "center", bsButton("quickstart", label = "Quickstart", style = "success", size = "medium")),
         menuItem(
           "Visualize",
           tabName = "visualize",
-          fluidRow(align = "center", bsButton("example_data_viz", label = "Example Data", style = "success", size = "large")),
+          fluidRow(align = "center", bsButton("example_data_viz", label = "Data Format", style = "success", size = "medium")),
+          fluidRow(align = "center", bsButton("demo_viz", label = "Load Demo Files", style = "success", size = "medium")),
           fileInput("mol_lev_1", "Input ML1 Scores:",
             multiple = FALSE,
             accept = c(
@@ -476,14 +515,14 @@ ui <- dashboardPage(
               ".csv"
             )
           ),
-          fluidRow(align = "center", bsButton("go", label = "RUN", style = "danger", size = "large")),
+          fluidRow(align = "center", bsButton("go", label = "RUN", style = "danger", size = "medium")),
           hr()
         ),
         menuItem(
           "Perturb",
           tabName = "perturb",
-          fluidRow(align = "center", bsButton("example_data_perturb", label = "Example Data", style = "success", size = "large")),
-          fluidRow(align = "center", bsButton("demo", label = "Load Demo Files", style = "success", size = "large")),
+          fluidRow(align = "center", bsButton("example_data_perturb", label = "Data Format", style = "success", size = "medium")),
+          fluidRow(align = "center", bsButton("demo", label = "Load Demo Files", style = "success", size = "medium")),
           fileInput("x_model_input", "Input X:",
             multiple = FALSE,
             accept = c(
@@ -510,10 +549,10 @@ ui <- dashboardPage(
           ),
           checkboxInput("mask_labels", "Check if mask does not have row and column names", FALSE),
           fluidRow(
-            align = "center", bsButton("run_model", label = "RUN", style = "danger", size = "large")
+            align = "center", bsButton("run_model", label = "RUN", style = "danger", size = "medium")
           ),
           fluidRow(
-            align = "center", bsButton("rerun_model", label = "RERUN", style = "danger", size = "large")
+            align = "center", bsButton("rerun_model", label = "RERUN", style = "danger", size = "medium")
           ),
           hr()
         )

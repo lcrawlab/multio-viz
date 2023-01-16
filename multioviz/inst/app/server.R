@@ -1,5 +1,5 @@
 server <- function(input, output, session) {
-  options(shiny.maxRequestSize = 30 * 1024^2)
+  options(shiny.maxRequestSize = 10000 * 1024^2)
   app_dir <- getwd()
   source(paste(app_dir, "/multioviz/inst/app/scripts/helpers.R", sep = ""))
 
