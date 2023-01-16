@@ -10,13 +10,15 @@ library(shinydashboardPlus)
 library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
+library(data.table)
 
 app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
 source(paste(app_dir, "/scripts/perturb.R", sep = ""))
 
 server <- function(input, output, session) {
-  options(shiny.maxRequestSize = 500 * 1024^2)
+  options(shiny.maxRequestSize = 10000 * 1024^2)
+  Sys.setenv('R_MAX_VSIZE'=16e9)
 
   # initialize reactives for method input
   X_file <- reactive(input$x_model_input$datapath)
@@ -74,7 +76,8 @@ server <- function(input, output, session) {
     if (isTruthy(input$demo)) {
       mask_matrix <- as.matrix(read.table(paste(app_dir, "/data/masktest.txt", sep = "")))
     } else if (isTruthy(input$mask_input)) {
-      mask_matrix <- as.matrix(read.table(mask_file(), header = TRUE, row.names = 1, sep='\t'))
+      #mask_matrix <- as.matrix(read.table(mask_file(), header = TRUE, row.names = 1, sep='\t'))
+      mask_matrix = as.matrix(fread(mask_file(), sep='\t', header=TRUE), rownames=1)
     } else {
       mask_matrix <- NULL
     }
@@ -88,6 +91,8 @@ server <- function(input, output, session) {
     }
 
     if (!is.null(X_matrix) & !is.null(mask_matrix)) {
+      print(dim(mask_matrix))
+      print(dim(X_matrix))
       colnames(X_matrix) <- rownames(mask_matrix)
     }
 
@@ -117,6 +122,13 @@ server <- function(input, output, session) {
 
   # if RUN pressed under perturb dropdown, run BANN method and sets viz reactives
   observeEvent(req(isTruthy(input$run_model)), {
+    shinyalert(
+      "
+      Reading in data...
+      Performing feature selection and perturbation...
+      ",
+      type = "success"
+    )
     lst <- runMethod(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
 
     reactivesViz$ML1 <- lst$ML1
@@ -251,9 +263,10 @@ server <- function(input, output, session) {
     reactivesModel$X <- reactivesModel$X[, !colnames(reactivesModel$X) %in% reactivesPerturb$deletedNodesML1]
     reactivesModel$mask <- reactivesModel$mask[!rownames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML1, !colnames(reactivesModel$mask) %in% reactivesPerturb$deletedNodesML2]
     for (n in reactivesPerturb$deletedEdges) {
-      if ((n[2] %in% rownames(reactivesModel$mask)) & (n[3] %in% colnames(reactivesModel$mask))) {
-        reactivesModel$mask[n[2], n[3]] <- 0
-      }
+      reactivesModel$mask[n[2], n[3]] <- 0
+      # if ((n[2] %in% rownames(reactivesModel$mask)) & (n[3] %in% colnames(reactivesModel$mask))) {
+      #   reactivesModel$mask[n[2], n[3]] <- 0
+      # }
     }
 
     # reruns BANNs with new X, y, and mask
@@ -380,6 +393,19 @@ server <- function(input, output, session) {
       size = "l",
       easyClose = TRUE,
     ))
+  })
+
+  #shinyalerts
+  observeEvent(req(isTruthy(input$x_model_input) & isTruthy(input$y_model_input) & isTruthy(input$mask_input)), {
+    shinyalert(
+      "Input Files Uploaded",
+      "X, y, and mask are loaded.
+      1) Customize within molecular level mapping.
+      2) Set thresholding.
+      3) Choose layout.
+      4) Click RUN to generate GRN",
+      type = "success"
+    )
   })
 
   observeEvent(input$demo, {
