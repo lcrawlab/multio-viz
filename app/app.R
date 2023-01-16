@@ -489,8 +489,8 @@ ui <- dashboardPage(
         menuItem(
           "Visualize",
           tabName = "visualize",
-          fluidRow(align = "center", bsButton("example_data_viz", label = "Data Format", style = "danger", size = "medium")),
-          fluidRow(align = "center", bsButton("demo_viz", label = "Load Demo Files", style = "danger", size = "medium")),
+          fluidRow(align = "center", bsButton("example_data_viz", label = "Data Format", style = "success", size = "medium")),
+          fluidRow(align = "center", bsButton("demo_viz", label = "Load Demo Files", style = "success", size = "medium")),
           fileInput("mol_lev_1", "Input ML1 Scores:",
             multiple = FALSE,
             accept = c(
@@ -521,8 +521,8 @@ ui <- dashboardPage(
         menuItem(
           "Perturb",
           tabName = "perturb",
-          fluidRow(align = "center", bsButton("example_data_perturb", label = "Data Format", style = "primary", size = "medium")),
-          fluidRow(align = "center", bsButton("demo", label = "Load Demo Files", style = "primary", size = "medium")),
+          fluidRow(align = "center", bsButton("example_data_perturb", label = "Data Format", style = "success", size = "medium")),
+          fluidRow(align = "center", bsButton("demo", label = "Load Demo Files", style = "success", size = "medium")),
           fileInput("x_model_input", "Input X:",
             multiple = FALSE,
             accept = c(
@@ -549,10 +549,10 @@ ui <- dashboardPage(
           ),
           checkboxInput("mask_labels", "Check if mask does not have row and column names", FALSE),
           fluidRow(
-            align = "center", bsButton("run_model", label = "RUN", style = "primary", size = "medium")
+            align = "center", bsButton("run_model", label = "RUN", style = "danger", size = "medium")
           ),
           fluidRow(
-            align = "center", bsButton("rerun_model", label = "RERUN", style = "primary", size = "medium")
+            align = "center", bsButton("rerun_model", label = "RERUN", style = "danger", size = "medium")
           ),
           hr()
         )
