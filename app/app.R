@@ -78,7 +78,9 @@ server <- function(input, output, session) {
       mask_matrix <- as.matrix(read.table(paste(app_dir, "/data/masktest.txt", sep = "")))
     } else if (isTruthy(input$mask_input)) {
       # mask_matrix <- as.matrix(read.table(mask_file(), header = TRUE, row.names = 1, sep='\t'))
-      mask_matrix <- as.matrix(fread(mask_file(), sep = "\t", header = TRUE), rownames = 1)
+      mask_matrix <- as.matrix(fread(mask_file(), sep = "\t", header=TRUE),rownames = 1)
+      print(colnames(mask_matrix))
+      print(dim(mask_matrix))
     } else {
       mask_matrix <- NULL
     }
@@ -138,26 +140,25 @@ server <- function(input, output, session) {
   observeEvent(req(isTruthy(input$run_model)), {
     shinyalert(
       "
-      RUN
-      ",
-      "
-      Reading in data...
       Performing feature selection and prioritization...
-      ",
-      type = "success"
+      "
     )
     lst <- runMethod(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
 
     reactivesViz$ML1 <- lst$ML1
     reactivesViz$ML2 <- lst$ML2
     reactivesViz$map <- lst$map
-    print('here')
   })
 
   # creates nodes and edges and visualizes graph object when RUN is pressed
   observeEvent(
     req(((isTruthy(input$run_model)) | (isTruthy(input$go))) & ((!is.null(reactivesViz$ML1)) & (!is.null(reactivesViz$ML2)) & (!is.null(reactivesViz$map)))),
     {
+      shinyalert(
+        "
+        Visualizing gene regulatory network...
+        "
+      )
       # makes nodes
       if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)) {
         reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
@@ -206,6 +207,7 @@ server <- function(input, output, session) {
         colnames(edgelist_ml2) <- c("from", "to", "arrows")
       }
       edges <- rbind(edgelist_ml1, edgelist_ml2)
+      write.csv(reactivesViz$map, file = 'edges.csv')
       reactivesViz$map["arrows"] <- "to"
       reactivesGraph$edges <- rbind(edges, reactivesViz$map)
 
@@ -287,11 +289,23 @@ server <- function(input, output, session) {
       # }
     }
 
+    shinyalert(
+      "
+      Performing feature selection and prioritization...
+      "
+    )
+
     # reruns BANNs with new X, y, and mask
     lst <- runMethod(reactivesModel$X, reactivesModel$mask, reactivesModel$y)
     reactivesViz$ML1 <- lst$ML1
     reactivesViz$ML2 <- lst$ML2
     reactivesViz$map <- lst$map
+
+    shinyalert(
+      "
+      Visualizing gene regulatory network...
+      "
+    )
 
     # makes new nodes and edges
     if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)) {

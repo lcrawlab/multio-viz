@@ -3,8 +3,18 @@ server <- function(input, output, session) {
   app_dir <- getwd()
   source(paste(app_dir, "/multioviz/inst/app/scripts/helpers.R", sep = ""))
 
-  # initialize reactive values for ML model args
+  shinyalert(
+      "Welcome!",
+      "Multioviz is an interactive open source software tool for the assessment of gene regulatory networks (GRNs)
+      
+      Quickstart:
+      1) Choose layout and threshold features by statistical significance (can also be done after steps 2 and 3)
+      2) Click RUN METHOD to visualize prioritized molecular features and their interactions
+      3) Perturb features and click RERUN METHOD to test your hypotheses in-silico",
+      type = "warning"
+  )
 
+  # initialize reactive values for ML model args
   reactivesModel <- reactiveValues()
   reactivesModel$X <- X
   reactivesModel$y <- y
@@ -34,16 +44,20 @@ server <- function(input, output, session) {
   reactivesPerturb$deletedNodesML2 <- list()
   reactivesPerturb$deletedEdges <- list()
 
-  observe({
+  observeEvent(input$run_model,{
+    colnames(reactivesModel$X) <- rownames(reactivesModel$mask)
     if (demo) {
       # if no arguments, run demo
       source(paste(app_dir, "/multioviz/inst/app/scripts/perturb.R", sep = ""))
 
       # BANNs is run
+      print('Performing feature selection and prioritization...')
       lst <- runModel(reactivesModel$X, reactivesModel$y, reactivesModel$mask)
     } else {
       # run input computational model: depends on user defined function that runs ML model and converts output to required ML1, ML2, map
       source(userScript)
+
+      print('Performing feature selection and prioritization...')
       if (is.null(mask)) {
         lst <- runModel(reactivesModel$X, reactivesModel$y)
       } else {
@@ -61,7 +75,9 @@ server <- function(input, output, session) {
   observeEvent(
     req((!is.null(reactivesViz$ML1)) & (!is.null(reactivesViz$ML2)) & (!is.null(reactivesViz$map))),
     {
+      print('Visualizing gene regulatory network...')
       reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
+      print('Generating edges...')
       reactivesViz$map["arrows"] <- "to"
       reactivesGraph$edges <- reactivesViz$map
       output$input_graph <- make_graph(reactivesGraph$nodes, reactivesGraph$edges, input$layout)
@@ -132,6 +148,7 @@ server <- function(input, output, session) {
           reactivesModel$mask[n[2], n[3]] <- 0
         }
       }
+      print('Performing feature selection and prioritization...')
       lst <- runModel(reactivesModel$X, reactivesModel$y, reactivesModel$mask)
     }
 
@@ -139,6 +156,7 @@ server <- function(input, output, session) {
     reactivesViz$ML2 <- lst$ML2
     reactivesViz$map <- lst$map
 
+    print('Visualizing gene regulatory network...')
     reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
     reactivesGraph$edges <- reactivesViz$map
     output$input_graph <- make_graph(reactivesGraph$nodes, reactivesGraph$edges)
@@ -177,12 +195,12 @@ server <- function(input, output, session) {
     deleteFile = FALSE
   )
 
-  observeEvent("", {
-    showModal(modalDialog(
-      includeHTML(paste(app_dir, "/multioviz/inst/app/www/intro_text.html", sep = "")),
-      easyClose = TRUE,
-    ))
-  })
+  # observeEvent("", {
+  #   showModal(modalDialog(
+  #     includeHTML(paste(app_dir, "/multioviz/inst/app/www/intro_text.html", sep = "")),
+  #     easyClose = TRUE,
+  #   ))
+  # })
 
   observeEvent(input$quickstart, {
     showModal(modalDialog(

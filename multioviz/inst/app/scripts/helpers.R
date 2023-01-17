@@ -6,6 +6,7 @@
 ##' @param thres_2: score threshold for nodes in ml2
 ##' @return nodes: a dataframe for node attributes
 make_nodes <- function(ml1, ml2, thres_1, thres_2) {
+  print('Generating nodes...')
   df_mol_lev_1 <- ml1
   df_mol_lev_2 <- ml2
   
@@ -64,14 +65,13 @@ complete_edges <- function(nodes){
 ##' @return graph: a graph object to be visualized
 make_graph <- function(nodes, edges, layout) {
   if (!is.null(nodes) || !is.null(edges)) {
+  print('Generating graph...')
   graph <- renderVisNetwork({
     visNetwork(nodes, edges) %>%
-      visNodes(label = "id", size = 20, shadow = list(enabled = TRUE, size = 10)) %>%
+      visNodes(label = "id", size = 40, shadow = list(enabled = TRUE, size = 10)) %>%
       visLayout(randomSeed = 12) %>%
       visIgraphLayout(layout) %>% 
       visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "group"), addEdgeCols = c("from", "to", "id")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
-      visGroups(groupname = "a", shape = "triangle") %>%
-      visGroups(groupname = "b", shape = "square") %>%
       visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
   })
   return(graph)
