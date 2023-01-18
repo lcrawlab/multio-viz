@@ -25,7 +25,7 @@ runMethod <- function(X_input, mask_input, y_input) {
   }
 
   # Save posterior inclusion probabilities (PIP) scores for all ML1 (molecular level 1)
-  SNP_id_list <- list(rownames(mask_input))
+  SNP_id_list <- as.list(rownames(mask_input))
   num_SNPs <- dim(unname(mask_input))[1]
 
   SNP_pip_list <- list()
@@ -37,7 +37,7 @@ runMethod <- function(X_input, mask_input, y_input) {
   colnames(ML1_pips) <- c("id", "score")
 
   # Save posterior inclusion probabilities (PIP) scores for all ML2 (molecular level 2)
-  gene_id_list <- list(colnames(mask_input))
+  gene_id_list <- as.list(colnames(mask_input))
   num_genes <- dim(unname(mask_input))[2]
 
   gene_pip_list <- list()
