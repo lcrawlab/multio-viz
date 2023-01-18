@@ -154,11 +154,6 @@ server <- function(input, output, session) {
   observeEvent(
     req(((isTruthy(input$run_model)) | (isTruthy(input$go))) & ((!is.null(reactivesViz$ML1)) & (!is.null(reactivesViz$ML2)) & (!is.null(reactivesViz$map)))),
     {
-      shinyalert(
-        "
-        Visualizing gene regulatory network...
-        "
-      )
       # makes nodes
       if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)) {
         reactivesGraph$nodes <- make_nodes(reactivesViz$ML1, reactivesViz$ML2, score_threshold_ml1(), score_threshold_ml2())
@@ -209,6 +204,9 @@ server <- function(input, output, session) {
       edges <- rbind(edgelist_ml1, edgelist_ml2)
       reactivesViz$map["arrows"] <- "to"
       reactivesGraph$edges <- rbind(edges, reactivesViz$map)
+
+      scores = paste0("Score: ", reactivesGraph$nodes$score)
+      reactivesGraph$nodes$title = scores
 
       # makes graph
       if (!is.null(reactivesGraph$nodes) || !is.null(reactivesGraph$edges)) {
@@ -299,12 +297,6 @@ server <- function(input, output, session) {
     reactivesViz$ML1 <- lst$ML1
     reactivesViz$ML2 <- lst$ML2
     reactivesViz$map <- lst$map
-
-    shinyalert(
-      "
-      Visualizing gene regulatory network...
-      "
-    )
 
     # makes new nodes and edges
     if (!is.null(reactivesViz$ML1) && !is.null(reactivesViz$ML2)) {
@@ -447,12 +439,18 @@ server <- function(input, output, session) {
     shinyalert(
       "Demo Files Uploaded",
       "X, y, and mask are loaded.
-      Click RUN to generate GRN.
 
-      Option Changes:
-      1) Customize within molecular level mapping.
-      2) Set thresholding.
-      2) Choose layout",
+      Next Steps:
+      1) Click RUN to generate GRN.
+      2) Perturb GRN and click RERUN to test hypothesis in-silico
+
+      Optional Changes:
+      a) Customize within molecular level mapping.
+      b) Set thresholding.
+      c) Choose layout
+      
+      For a) and b), click RUN to view changes
+      ",
       type = "success"
     )
   })
@@ -465,12 +463,15 @@ server <- function(input, output, session) {
     shinyalert(
       "Demo Files Uploaded",
       "ML1, ML2, and map are loaded.
-      Click RUN to generate GRN.
+      Click RUN to visualize GRN.
 
       Optional Changes:
-      1) Customize within molecular level mapping.
-      2) Set thresholding.
-      2) Choose layout",
+      a) Customize within molecular level mapping.
+      b) Set thresholding.
+      c) Choose layout
+      
+      For a) and b), click RUN to view changes
+      ",
       type = "success"
     )
   })
@@ -576,7 +577,7 @@ ui <- dashboardPage(
     fluidRow(
       box(
         useShinyjs(),
-        h5("Customize map type for within a molecular level", align = "center"),
+        h5("Customize map type for within a molecular level and click RUN", align = "center"),
         selectInput("ml1_map", "Set ML1 map type:",
           choices = c("None", "Complete", "Sparse"),
           selected = "None"
@@ -602,7 +603,7 @@ ui <- dashboardPage(
           )
         )),
         hr(),
-        h5("Threshold features by statistical significance", align = "center"),
+        h5("Threshold features by statistical significance and click RUN", align = "center"),
         chooseSliderSkin("Flat"),
         sliderInput("slider1", "Set ML1 threshold:",
           min = 0, max = 1, value = 0.5
@@ -626,7 +627,8 @@ ui <- dashboardPage(
           )),
         h6("Score", align = "center"),
         hr(),
-        selectInput("layout", "Select graph layout:",
+        h5("Change GRN layout", align = "center"),
+        selectInput("layout", "Select layout:",
           choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"),
           selected = "layout_with_kk"
         ),
