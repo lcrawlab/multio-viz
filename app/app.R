@@ -76,12 +76,13 @@ server <- function(input, output, session) {
     }
     if (isTruthy(input$demo)) {
       mask_matrix <- as.matrix(read.table(paste(app_dir, "/data/masktest.txt", sep = "")))
+    } else if (isTruthy(input$mask_input) & isTruthy(input$mask_labels)) {
+      print('here')
+      mask_matrix <- as.matrix(read.table(mask_file()))
     } else if (isTruthy(input$mask_input)) {
-      # mask_matrix <- as.matrix(read.table(mask_file(), header = TRUE, row.names = 1, sep='\t'))
       mask_matrix <- as.matrix(fread(mask_file(), sep = "\t", header=TRUE),rownames = 1)
-      print(colnames(mask_matrix))
-      print(dim(mask_matrix))
-    } else {
+    }
+    else {
       mask_matrix <- NULL
     }
 
@@ -89,8 +90,13 @@ server <- function(input, output, session) {
     if (!is.null(mask_matrix) & (isTruthy(input$mask_labels) | isTruthy(input$demo))) {
       s_names <- paste("s", 1:dim(mask_matrix)[1], sep = "")
       g_names <- paste("g", 1:dim(mask_matrix)[2], sep = "")
+      print(dim(mask_matrix))
+      print(dim(X_matrix))
+      print(dim(y_matrix))
+      print(length(g_names))
       rownames(mask_matrix) <- s_names
       colnames(mask_matrix) <- g_names
+      colnames(X_matrix) <- rownames(mask_matrix)
     }
 
     if (!is.null(X_matrix) & !is.null(mask_matrix)) {
@@ -554,6 +560,7 @@ ui <- dashboardPage(
               ".csv"
             )
           ),
+          checkboxInput("mask_labels", "Check if mask does not have row and column names", FALSE),
           fileInput("mask_input", "Input between ML mask:",
             multiple = FALSE,
             accept = c(
@@ -562,7 +569,6 @@ ui <- dashboardPage(
               ".csv"
             )
           ),
-          checkboxInput("mask_labels", "Check if mask does not have row and column names", FALSE),
           fluidRow(
             align = "center", bsButton("run_model", label = "RUN", style = "danger", size = "medium")
           ),
