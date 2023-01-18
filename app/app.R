@@ -404,6 +404,7 @@ server <- function(input, output, session) {
     showModal(modalDialog(
       title = "Example Data for Visualization",
       HTML('<img src="example_data_viz.png" style="width:800px" class = "center"/>'),
+      HTML('<img src="fig2.jpg" style="width:800px" class = "center"/>'),
       size = "l",
       easyClose = TRUE,
     ))
