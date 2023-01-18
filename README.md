@@ -17,7 +17,7 @@
 - [Integrate the user's own computational method](#c-integrate-feature-selection-and-prioritization-method)
 
 ## Introduction
-Multioviz is a user-friendly R Shiny application that facilitates in-silico hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.
+Multioviz is a user-friendly R Shiny application that facilitates in-silico hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. The Multiovizweb platform is available [here](multioviz-de57keuawa-uc.a.run.app). We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.  
 
 <img
   src="./app/readme/fig1.jpg"
@@ -25,7 +25,7 @@ Multioviz is a user-friendly R Shiny application that facilitates in-silico hypo
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ## Quickstart: 3 usages
-Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs and (2) perturb GRNs for in-silico hypothesis testing, visit [add link here for website]. The user can also (3) integrate their own computational method that performs feature selection and perturbation through the Multioviz R package.
+Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs and (2) perturb GRNs for in-silico hypothesis testing, click [here](multioviz-de57keuawa-uc.a.run.app). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the Multioviz R package.
 
 1. For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "RUN" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-variables-as-a-grn) for a detailed walk through.
 2. For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [Generate a Perturbable Network](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
@@ -49,7 +49,7 @@ Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs 
 - data.table (>= 1.14.6)
 
 ## Installation
-### Web platform setup 
+### Web platform setup
 1. Clone the Multioviz repository
 2. In the Multioviz repo, run ```sh setup_multioviz.sh```
 
