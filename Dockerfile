@@ -5,11 +5,13 @@ FROM rocker/shiny:4.0.5
 RUN mkdir -p /srv/shiny-server
 
 # Get system libraries
-RUN apt-get update && apt-get install -y \
+RUN apt-get update
+RUN apt-get install -y \
+    git \
+    vim \
     libcurl4-gnutls-dev \
     libssl-dev \
     libxml-parser-perl
-#    libel-parser-perl
 
 # Install R packages
 RUN R -e 'install.packages("devtools", repos="http://cran.us.r-project.org", dependencies = TRUE)'
@@ -23,19 +25,21 @@ RUN R -e 'install.packages("shinydashboard", version = "0.7.2", repos="http://cr
 RUN R -e 'install.packages("shinydashboardPlus", version = "2.0.3", repos="http://cran.us.r-project.org")'
 RUN R -e 'install.packages("shinyWidgets", version = "0.7.4", repos="http://cran.us.r-project.org")'
 RUN R -e 'install.packages("shinyjs", version = "2.1.0", repos="http://cran.us.r-project.org")'
+RUN R -e 'install.packages("shinyalert", version = "2.1.0", repos="http://cran.us.r-project.org")'
+RUN R -e 'install.packages("data.table", version = "2.1.0", repos="http://cran.us.r-project.org")'
 RUN R -e 'install.packages("BANN")'
 
-# Copy contents of all multio-viz directories
-ADD app /srv/shiny-server/
-ADD BANNs /srv/shiny-server/
-ADD multioviz /srv/shiny-server/
-ADD runMultioviz.R /srv/shiny-server/
-ADD setupMultioviz.sh /srv/shiny-server/
-ADD README.md /srv/shiny-server/
-ADD demo.R /srv/shiny-server/
-ADD load_multioviz.R /srv/shiny-server/
-ADD load_packages.R /srv/shiny-server/
+# Copy contents of all multio-viz directories, keeping directory structure
+RUN cd /tmp 
+RUN git clone https://github.com/lcrawlab/BANNs.git
+RUN R CMD INSTALL BANNs/BANN_R/BANN_0.1.0.tar.gz
+RUN mv BANNs /srv/shiny-server
+ARG CACHEBUST=0
+RUN if [ -z "$CACHEBUST" ]; then echo "using cache"; else git clone https://github.com/lcrawlab/multio-viz.git; fi
+RUN mv multio-viz/* /srv/shiny-server
+RUN mv /srv/shiny-server/app/* /srv/shiny-server
+# Rscript load_multioviz.R
 
-# Run app
+# # Run app
 EXPOSE 3838
 CMD ["/usr/bin/shiny-server"]
