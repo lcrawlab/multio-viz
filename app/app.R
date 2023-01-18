@@ -207,7 +207,6 @@ server <- function(input, output, session) {
         colnames(edgelist_ml2) <- c("from", "to", "arrows")
       }
       edges <- rbind(edgelist_ml1, edgelist_ml2)
-      write.csv(reactivesViz$map, file = 'edges.csv')
       reactivesViz$map["arrows"] <- "to"
       reactivesGraph$edges <- rbind(edges, reactivesViz$map)
 
