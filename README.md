@@ -29,7 +29,7 @@ Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs 
 
 1. For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "RUN" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-variables-as-a-grn) for a detailed walk through.
 2. For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [Generate a Perturbable Network](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
-3. For (3), once the multioviz package is installed ([see instructions here](#how-to-install-package)), open a new R session (```$ R```) and load the package (```> library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions
+3. For (3), once the multioviz package is installed ([see instructions here](#package-setup)), open a new R session (```$ R```) and load the package (```> library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions
 
 
 ## Dependencies
@@ -45,10 +45,17 @@ Multioviz has three usages: To (1) visualize ranked molecular variables as GRNs 
 - shinydashboardPlus (>= 2.0.3)
 - shinyWidgets (>= 0.7.4)
 - shinyjs (>= 2.1.0)
+- shinyalert (>= 3.0.0)
+- data.table (>= 1.14.6)
 
-## How to setup platform
+## Installation
+### Web platform setup 
 1. Clone the Multioviz repository
 2. In the Multioviz repo, run ```sh setup_multioviz.sh```
+
+### Package setup
+1. Navigate to the multio-viz directory
+2. Run ```R CMD INSTALL multioviz_0.0.0.9000.tar.gz```
 
 ## Input Requirements
 ### A. Visualize
@@ -213,10 +220,6 @@ To run a demo,
   alt="Alt text"
   title="runModel() example"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
-
-### How to install package
-1. Navigate to the multio-viz directory
-2. Run ```R CMD INSTALL multioviz_0.0.0.9000.tar.gz```
 
 ### runMultioviz() function tutorial
 0. To run a demo with BANNs, in the multioviz subdirectory, run

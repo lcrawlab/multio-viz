@@ -408,9 +408,9 @@ server <- function(input, output, session) {
 
   observeEvent(input$example_data_viz, {
     showModal(modalDialog(
-      title = "Example Data for Visualization",
+      title = "Data Format for Visualization",
       HTML('<img src="example_data_viz.png" style="width:800px" class = "center"/>'),
-      HTML('<img src="fig2.jpg" style="width:800px" class = "center"/>'),
+      HTML('<img src="fig2.svg" style="width:800px" class = "center"/>'),
       size = "l",
       easyClose = TRUE,
     ))
@@ -418,7 +418,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$example_data_perturb, {
     showModal(modalDialog(
-      title = "Example Data for Perturbation",
+      title = "Data Format for Perturbation",
       HTML('<img src="example_data_perturb.png" style="width:800px" class = "center"/>'),
       size = "l",
       easyClose = TRUE,
