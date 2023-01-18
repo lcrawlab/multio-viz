@@ -577,12 +577,12 @@ ui <- dashboardPage(
     fluidRow(
       box(
         useShinyjs(),
-        h5("Customize map type for within a molecular level and click RUN", align = "center"),
+        h5("Customize map type for within a molecular level (ML) and click RUN", align = "center"),
         selectInput("ml1_map", "Set ML1 map type:",
           choices = c("None", "Complete", "Sparse"),
           selected = "None"
         ),
-        disabled(fileInput("map_lev_1", "If 'sparse' upload mapping file:",
+        disabled(fileInput("map_lev_1", "If 'sparse' connections chosen above, upload mapping file:",
           multiple = FALSE,
           accept = c(
             "text/csv",
@@ -594,7 +594,7 @@ ui <- dashboardPage(
           choices = c("None", "Complete", "Sparse"),
           selected = "None"
         ),
-        disabled(fileInput("map_lev_2", "If 'sparse' upload mapping file:",
+        disabled(fileInput("map_lev_2", "If 'sparse' connections chosen above, upload mapping file:",
           multiple = FALSE,
           accept = c(
             "text/csv",
@@ -627,7 +627,7 @@ ui <- dashboardPage(
           )),
         h6("Score", align = "center"),
         hr(),
-        h5("Change GRN layout", align = "center"),
+        h5("Change gene regulatory network (GRN) layout", align = "center"),
         selectInput("layout", "Select layout:",
           choices = c("layout_with_sugiyama", "layout_with_kk", "layout_nicely"),
           selected = "layout_with_kk"
