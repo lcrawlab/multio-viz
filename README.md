@@ -25,7 +25,7 @@ Multioviz is a [free, user-friendly, interactive platform](https://multioviz-de5
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ## Quickstart: 3 usages
-Multioviz has three usages: To (1) visualize ranked molecular features as GRNs and (2) perturb GRNs for *in-silico* hypothesis testing, click [here](multioviz-de57keuawa-uc.a.run.app). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see installation steps [here](#installation)).
+Multioviz has three usages: To (1) visualize ranked molecular features as GRNs and (2) perturb GRNs for *in-silico* hypothesis testing, click [here](https://multioviz-de57keuawa-uc.a.run.app/). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see installation steps [here](#installation)).
 
 1. For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "RUN" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-features-as-a-grn) for a detailed walk through.
 2. For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [perturbation](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
