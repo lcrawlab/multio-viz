@@ -10,11 +10,12 @@
 ## Outline
 - [Introduction](#introduction)
 - [Quickstart](#quickstart-3-usages)
-- [How to Install Multioviz](#how-to-install-multioviz)
-- [Input Requirements](#input-requirements)
-- [Visualize the user's selected and prioritized molecular features as a GRN](#a-visualize-ranked-molecular-features-as-a-grn)
-- [Generate a perturbable GRN to test the user's hypotheses *in-silico*](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)
-- [Integrate the user's own computational method](#c-integrate-feature-selection-and-prioritization-method)
+- [Dependencies](#dependencies)
+- [Ways to run Multioviz through the command line](#ways-to-run-multioviz-through-the-command-line)
+- [Input requirements](#input-requirements)
+- [Visualize enriched molecular features as a GRN](#a-visualize-ranked-molecular-features-as-a-grn)
+- [Generate a perturbable GRN to test hypotheses *in-silico*](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)
+- [Integrate computational method](#c-integrate-feature-selection-and-prioritization-method)
 
 ## Introduction
 Multioviz is a [free, user-friendly, interactive platform](https://multioviz-de57keuawa-uc.a.run.app/) that facilitates *in-silico* hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.  
