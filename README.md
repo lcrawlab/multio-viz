@@ -5,7 +5,7 @@
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ### Multioviz: a platform for the interactive assessment of gene regulatory networks
-##### Authors: Helen Xie, Lorin Crawford, Ashley Mae Conard
+##### Authors: Helen Xie, Ashley Mae Conard, Lorin Crawford
 
 ## Outline
 - [Introduction](#introduction)
