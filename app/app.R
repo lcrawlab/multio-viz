@@ -77,10 +77,12 @@ server <- function(input, output, session) {
     if (isTruthy(input$demo)) {
       mask_matrix <- as.matrix(read.table(paste(app_dir, "/data/masktest.txt", sep = "")))
     } else if (isTruthy(input$mask_input) & isTruthy(input$mask_labels)) {
-      print('here')
       mask_matrix <- as.matrix(read.table(mask_file()))
     } else if (isTruthy(input$mask_input)) {
       mask_matrix <- as.matrix(fread(mask_file(), sep = "\t", header=TRUE),rownames = 1)
+      print(rownames(mask_matrix))
+      print(colnames(mask_matrix))
+      print(dim(mask_matrix))
     }
     else {
       mask_matrix <- NULL
@@ -90,10 +92,6 @@ server <- function(input, output, session) {
     if (!is.null(mask_matrix) & (isTruthy(input$mask_labels) | isTruthy(input$demo))) {
       s_names <- paste("s", 1:dim(mask_matrix)[1], sep = "")
       g_names <- paste("g", 1:dim(mask_matrix)[2], sep = "")
-      print(dim(mask_matrix))
-      print(dim(X_matrix))
-      print(dim(y_matrix))
-      print(length(g_names))
       rownames(mask_matrix) <- s_names
       colnames(mask_matrix) <- g_names
       colnames(X_matrix) <- rownames(mask_matrix)
@@ -232,6 +230,10 @@ server <- function(input, output, session) {
   observeEvent(input$input_graph_graphChange, {
     # If the user added a node, add it to the data frame of nodes.
     if (input$input_graph_graphChange$cmd == "addNode") {
+      shinyalert (
+        "Rerunning is infeasible with added node as data does not exist"
+      )
+      disable(input$rerun_model)
       if (input$input_graph_graphChange$group == "ML1") {
         reactivesPerturb$addedNodesML1 <- append(reactivesPerturb$addedNodesML1, input$input_graph_graphChange$id)
       }
@@ -242,6 +244,10 @@ server <- function(input, output, session) {
 
     # If the user added an edge, add it to the data frame of edges.
     else if (input$input_graph_graphChange$cmd == "addEdge") {
+      shinyalert (
+        "Rerunning is infeasible with added edge as data does not exist"
+      )
+      disable(input$rerun_model)
       row <- c(input$input_graph_graphChange$id, input$input_graph_graphChange$from, input$input_graph_graphChange$to)
       reactivesPerturb$addedEdges <- append(reactivesPerturb$addedEdges, row)
     }

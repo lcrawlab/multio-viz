@@ -23,7 +23,7 @@ Multioviz is a [free, user-friendly, interactive platform](https://multioviz-de5
 <img
   src="./app/readme/fig1.svg"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
 ## Quickstart: 3 usages
 Multioviz has three usages: To (1) visualize ranked molecular features as GRNs and (2) perturb GRNs for *in-silico* hypothesis testing, click [here](https://multioviz-de57keuawa-uc.a.run.app/). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see installation steps [here](#installation)).
@@ -72,7 +72,7 @@ Multioviz has three usages: To (1) visualize ranked molecular features as GRNs a
   src="./app/www/example_data_viz.png"
   alt="Alt text"
   title="runModel example"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 
 ### B. Perturb
 - X: a N x J dimensional matrix where N is the number of patient samples and J is the size of the set of molecular features for molecular level one (no row/column names)
@@ -83,7 +83,7 @@ Multioviz has three usages: To (1) visualize ranked molecular features as GRNs a
   src="./app/www/example_data_perturb.png"
   alt="Alt text"
   title="Model inputs"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 
 ### C. Integrate computational method
 - M: Computational method performs feature selection and prioritization
@@ -114,39 +114,39 @@ To faciliate *in-silico* hypothesis generation, Multioviz allows users to visual
 <img
   src="./app/readme/fig2.svg"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
 ### Steps to run
 1. Click on the visualization drop down (side bar)
 <img
   src="./app/readme/viz1.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 2. Input files for ML1, ML2, and maps between molecular levels
 <img
   src="./app/readme/viz2.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 3. Select degree of mapping within molecular levels
 <img
   src="./app/readme/viz3.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 4. Threshold features in each molecular level by statistical significance
 <img
   src="./app/readme/viz4.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 5. Set GRN layout
 <img
   src="./app/readme/viz5.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 6. Click "RUN" to visualize GRN
 <img
   src="./app/readme/viz6.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 
 ## B. Generate a perturbable GRN to test hypotheses *in-silico*
 To faciliate *in-silico* hypothesis testing, Multioviz allows users to manually delete nodes and edges, and then rerun the ranking model to generate a new network with different significant molecular features. 
@@ -154,59 +154,59 @@ To faciliate *in-silico* hypothesis testing, Multioviz allows users to manually 
 <img
   src="./app/readme/fig3.svg"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
 ### Steps to run
 1. Click on the perturbation drop down the left panel
 <img
   src="./app/readme/p1.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 2. Input X, y, and mask files for perturbation
 <img
   src="./app/readme/p2.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 3. Select degree of mapping within molecular levels
 <img
   src="./app/readme/p3.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 4. Threshold features in each molecular level by statistical significance
 <img
   src="./app/readme/p4.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 5. Set GRN layout
 <img
   src="./app/readme/p5.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 6. Click "RUN" to generate GRN
 <img
   src="./app/readme/p6.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 7. Select features(s) to delete and click "Edit"
 <img
   src="./app/readme/p7.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 8. Click "Delete selected" to manually remove node
 <img
   src="./app/readme/p8.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 9. Click "RERUN" to generate new GRN
 <img
   src="./app/readme/p9.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
  10. Explore perturbed GRN
 <img
   src="./app/readme/p10.png"
   alt="Alt text"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 
 ## C. Integrate feature selection and prioritization method
 The multioviz package contains a runMultioviz() function that allows users to connect the perturbation and visualization capabilities of the Multioviz platform with their computational method that performs feature selection and prioritization. The function accepts 3 parameters ```runMultioviz(X, y, mask)``` to run user data with BANNs, and 4 parameters ```runMultioviz(X, y, mask, userScript)``` to run user data with the user's own feature selection and prioritization method.
@@ -217,7 +217,7 @@ Once the multioviz package has been installed, run ```Rscript demo.R``` in the c
   src="./app/readme/pkgUI.png"
   alt="Alt text"
   title="runModel() example"
-  style="display: inline-block; margin: 0 auto; max-width: 300px">
+  style="display: inline-block; margin: 0 auto; max-width: 1000px">
 
 ### runMultioviz() function tutorial
 1. Write script with a "runModel()" function
