@@ -86,32 +86,8 @@ server <- function(input, output, session) {
 
   observeEvent(input$input_graph_graphChange, {
     print(input$input_graph_graphChange$cmd)
-    # If the user added a node, add it to the data frame of nodes.
-    if (input$input_graph_graphChange$cmd == "addNode") {
-      shinyalert (
-        "Rerunning is infeasible with added node as data does not exist"
-      )
-      disable(input$rerun_model)
-      if (input$input_graph_graphChange$group == "ML1") {
-        reactivesPerturb$addedNodesML1 <- append(reactivesPerturb$addedNodesML1, input$input_graph_graphChange$id)
-      }
-      if (input$input_graph_graphChange$group == "ML2") {
-        reactivesPerturb$addedNodesML2 <- append(reactivesPerturb$addedNodesML2, input$input_graph_graphChange$id)
-      }
-    }
-
-    # If the user added an edge, add it to the data frame of edges.
-    else if (input$input_graph_graphChange$cmd == "addEdge") {
-      shinyalert (
-        "Rerunning is infeasible with added edge as data does not exist"
-      )
-      disable(input$rerun_model)
-      row <- c(input$input_graph_graphChange$id, input$input_graph_graphChange$from, input$input_graph_graphChange$to)
-      reactivesPerturb$addedEdges <- append(reactivesPerturb$addedEdges, row)
-    }
-
     # If the user edited a node, update that record.
-    else if (input$input_graph_graphChange$cmd == "editNode") {
+    if (input$input_graph_graphChange$cmd == "editNode") {
       temp <- reactivesGraph$nodes
       temp$label[temp$id == input$input_graph_graphChange$id] <- input$input_graph_graphChange$label
       reactivesGraph$nodes <- temp

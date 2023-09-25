@@ -73,7 +73,7 @@ make_graph <- function(nodes, edges, layout) {
       visNodes(label = "id", size = 40, shadow = list(enabled = TRUE, size = 10)) %>%
       visLayout(randomSeed = 12) %>%
       visIgraphLayout(layout) %>% 
-      visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "group"), addEdgeCols = c("from", "to", "id")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+      visOptions(manipulation = list(enabled = TRUE, addNode = FALSE, addEdge = FALSE), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
       visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
   })
   return(graph)

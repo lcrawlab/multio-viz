@@ -12,7 +12,8 @@ runModel <- function(X_input, y_input, mask_input) {
   y_input = y_input[,1]
 
   res = BANN(X_input, mask_input, y_input, centered=FALSE, show_progress = TRUE)
-
+  print('run model')
+  print(pryr::mem_used())
   # Make between (btw) molecular level map from mask
   map_indices <- which(unname(mask_input) != 0, arr.ind = T)
   btw_ML_map <- data.frame(matrix(ncol = 2, nrow = 0))

@@ -11,6 +11,7 @@ library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
 library(data.table)
+library(pryr)
 
 app_dir <- getwd()
 source(paste(app_dir, "/scripts/helpers.R", sep = ""))
@@ -60,6 +61,7 @@ server <- function(input, output, session) {
 
   # set X, y, and mask depending on whether demo is selected
   observe({
+    
     if (isTruthy(input$demo)) {
       X_matrix <- as.matrix(read.table(paste(app_dir, "/data/Xtest.txt", sep = "")), )
     } else if (isTruthy(input$x_model_input)) {
@@ -80,9 +82,6 @@ server <- function(input, output, session) {
       mask_matrix <- as.matrix(read.table(mask_file()))
     } else if (isTruthy(input$mask_input)) {
       mask_matrix <- as.matrix(fread(mask_file(), sep = "\t", header=TRUE),rownames = 1)
-      print(rownames(mask_matrix))
-      print(colnames(mask_matrix))
-      print(dim(mask_matrix))
     }
     else {
       mask_matrix <- NULL
@@ -104,6 +103,8 @@ server <- function(input, output, session) {
     reactivesModel$X <- X_matrix
     reactivesModel$y <- y_matrix
     reactivesModel$mask <- mask_matrix
+    print("1")
+    print(pryr::mem_used())
   })
 
   # read in viz data if RUN button pressed for viz
@@ -138,6 +139,8 @@ server <- function(input, output, session) {
         header = TRUE
       ), stringsAsFactors = FALSE)
     }
+    print("2")
+    print(pryr::mem_used())
   })
 
   # if RUN pressed under perturb dropdown, run BANN method and sets viz reactives
@@ -152,6 +155,9 @@ server <- function(input, output, session) {
     reactivesViz$ML1 <- lst$ML1
     reactivesViz$ML2 <- lst$ML2
     reactivesViz$map <- lst$map
+
+    print("3")
+    print(pryr::mem_used())
   })
 
   # creates nodes and edges and visualizes graph object when RUN is pressed
@@ -219,41 +225,19 @@ server <- function(input, output, session) {
             visNodes(label = "id", size = 40, shadow = list(enabled = TRUE, size = 10)) %>%
             visLayout(randomSeed = 12) %>%
             visIgraphLayout(input$layout) %>%
-            visOptions(manipulation = list(enabled = TRUE, addNodeCols = c("id", "group"), addEdgeCols = c("from", "to", "id")), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
+            visOptions(manipulation = list(enabled = TRUE, addNode = FALSE, addEdge = FALSE), highlightNearest = TRUE, nodesIdSelection = list(enabled = TRUE)) %>%
             visExport(type = "png", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
         })
       }
+      print("4")
+      print(pryr::mem_used())
     }
   )
 
   # keeps track of GRN perturbation
   observeEvent(input$input_graph_graphChange, {
-    # If the user added a node, add it to the data frame of nodes.
-    if (input$input_graph_graphChange$cmd == "addNode") {
-      shinyalert (
-        "Rerunning is infeasible with added node as data does not exist"
-      )
-      disable(input$rerun_model)
-      if (input$input_graph_graphChange$group == "ML1") {
-        reactivesPerturb$addedNodesML1 <- append(reactivesPerturb$addedNodesML1, input$input_graph_graphChange$id)
-      }
-      if (input$input_graph_graphChange$group == "ML2") {
-        reactivesPerturb$addedNodesML2 <- append(reactivesPerturb$addedNodesML2, input$input_graph_graphChange$id)
-      }
-    }
-
-    # If the user added an edge, add it to the data frame of edges.
-    else if (input$input_graph_graphChange$cmd == "addEdge") {
-      shinyalert (
-        "Rerunning is infeasible with added edge as data does not exist"
-      )
-      disable(input$rerun_model)
-      row <- c(input$input_graph_graphChange$id, input$input_graph_graphChange$from, input$input_graph_graphChange$to)
-      reactivesPerturb$addedEdges <- append(reactivesPerturb$addedEdges, row)
-    }
-
     # If the user edited a node, update that record.
-    else if (input$input_graph_graphChange$cmd == "editNode") {
+    if (input$input_graph_graphChange$cmd == "editNode") {
       temp <- reactivesGraph$nodes
       temp$label[temp$id == input$input_graph_graphChange$id] <- input$input_graph_graphChange$label
       reactivesGraph$nodes <- temp
@@ -284,6 +268,8 @@ server <- function(input, output, session) {
         reactivesPerturb$addedEdges <- c(reactivesPerturb$addedEdges, row)
       }
     }
+    print("5")
+    print(pryr::mem_used())
   })
 
   # generates new GRN if RERUN is clicked
@@ -371,6 +357,8 @@ server <- function(input, output, session) {
           visExport(type = "pdf", name = "network", label = paste0("Export as png"), background = "#fff", float = "left", style = NULL, loadDependencies = TRUE)
       })
     }
+    print("6")
+    print(pryr::mem_used())
   })
 
   # dropdown to select graph layout
@@ -550,7 +538,7 @@ ui <- dashboardPage(
           tabName = "perturb",
           fluidRow(align = "center", bsButton("example_data_perturb", label = "Data Format", style = "success", size = "medium")),
           fluidRow(align = "center", bsButton("demo", label = "Load Demo Files", style = "success", size = "medium")),
-          fileInput("x_model_input", "Input X:",
+          fileInput("x_model_input", "Input genotype matrix:",
             multiple = FALSE,
             accept = c(
               "text/csv",
@@ -558,7 +546,7 @@ ui <- dashboardPage(
               ".csv"
             )
           ),
-          fileInput("y_model_input", "Input y:",
+          fileInput("y_model_input", "Input phenotype vector:",
             multiple = FALSE,
             accept = c(
               "text/csv",
