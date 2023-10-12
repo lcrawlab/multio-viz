@@ -18,7 +18,7 @@
 - [Integrate computational method](#c-integrate-feature-selection-and-prioritization-method)
 
 ## Introduction
-Multioviz is a [free, user-friendly, interactive platform](https://multioviz-de57keuawa-uc.a.run.app/) that facilitates *in-silico* hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.  
+Multioviz is a [free, user-friendly, interactive platform](https://multioviz-de57keuawa-uc.a.run.app/) that facilitates *in silico* hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.  
 
 <img
   src="./app/readme/fig1.svg"
@@ -26,12 +26,11 @@ Multioviz is a [free, user-friendly, interactive platform](https://multioviz-de5
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ## Quickstart: 3 usages
-Multioviz has three usages: To (1) visualize ranked molecular features as GRNs and (2) perturb GRNs for *in-silico* hypothesis testing, click [here](https://multioviz-de57keuawa-uc.a.run.app/). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see installation steps [here](#installation)).
+Multioviz has three usages: To (1) visualize ranked molecular features as GRNs and (2) perturb GRNs for *in silico* hypothesis testing, click [here](https://multioviz-de57keuawa-uc.a.run.app/). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see installation steps [here](#installation)).
 
 1. For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "RUN" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-features-as-a-grn) for a detailed walk through.
 2. For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [perturbation](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
-3. For (3), once the multioviz package is installed, open a new R session (```R```) and load the package (```library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions
-
+3. For (3), once the multioviz package is installed, open a new R session (```R```) and load the package (```library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions.
 
 ## Dependencies
 - R (>= 4.1.2)
@@ -109,7 +108,7 @@ runModel <- function(X_input, y_input, mask_input) {
 ```
 
 ## A. Visualize ranked molecular features as a GRN
-To faciliate *in-silico* hypothesis generation, Multioviz allows users to visualize ranked lists and maps of enriched molecular features for a given phenotypic state as GRNs.
+To faciliate *in silico* hypothesis generation, Multioviz allows users to visualize ranked lists and maps of enriched molecular features for a given phenotypic state as GRNs.
 
 <img
   src="./app/readme/fig2.svg"
@@ -148,8 +147,8 @@ To faciliate *in-silico* hypothesis generation, Multioviz allows users to visual
   alt="Alt text"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
-## B. Generate a perturbable GRN to test hypotheses *in-silico*
-To faciliate *in-silico* hypothesis testing, Multioviz allows users to manually delete nodes and edges, and then rerun the ranking model to generate a new network with different significant molecular features. 
+## B. Generate a perturbable GRN to test hypotheses *in silico*
+To faciliate *in silico* hypothesis testing, Multioviz allows users to manually delete nodes and edges, and then rerun the ranking model to generate a new network with different significant molecular features. 
 
 <img
   src="./app/readme/fig3.svg"
@@ -237,6 +236,15 @@ Once the multioviz package has been installed, run ```Rscript demo.R``` in the c
 > runMultioviz(X.rda, y.rda, mask.rda, userScript)
 ```
 6. Follow perturbation steps from the [section above](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)
+
+ ## RELEVANT CITATIONS
+
+H. Xie, L. Crawford, and A.M. Conard. Multioviz: an interactive platform for in silico perturbation and interrogation of gene regulatory networks. _bioRxiv_. 2023.10.10.561790.
+
+## QUESTIONS AND FEEDBACK
+For questions or concerns with the Multioviz platform or software, please contact [Helen Xie](mailto:helen_xie@brown.edu), [Lorin Crawford](mailto:lcrawford@microsoft.com), or [Ashley Mae Conard](mailto:ashleyconard@microsoft.com).
+
+We welcome and appreciate any feedback you may have with our software and/or instructions.
 
 
 
