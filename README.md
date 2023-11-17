@@ -18,10 +18,11 @@
 - [Integrate computational method](#c-integrate-feature-selection-and-prioritization-method)
 
 ## Introduction
+#REPLACE HYPERLINK WITH REAL LINK
 Multioviz is a [free, user-friendly, interactive platform](https://multioviz-de57keuawa-uc.a.run.app/) that facilitates *in-silico* hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales.  
 
 <img
-  src="./app/readme/fig1.svg"
+  src="./app/readme/figure1.png"
   alt="Alt text"
   style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
@@ -55,8 +56,8 @@ Multioviz has three usages: To (1) visualize ranked molecular features as GRNs a
 2. Run docker image ```docker run -p 3838:3838 multioviz```
 ### Clone repo
 1. Clone multio-viz repository ```git clone git@github.com:lcrawlab/multio-viz.git```
-2. Setup dependencies ```sh setup_multioviz.sh```
-3. Within multio-viz directory, run ```Rscript runApp.R```
+2. Setup dependencies ```sh setupMultioviz.sh```
+3. Within multio-viz directory, run ```Rscript runMultioviz.R```
 ### Install R package (for method integration)
 1. Clone multio-viz repository ```git clone git@github.com:lcrawlab/multio-viz.git```
 2. Within multio-viz directory, run ```R CMD INSTALL multioviz_0.0.0.9000.tar.gz```
