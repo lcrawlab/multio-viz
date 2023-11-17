@@ -111,7 +111,7 @@ runModel <- function(X_input, y_input, mask_input) {
 To faciliate *in silico* hypothesis generation, Multioviz allows users to visualize ranked lists and maps of enriched molecular features for a given phenotypic state as GRNs.
 
 <img
-  src="./app/readme/fig2.svg"
+  src="./app/readme/fig2.png"
   alt="Alt text"
   style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
@@ -151,7 +151,7 @@ To faciliate *in silico* hypothesis generation, Multioviz allows users to visual
 To faciliate *in silico* hypothesis testing, Multioviz allows users to manually delete nodes and edges, and then rerun the ranking model to generate a new network with different significant molecular features. 
 
 <img
-  src="./app/readme/fig3.svg"
+  src="./app/readme/fig3.png"
   alt="Alt text"
   style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
