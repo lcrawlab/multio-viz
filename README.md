@@ -5,7 +5,7 @@
   style="display: inline-block; margin: 0 auto; max-width: 300px">
 
 ### Multioviz: a platform for the interactive assessment of gene regulatory networks
-##### Authors: Helen Xie, Ashley Mae Conard, and Lorin Crawford
+##### Authors: Helen Xie, Lorin Crawford, Ashley Mae Conard
 
 ## Outline
 - [Introduction](#introduction)
@@ -18,7 +18,7 @@
 - [Integrate computational method](#c-integrate-feature-selection-and-prioritization-method)
 
 ## Introduction
-Multioviz is a free, user-friendly, interactive platform that facilitates *in silico* hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales. Visit Multioviz at https://multioviz.ccv.brown.edu/.
+Multioviz is a free, user-friendly, interactive platform that facilitates *in-silico* hypothesis testing by combining computational inference of gene regulatory network (GRN) architectures with interactive visualization and perturbation. To generate a perturbable GRN, users can input either individual or population level multiomics data in addition to corresponding phenotypic data. Users can also directly visualize GRNs by directly inputting prioritized lists of molecular features along with mapping data between and within molecular levels the features belong to. We provide an R package version of Multioviz that allows programmers to integrate any computational method that performs feature selection and prioritization, generalizing our platform to accept and model different genomic datasets at multiple molecular scales. Visit Multioviz at https://multioviz.ccv.brown.edu/.
 
 <img
   src="./app/readme/figure1.png"
@@ -26,11 +26,13 @@ Multioviz is a free, user-friendly, interactive platform that facilitates *in si
   style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
 ## Quickstart: 3 usages
-Multioviz has three usages: To (1) visualize ranked molecular features as GRNs and (2) perturb GRNs for *in silico* hypothesis testing, click [here](https://multioviz-de57keuawa-uc.a.run.app/). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see installation steps [here](#installation)).
+(see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#a-visualize-ranked-molecular-features-as-a-grn)) and (2) perturb GRNs for *in silico* hypothesis testing (see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#c-integrate-feature-selection-and-prioritization-method)).
 
-1. For (1), under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "RUN" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-features-as-a-grn) for a detailed walk through.
-2. For (2), under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [perturbation](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
-3. For (3), once the multioviz package is installed, open a new R session (```R```) and load the package (```library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions.
+1. For (1), to quickly visualize a GRN, press "Load Demo Files" and press "RUN" to see the GRN!
+   - To load your own data, under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "RUN" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-features-as-a-grn) for a detailed walk-through. 
+3. For (2), to quickly perturb a GRN, press "Load Demo Files" and press "RUN" to see the GRN, followed by clicking any node, then clicking "Edit" to "Delete" or "Edit" the node. Then click "RERUN".
+   - To load your own data, under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [perturbation](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
+5. For (3), once the multioviz package is installed, open a new R session (```R```) and load the package (```library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions.
 
 ## Dependencies
 - R (>= 4.1.2)
@@ -85,30 +87,31 @@ Multioviz has three usages: To (1) visualize ranked molecular features as GRNs a
   style="display: inline-block; margin: 0 auto; max-width: 1000px">
 
 ### C. Integrate computational method
-- M: Computational method performs feature selection and prioritization
-- I: Required input datasets for computational method
-- Script with runModel() function that has parameters for I and that outputs ML1, ML2, and Map
-    - Contains parameters for I
-    - Runs the user's ranking model
-    - Returns a list of ML1, ML2, and Map
+- Computational method performs feature selection and prioritization
+- The script with your method should call ```runModel()``` function that
+    - has parameters for required inputs (see B. Perturb figure depicting X, y, mask) (# step 1)
+    - runs the user's method (# step 2)
+    - returns ML1, ML2, and Map (see B. Perturb figure depicting molecular level 1 (SNPs) (ML1), molecular level 2 (genes) (ML2), and mapping between molecular levels) (# step 3)
 
+As an example, the script could look something like, where we run BANNs as our example computational method:
 ```
-runModel <- function(X_input, y_input, mask_input) {
+runModel <- function(X_input, y_input, mask_input) { # step 1
 
-  res = BANN(X_input, mask_input, y_input, centered=FALSE, show_progress = TRUE)
+  # run your computational method
+  res = BANN(X_input, mask_input, y_input, centered=FALSE, show_progress = TRUE) # step 2
 
-  # convert method output to ranking and mapping dataframes 
+  # convert method output to ML1, ML2, and map 
 
   lst = list()
   lst$ML1 = ML1_pips
-  lst$ML2 = ML2_pips
+  lst$ML2 = ML2_pips # step 3
   lst$map = btw_ML_map
   return(lst)
 }
 ```
 
 ## A. Visualize ranked molecular features as a GRN
-To faciliate *in silico* hypothesis generation, Multioviz allows users to visualize ranked lists and maps of enriched molecular features for a given phenotypic state as GRNs.
+To facilitate *in silico* hypothesis generation, Multioviz allows users to visualize ranked lists and maps of enriched molecular features for a given phenotypic state as GRNs.
 
 <img
   src="./app/readme/fig2.png"
@@ -219,7 +222,7 @@ Once the multioviz package has been installed, run ```Rscript demo.R``` in the c
   style="display: inline-block; margin: 0 auto; max-width: 1000px">
 
 ### runMultioviz() function tutorial
-1. Write script with a "runModel()" function
+1. Write script with a ```runModel()``` function
 2. Save X, y, and mask files as .rda files
 3. Load in X, y, and mask files
 ```
@@ -242,7 +245,7 @@ Once the multioviz package has been installed, run ```Rscript demo.R``` in the c
 H. Xie, L. Crawford, and A.M. Conard. Multioviz: an interactive platform for in silico perturbation and interrogation of gene regulatory networks. _bioRxiv_. 2023.10.10.561790.
 
 ## QUESTIONS AND FEEDBACK
-For questions or concerns with the Multioviz platform or software, please contact [Helen Xie](mailto:helen_xie@brown.edu), [Lorin Crawford](mailto:lcrawford@microsoft.com), or [Ashley Mae Conard](mailto:ashleyconard@microsoft.com).
+For questions or concerns with the Multioviz platform or software, please contact Ashley Mae Conard, Lorin Crawford, or [Helen Xie](mailto:helen_xie@brown.edu).
 
 We welcome and appreciate any feedback you may have with our software and/or instructions.
 
