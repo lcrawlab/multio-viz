@@ -22,8 +22,22 @@ colnames(gene_level_pip) <- "statistic"
 # Filter out rows where the gene column contains 'Intergenic'
 gene_level_pip <- gene_level_pip[!grepl("Intergenic", gene_level_pip$gene), ]
 
+# Function to convert PIP scores to p-values
+pip_to_pvalue <- function(pip) {
+  # Number of variables
+  n <- length(pip)
+  
+  # Compute the chi-squared statistic
+  chi_sq <- -2 * sum(log(pip))
+  
+  # Compute the p-value using the chi-squared CDF
+  p_value <- 1 - pchisq(chi_sq, df = n)
+  
+  return(p_value)
+}
+
 # Convert the 'statistic' column to numeric and rename it to 'pval'
-gene_level_pip$statistic <- as.numeric(gene_level_pip$statistic)
+gene_level_pip$statistic <- pip_to_pvalue(gene_level_pip$statistic)
 
 # Sort the data frame by the 'statistic' column
 gene_level_pip <- gene_level_pip[order(gene_level_pip$statistic), ]
