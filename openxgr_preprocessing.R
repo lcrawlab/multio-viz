@@ -24,7 +24,7 @@ rownames(genes_ranked) <- rownames(sorted_gene_matrix)
 colnames(genes_ranked) <- "statistic"
 
 # Filter out rows where the gene column contains 'Intergenic'
-genes_ranked <- genes_ranked[!grepl("Intergenic", df$gene), ]
+genes_ranked <- genes_ranked[!grepl("Intergenic", genes_ranked$gene), ]
 
 # Convert the 'statistic' column to numeric and rename it to 'pval'
 genes_ranked$statistic <- as.numeric(sorted_gene_matrix$statistic)
@@ -32,7 +32,7 @@ genes_ranked$statistic <- as.numeric(sorted_gene_matrix$statistic)
 # Connect to the Ensembl database
 ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 
-# Define function to convert mouse gene names to human gene names
+# Function to convert mouse gene names to human gene names
 convert_mouse_to_human <- function(mouse_gene_names) {
   mouse_to_human <- getLDS(attributes = c("mgi_symbol", "hgnc_symbol"), filters = "mgi_symbol", values = mouse_gene_names, mart = ensembl)
   mouse_to_human <- na.omit(mouse_to_human)  # Remove NA values
