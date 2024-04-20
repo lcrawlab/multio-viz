@@ -36,7 +36,7 @@ pip_to_pvalue <- function(pip) {
   return(p_value)
 }
 
-# Convert the 'statistic' column to numeric and rename it to 'pval'
+# Convert the 'statistic' column from PIP to p-values
 gene_level_pip$statistic <- pip_to_pvalue(gene_level_pip$statistic)
 
 # Sort the data frame by the 'statistic' column
