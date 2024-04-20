@@ -17,7 +17,7 @@ res = BANN(X, mask ,y, centered=FALSE, show_progress = TRUE)
 # Access posterior inclusion probability for Gene layer
 gene_level_pip <- as.matrix(res$SNPset_level$pip)
 
-# Rank genes by score
+# Rank genes by PIP score and use rankings as statistic column
 sorted_gene_matrix <- as.matrix(gene_level_pip[order(gene_level_pip[, 1], decreasing = TRUE), ])
 genes_ranked <- as.matrix(1:nrow(sorted_gene_matrix))
 rownames(genes_ranked) <- rownames(sorted_gene_matrix) 
@@ -26,7 +26,7 @@ colnames(genes_ranked) <- "statistic"
 # Filter out rows where the gene column contains 'Intergenic'
 genes_ranked <- genes_ranked[!grepl("Intergenic", genes_ranked$gene), ]
 
-# Convert the 'statistic' column to numeric and rename it to 'pval'
+# Convert the 'statistic' column to numeric
 genes_ranked$statistic <- as.numeric(sorted_gene_matrix$statistic)
 
 # Connect to the Ensembl database
