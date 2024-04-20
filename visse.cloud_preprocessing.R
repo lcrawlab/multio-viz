@@ -46,6 +46,6 @@ mouse_to_human <- convert_mouse_to_human(rownames(genes_ranked))
 human_gene_names <- mouse_to_human$hgnc_symbol
 rownames(genes_ranked) <- human_gene_names
 
-# Write to file to then copy and paste into OpenXGR Subnetwork Analysis Gene
+# Write to file to then copy and paste into visse.cloud GSEA
 write.table(genes_ranked, "genes_ranked_BANNs.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
 
