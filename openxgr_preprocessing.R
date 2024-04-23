@@ -60,5 +60,5 @@ human_gene_names <- mouse_to_human$hgnc_symbol
 rownames(gene_level_pip) <- human_gene_names
 
 # Write to file - copy and paste file contents in OpenXGR SAgene
-write.table(as.matrix(gene_level_pip), "gene_pvals_BANNs.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
+write.table(as.matrix(gene_level_pip), "gene_pvals_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
 
