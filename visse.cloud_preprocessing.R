@@ -47,5 +47,5 @@ human_gene_names <- mouse_to_human$hgnc_symbol
 rownames(genes_ranked) <- human_gene_names
 
 # Write to file to then copy and paste into visse.cloud GSEA
-write.table(genes_ranked, "genes_ranked_BANNs.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
+write.table(genes_ranked, "gene_ranks_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
 
