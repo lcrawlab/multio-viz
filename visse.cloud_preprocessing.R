@@ -1,4 +1,4 @@
-rm(list = ls())
+krm(list = ls())
 library(BANN)
 
 # Read in mouse data
@@ -24,7 +24,7 @@ rownames(genes_ranked) <- rownames(sorted_gene_matrix)
 colnames(genes_ranked) <- "statistic"
 
 # Filter out rows where the gene column contains 'Intergenic'
-genes_ranked <- genes_ranked[!grepl("Intergenic", genes_ranked$gene), ]
+genes_ranked <- genes_ranked[!grepl("Intergenic", rownames(genes_ranked)), , drop = FALSE]
 
 # Convert the 'statistic' column to numeric
 genes_ranked$statistic <- as.numeric(sorted_gene_matrix$statistic)
