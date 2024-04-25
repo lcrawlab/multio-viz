@@ -37,28 +37,32 @@ gene_level_pip <- gene_level_pip[order(gene_level_pip$statistic), ]
 
 # Connect to the Ensembl database
 ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+mouse_human_genes = read.csv("http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt",sep="\t")
 
 # Function to convert mouse gene names to human gene names
 convert_mouse_to_human <- function(mouse_gene_names) {
-  output = c()
-  for(gene in gene_list){
-    class_key = (mouse_human_genes %>% filter(Symbol == gene & Common.Organism.Name=="mouse, laboratory"))[['DB.Class.Key']]
-    if(!identical(class_key, integer(0)) ){
-      human_genes = (mouse_human_genes %>% filter(DB.Class.Key == class_key & Common.Organism.Name=="human"))[,"Symbol"]
-      for(human_gene in human_genes){
-        output = append(output,human_gene)
+  output <- c()
+  for (gene in mouse_gene_names) {
+    class_key <- (mouse_human_genes %>% 
+                   filter(Symbol == gene & Common.Organism.Name == "mouse, laboratory"))[['DB.Class.Key']]
+    if (!identical(class_key, integer(0))) {
+      human_genes <- (mouse_human_genes %>% 
+                        filter(DB.Class.Key == class_key & Common.Organism.Name == "human"))[,"Symbol"]
+      if (length(human_genes) == 0) {
+        output <- append(output, "None")
+      } else {
+          output <- append(output, human_genes[1])
       }
+    } else {
+      output <- append(output, "None")
     }
   }
-  return (output)
+  return(output)
 }
 
 # Convert mouse gene names to human gene names
-mouse_to_human <- convert_mouse_to_human(rownames(gene_level_pip))
-
-# Update row names of the matrix with human gene names
-human_gene_names <- mouse_to_human$hgnc_symbol
-rownames(gene_level_pip) <- human_gene_names
+human_gene_names <- convert_mouse_to_human(rownames(gene_level_pip))
+gene_level_pip <- gene_level_pip[!grepl("None", rownames(gene_level_pip)), , drop = FALSE]
 
 # Write to file - copy and paste file contents in OpenXGR SAgene
 write.table(as.matrix(gene_level_pip), "gene_pvals_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
