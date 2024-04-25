@@ -9,7 +9,7 @@ y = y[,1]
 mask = as.matrix(read.table("example_data/mask.txt"))
 
 # Manual Perturbation
-col_number <- which(colnames(mask) == "Shisa9")
+col_number <- which(colnames(mask) == "Nos1ap")
 mask <- mask[, -col_number]
 
 # Run BANN
@@ -26,7 +26,7 @@ gene_level_pip <- gene_level_pip[!grepl("Intergenic", rownames(gene_level_pip)),
 gene_level_pip[, 1] <- 1 - gene_level_pip[, 1]
 
 # Sort the data frame by p-values
-gene_level_pip <- gene_level_pip[order(gene_level_pip[, 1]), ]
+# gene_level_pip <- gene_level_pip[order(gene_level_pip[, 1]), ]
 
 # Connect to the MGI database
 mouse_human_genes = read.csv("http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt",sep="\t")
