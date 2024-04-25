@@ -2,13 +2,6 @@ krm(list = ls())
 library(BANN)
 library(dplyr)
 
-# Install and load biomaRt package
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("biomaRt")
-library(biomaRt)
-
 # Read in mouse data
 X = as.matrix(read.table("example_data/X_CD8.txt"))
 y = read.table("example_data/y_CD8.txt")
@@ -37,8 +30,7 @@ genes_ranked <- genes_ranked[!grepl("Intergenic", rownames(genes_ranked)), , dro
 # Convert the 'statistic' column to numeric
 genes_ranked$statistic <- as.numeric(sorted_gene_matrix$statistic)
 
-# Connect to the Ensembl database
-ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+# Connect to the MGI database
 mouse_human_genes = read.csv("http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt",sep="\t")
 
 # Function to convert mouse gene names to human gene names
