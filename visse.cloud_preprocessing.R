@@ -60,5 +60,5 @@ rownames(genes_ranked) <- human_gene_names
 genes_ranked <- genes_ranked[!grepl("None", rownames(genes_ranked)), , drop = FALSE]
 
 # Write to file to then copy and paste into visse.cloud GSEA
-write.table(genes_ranked, "gene_ranks_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
+write.table(genes_ranked, "gene_ranks_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE, quote = FALSE)
 
