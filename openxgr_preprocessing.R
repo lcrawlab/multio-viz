@@ -2,13 +2,6 @@ rm(list = ls())
 library(BANN)
 library(dplyr)
 
-# Install and load biomaRt package
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("biomaRt")
-library(biomaRt)
-
 # Read in mouse data
 X = as.matrix(read.table("example_data/X_CD8.txt"))
 y = read.table("example_data/y_CD8.txt")
@@ -35,8 +28,7 @@ gene_level_pip[, 1] <- 1 - gene_level_pip[, 1]
 # Sort the data frame by the 'statistic' column
 gene_level_pip <- gene_level_pip[order(gene_level_pip$statistic), ]
 
-# Connect to the Ensembl database
-ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+# Connect to the MGI database
 mouse_human_genes = read.csv("http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt",sep="\t")
 
 # Function to convert mouse gene names to human gene names
