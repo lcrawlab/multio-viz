@@ -56,10 +56,8 @@ convert_mouse_to_human <- function(mouse_gene_names) {
 
 # Convert mouse gene names to human gene names
 human_gene_names <- convert_mouse_to_human(rownames(genes_ranked))
-genes_ranked <- genes_ranked[!grepl("None", rownames(genes_ranked)), , drop = FALSE]
-
-# Update row names of the matrix with human gene names
 rownames(genes_ranked) <- human_gene_names
+genes_ranked <- genes_ranked[!grepl("None", rownames(genes_ranked)), , drop = FALSE]
 
 # Write to file to then copy and paste into visse.cloud GSEA
 write.table(genes_ranked, "gene_ranks_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
