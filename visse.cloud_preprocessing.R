@@ -1,6 +1,13 @@
 krm(list = ls())
 library(BANN)
 
+# Install and load biomaRt package
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("biomaRt")
+library(biomaRt)
+
 # Read in mouse data
 X = as.matrix(read.table("example_data/X_CD8.txt"))
 y = read.table("example_data/y_CD8.txt")
@@ -34,7 +41,7 @@ ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 
 # Function to convert mouse gene names to human gene names
 convert_mouse_to_human <- function(mouse_gene_names) {
-  mouse_to_human <- getLDS(attributes = c("mgi_symbol", "hgnc_symbol"), filters = "mgi_symbol", values = mouse_gene_names, mart = ensembl)
+  mouse_to_human <- getLDS(attributes = c("external_gene_name", "ensembl_gene_id"), filters = "external_gene_name", c('mgi_symbol','ensembl_gene_id'),values = rownames(genes_ranked), mart = ensembl, martL=mouse)
   mouse_to_human <- na.omit(mouse_to_human)  # Remove NA values
   return(mouse_to_human)
 }
