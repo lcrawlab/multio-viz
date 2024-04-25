@@ -81,8 +81,8 @@ server <- function(input, output, session) {
     } else if (isTruthy(input$mask_input) & isTruthy(input$mask_labels)) {
       mask_matrix <- as.matrix(read.table(mask_file()))
     } else if (isTruthy(input$mask_input)) {
-      mask_matrix <- as.matrix(fread(mask_file(), sep = "\t", header=TRUE),rownames = 1)
-    }
+      mask_matrix <- mask_matrix <- as.matrix(read.table(mask_file()))
+
     else {
       mask_matrix <- NULL
     }
