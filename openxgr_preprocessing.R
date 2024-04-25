@@ -58,5 +58,5 @@ rownames(gene_level_pip) <- human_gene_names
 gene_level_pip <- gene_level_pip[!grepl("None", rownames(gene_level_pip)), , drop = FALSE]
 
 # Write to file - copy and paste file contents in OpenXGR SAgene
-write.table(as.matrix(gene_level_pip), "gene_pvals_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE)
+write.table(as.matrix(gene_level_pip), "gene_pvals_clean.txt", sep = "\t", row.names = TRUE, col.names = FALSE, quote = FALSE)
 
