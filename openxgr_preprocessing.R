@@ -22,11 +22,11 @@ colnames(gene_level_pip) <- "statistic"
 # Filter out rows where the gene column contains 'Intergenic'
 gene_level_pip <- gene_level_pip[!grepl("Intergenic", rownames(gene_level_pip)), , drop = FALSE]
 
-# Convert the 'statistic' column from PIP to p-values
+# Convert from PIP to p-values
 gene_level_pip[, 1] <- 1 - gene_level_pip[, 1]
 
-# Sort the data frame by the 'statistic' column
-gene_level_pip <- gene_level_pip[order(gene_level_pip$statistic), ]
+# Sort the data frame by p-values
+gene_level_pip <- gene_level_pip[order(gene_level_pip[, 1]), ]
 
 # Connect to the MGI database
 mouse_human_genes = read.csv("http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt",sep="\t")
