@@ -1,5 +1,11 @@
 rm(list = ls())
 library(BANN)
+
+# Install and load biomaRt package
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("biomaRt")
 library(biomaRt)
 
 # Read in mouse data
@@ -20,24 +26,10 @@ gene_level_pip <- as.matrix(res$SNPset_level$pip)
 colnames(gene_level_pip) <- "statistic"
 
 # Filter out rows where the gene column contains 'Intergenic'
-genes_ranked <- genes_ranked[!grepl("Intergenic", rownames(genes_ranked)), , drop = FALSE]
-
-# Function to convert PIP scores to p-values
-pip_to_pvalue <- function(pip) {
-  # Number of variables
-  n <- length(pip)
-  
-  # Compute the chi-squared statistic
-  chi_sq <- -2 * sum(log(pip))
-  
-  # Compute the p-value using the chi-squared CDF
-  p_value <- 1 - pchisq(chi_sq, df = n)
-  
-  return(p_value)
-}
+gene_level_pip <- gene_level_pip[!grepl("Intergenic", rownames(gene_level_pip)), , drop = FALSE]
 
 # Convert the 'statistic' column from PIP to p-values
-gene_level_pip$statistic <- pip_to_pvalue(gene_level_pip$statistic)
+gene_level_pip[, 1] <- 1 - gene_level_pip[, 1]
 
 # Sort the data frame by the 'statistic' column
 gene_level_pip <- gene_level_pip[order(gene_level_pip$statistic), ]
@@ -47,7 +39,7 @@ ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 
 # Function to convert mouse gene names to human gene names
 convert_mouse_to_human <- function(mouse_gene_names) {
-  mouse_to_human <- getLDS(attributes = c("mgi_symbol", "hgnc_symbol"), filters = "mgi_symbol", values = mouse_gene_names, mart = ensembl)
+  mouse_to_human <- getLDS(attributes = c("external_gene_name", "ensembl_gene_id"), filters = "external_gene_name", c('mgi_symbol','ensembl_gene_id'),values = rownames(genes_ranked), mart = ensembl, martL=mouse)
   mouse_to_human <- na.omit(mouse_to_human)  # Remove NA values
   return(mouse_to_human)
 }
