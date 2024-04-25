@@ -1,5 +1,6 @@
 rm(list = ls())
 library(BANN)
+library(dplyr)
 
 # Install and load biomaRt package
 if (!require("BiocManager", quietly = TRUE))
@@ -39,9 +40,17 @@ ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 
 # Function to convert mouse gene names to human gene names
 convert_mouse_to_human <- function(mouse_gene_names) {
-  mouse_to_human <- getLDS(attributes = c("external_gene_name", "ensembl_gene_id"), filters = "external_gene_name", c('mgi_symbol','ensembl_gene_id'),values = rownames(genes_ranked), mart = ensembl, martL=mouse)
-  mouse_to_human <- na.omit(mouse_to_human)  # Remove NA values
-  return(mouse_to_human)
+  output = c()
+  for(gene in gene_list){
+    class_key = (mouse_human_genes %>% filter(Symbol == gene & Common.Organism.Name=="mouse, laboratory"))[['DB.Class.Key']]
+    if(!identical(class_key, integer(0)) ){
+      human_genes = (mouse_human_genes %>% filter(DB.Class.Key == class_key & Common.Organism.Name=="human"))[,"Symbol"]
+      for(human_gene in human_genes){
+        output = append(output,human_gene)
+      }
+    }
+  }
+  return (output)
 }
 
 # Convert mouse gene names to human gene names
