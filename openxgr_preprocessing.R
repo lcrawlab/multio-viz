@@ -54,7 +54,7 @@ convert_mouse_to_human <- function(mouse_gene_names) {
 
 # Convert mouse gene names to human gene names
 human_gene_names <- convert_mouse_to_human(rownames(gene_level_pip))
-rownames(genes_ranked) <- human_gene_names
+rownames(gene_level_pip) <- human_gene_names
 gene_level_pip <- gene_level_pip[!grepl("None", rownames(gene_level_pip)), , drop = FALSE]
 
 # Write to file - copy and paste file contents in OpenXGR SAgene
