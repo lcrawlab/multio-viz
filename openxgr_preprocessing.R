@@ -20,7 +20,7 @@ gene_level_pip <- as.matrix(res$SNPset_level$pip)
 colnames(gene_level_pip) <- "statistic"
 
 # Filter out rows where the gene column contains 'Intergenic'
-gene_level_pip <- gene_level_pip[!grepl("Intergenic", gene_level_pip$gene), ]
+genes_ranked <- genes_ranked[!grepl("Intergenic", rownames(genes_ranked)), , drop = FALSE]
 
 # Function to convert PIP scores to p-values
 pip_to_pvalue <- function(pip) {
