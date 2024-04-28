@@ -27,9 +27,6 @@ colnames(genes_ranked) <- "statistic"
 # Filter out rows where the gene column contains 'Intergenic'
 genes_ranked <- genes_ranked[!grepl("Intergenic", rownames(genes_ranked)), , drop = FALSE]
 
-# Convert the 'statistic' column to numeric
-genes_ranked$statistic <- as.numeric(sorted_gene_matrix$statistic)
-
 # Connect to the MGI database
 mouse_human_genes = read.csv("http://www.informatics.jax.org/downloads/reports/HOM_MouseHumanSequence.rpt",sep="\t")
 
