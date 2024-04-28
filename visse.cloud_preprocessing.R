@@ -1,4 +1,4 @@
-krm(list = ls())
+rm(list = ls())
 library(BANN)
 library(dplyr)
 
