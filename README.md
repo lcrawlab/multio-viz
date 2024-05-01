@@ -34,7 +34,7 @@ Users can (1) visualize significant molecular variable as GRNs (see steps [here]
    - To load your own data, under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [perturbation](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
 3. For (3), once the multioviz package is installed, open a new R session (```R```) and load the package (```library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions.
 
-Please note that there is a maximum filesize limit of 32mb for uploads on this platform. Files exceeding this limit will not be accepted. If you encounter any issues related to this limit, please reach out for assistance.
+**Please note that there is a maximum file size limit of _32mb_ for file uploads on this platform. Files exceeding this limit will cause an error, and not be accepted. If you encounter any issues related to this limit, please consider ways to reduce your file size, or reach out for assistance.
 
 ## Dependencies
 - R (>= 4.1.2)
