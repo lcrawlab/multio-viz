@@ -26,13 +26,15 @@ Multioviz is a free, user-friendly, interactive platform that facilitates *in-si
   style="display: inline-block; margin: 0 auto; max-width: 2500px">
 
 ## Quickstart: 3 usages
-(see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#a-visualize-ranked-molecular-features-as-a-grn)) and (2) perturb GRNs for *in silico* hypothesis testing (see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#c-integrate-feature-selection-and-prioritization-method)).
+Users can (1) visualize significant molecular variable as GRNs (see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#a-visualize-ranked-molecular-features-as-a-grn)) and (2) perturb GRNs for *in silico* hypothesis testing (see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico)). The user can also (3) integrate their own computational method that performs feature selection and perturbation through the multioviz R package (see steps [here](https://github.com/lcrawlab/multio-viz/blob/main/README.md#c-integrate-feature-selection-and-prioritization-method)).
 
 1. For (1), to quickly visualize a GRN, press "Load Demo Files" and press "RUN" to see the GRN!
    - To load your own data, under the "Visualize" drop down (side bar), upload the [required inputs](#a-visualize), set network preferences, and click "RUN" to visualize the user's data. See the [visualization instructions](#a-visualize-ranked-molecular-features-as-a-grn) for a detailed walk-through. 
-3. For (2), to quickly perturb a GRN, press "Load Demo Files" and press "RUN" to see the GRN, followed by clicking any node, then clicking "Edit" to "Delete" or "Edit" the node. Then click "RERUN".
+2. For (2), to quickly perturb a GRN, press "Load Demo Files" and press "RUN" to see the GRN, followed by clicking any node, then clicking "Edit" to "Delete" or "Edit" the node. Then click "RERUN".
    - To load your own data, under the "Perturb" drown down (side bar), upload the [required inputs](#b-perturb), and click "RUN" to generate the network. For a detailed walk through on how to perturb and rerun the user's network, visit the [perturbation](#b-generate-a-perturbable-grn-to-test-hypotheses-in-silico) section.
-5. For (3), once the multioviz package is installed, open a new R session (```R```) and load the package (```library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions.
+3. For (3), once the multioviz package is installed, open a new R session (```R```) and load the package (```library multioviz```). Run ```runMultioviz()``` with no arguments to generate a demo network, and with the [required arguments](#c-integrate-computational-method) to generate a network using the user's own method. Visit the [method integration](#c-integrate-feature-selection-and-prioritization-method) section for more detailed instructions.
+
+Please note that there is a maximum filesize limit of 32mb for uploads on this platform. Files exceeding this limit will not be accepted. If you encounter any issues related to this limit, please reach out for assistance.
 
 ## Dependencies
 - R (>= 4.1.2)
